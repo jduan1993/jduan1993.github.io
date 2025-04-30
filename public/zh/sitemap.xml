@@ -3,6 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>http://localhost:1313/zh/docs/example/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -15,6 +16,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/table-of-contents/with-toc/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -27,6 +29,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/table-of-contents/without-toc/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -39,6 +42,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/table-of-contents/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -51,6 +55,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/collapsed/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -63,6 +68,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/collapsed/3rd-level/4th-level/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -75,6 +81,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/collapsed/3rd-level/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -87,6 +94,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/example/hidden/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -99,6 +107,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -111,6 +120,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/buttons/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -123,6 +133,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/columns/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -135,6 +146,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/details/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -147,6 +159,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/hints/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -159,6 +172,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/mermaid/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -171,6 +185,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/section/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -183,6 +198,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/section/first-page/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -195,6 +211,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/section/second-page/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -207,6 +224,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/tabs/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -231,6 +249,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -243,6 +262,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/zh/docs/shortcodes/katex/</loc>
+    <lastmod>2025-04-30T18:24:58+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
