@@ -1,7 +1,6 @@
 # hugo server --minify --themesDir ../.. --baseURL=http://0.0.0.0:1313/theme/hugo-book/
 
 baseURL: https://jduan1993.github.io/
-title: Junbao's Note
 theme: hugo-book
 
 # Book configuration
@@ -22,17 +21,19 @@ markup:
 # And https://gohugo.io/content-management/multilingual/#translation-by-content-directory
 languages:
   zh:
-    languageName: Chinese
+    languageName: 简体中文
     contentDir: content.zh
+    title: 君宝的笔记
     weight: 1
   en:
     languageName: English
     contentDir: content.en
+    title: Junbao's Note
     weight: 2
-  # he:
-  #   languageName: Hebrew
-  #   contentDir: content.he
-  #   languageDirection: rtl
+  # fr:
+  #   languageName: Français
+  #   contentDir: content.fr
+  #   title: Notes de Junbao
   #   weight: 3
 
 menu:
@@ -43,6 +44,9 @@ menu:
       weight: 10
 
 params:
+  busuanzi:
+    enable: true
+
   # (Optional, default light) Sets color theme: light, dark or auto.
   # Theme 'auto' switches between dark and light modes based on browser/os preferences
   BookTheme: "auto"
