@@ -1,4 +1,24 @@
-<!-- busuanzi -->
-{{ if .Site.Params.busuanzi.enable -}}
-  <span id="busuanzi_container_page_pv">本文阅读量<span id="busuanzi_value_page_pv"></span>次</span>
-{{- end }}
+{{ define "main" }}
+<article class="markdown book-post">
+  <h1>
+    {{ partial "docs/title.html" . }}
+  </h1>
+  {{ if and .GitInfo .Site.Params.BookRepo }}
+  <div>
+    {{- $date := partial "docs/date" (dict "Date" .GitInfo.AuthorDate.Local "Format" .Site.Params.BookDateFormat) -}}
+    <a class="flex align-center" href="{{ partial "docs/links/commit" . }}" title='{{ i18n "Last modified by" }} {{ .GitInfo.AuthorName }} | {{ $date }}' target="_blank" rel="noopener">
+    <img src="{{ "svg/calendar.svg" | relURL }}" class="book-icon" alt="" />
+    <span>{{ $date }}</span>
+    </a>
+  </div>
+  {{ end }}
+  {{ partial "docs/post-meta" . }}
+  <div class="book-post-content">
+    {{- .Content -}}
+  </div>
+</article>
+{{ end }}
+
+{{ define "toc" }}
+  {{ partial "docs/toc" . }}
+{{ end }}
