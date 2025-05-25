@@ -1,4 +1,5 @@
 ---
-title: 学习资料
 bookFlatSection: true
+title: 学习资料
+weight: 1
 ---
