@@ -120,6 +120,32 @@ weight: 1
 #### 5. 每秒700次搜索和90次预约是最高峰值（Maximum Peak Value）吗？
 - 影响规模（Scale）
 
+### 可扩展性和安全性
+#### 1. 可扩展性
+| 方面                           | 关键实践                               |
+| ---------------------------- | ---------------------------------- |
+| **水平扩展（Horizontal Scaling）** | 每个服务可以独立部署多个副本                     |
+| **服务自治（Service Autonomy）**   | 各服务可独立扩缩，不依赖整体系统                   |
+| **容器化部署**                    | 使用 Docker + Kubernetes 实现自动扩缩容     |
+| **负载均衡（Load Balancing）**     | 使用 API Gateway 或 Service Mesh 均衡流量 |
+| **异步通信**                     | Kafka、RabbitMQ 等提高吞吐量和解耦           |
+| **缓存策略**                     | Redis、本地缓存，减少数据库压力                 |
+| **数据库分库分表**                  | 水平拆分提升并发能力                         |
+| **服务熔断/限流**                  | Sentinel、Hystrix 防止雪崩效应            |
+
+#### 2. 安全性
+| 安全领域                     | 技术手段                                    |
+| ------------------------ | --------------------------------------- |
+| **身份认证（Authentication）** | OAuth 2.0、OIDC、JWT Token                |
+| **服务授权（Authorization）**  | RBAC、ABAC、API 权限网关                      |
+| **通信加密**                 | HTTPS / TLS、gRPC + mTLS                 |
+| **服务间认证**                | Service Mesh（如 Istio）支持 mTLS 自动加密       |
+| **API 网关安全**             | 限流、防止重放攻击、请求签名验证                        |
+| **数据安全**                 | 数据加密（传输 + 存储）、脱敏、访问审计                   |
+| **容器安全**                 | 镜像扫描、Kubernetes 安全策略（PodSecurityPolicy） |
+| **日志审计**                 | 审计用户行为、异常访问记录                           |
+| **防攻击**                  | 防止 XSS / CSRF / SQL 注入，使用 WAF、防火墙等      |
+
 ### 优化
 - 服务间通信双向TLS（Mutual TLS between services）
 - 用Service Mesh统一做熔断、限流、重试（Centralized resiliency by service mesh）
