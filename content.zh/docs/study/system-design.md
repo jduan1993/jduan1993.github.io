@@ -103,6 +103,7 @@ weight: 1
 #### 2. 搜索时都有什么筛选条件（Filter Condition）？
 如果涉及到距离，交通工具，路程用时等条件： 
 - 可以设计第三方供应商（3rd-Party Vendors）提供地图（Map API）等接口
+
 如果涉及到医生简介（Summary），全文搜索（Full-Text Search）:
 - 可以引入ElasticSearch
 #### 3. 我们不同国家的市场使用同一个应用（The only one app）吗？
@@ -110,6 +111,7 @@ weight: 1
 - 国际化（Internationalization），时间、语言、货币、日期格式
 - 配置开关（Feature Flag）
 - 根据设备本地时间（Device Time）或者定位（Localization）
+
 如果不是：
 - 部署过程要考虑更多模块
 #### 4. 预约会跨天（Span 2 days）吗？
@@ -125,4 +127,5 @@ weight: 1
 - 二级缓存，一级Caffeine（Local），二级Redis（Distributed）
 - 数据库读写分离（Read-Write Separation），分库分表（Sharding）
 - 全链路Trace（Telemetry，end-to-end tracing）
+- 固定时间批处理热点时间多（Scheduled batch to store hot time slots）
 
