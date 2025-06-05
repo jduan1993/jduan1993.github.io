@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  患者预约系统
+  #
+
+
+  功能需求
+  #
+
+医生：设置可用时间段。
+患者：查看可用时间段并预约。
+系统：返回包含预约时段的字典。
+
+  系统架构
+  #
+
+系统采用简化的架构，主要包括以下组件：
+数据存储：使用 Map 存储医生的可用时间段和预约信息。
+预约管理：处理预约的创建和查询。
+
+  Java 实现示例
+  #
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+class AppointmentScheduler {
+    private Map&lt;String, List&lt;TimeSlot&gt;&gt; doctorAvailability = new HashMap&lt;&gt;();
+    private Map&lt;String, List&lt;TimeSlot&gt;&gt; appointments = new HashMap&lt;&gt;();
+
+    // 添加医生的可用时间段
+    public void addDoctorAvailability(String doctorId, List&lt;TimeSlot&gt; slots) {
+        doctorAvailability.put(doctorId, slots);
+    }
+
+    // 获取医生的可用预约时间段
+    public List&lt;TimeSlot&gt; getAvailableSlots(String doctorId) {
+        List&lt;TimeSlot&gt; available = new ArrayList&lt;&gt;();
+        List&lt;TimeSlot&gt; allSlots = doctorAvailability.getOrDefault(doctorId, new ArrayList&lt;&gt;());
+        List&lt;TimeSlot&gt; bookedSlots = appointments.getOrDefault(doctorId, new ArrayList&lt;&gt;());
+
+        for (TimeSlot slot : allSlots) {
+            if (!bookedSlots.contains(slot)) {
+                available.add(slot);
+            }
+        }
+        return available;
+    }
+
+    // 为患者预约指定的时间段
+    public boolean bookAppointment(String doctorId, String patientId, TimeSlot desiredSlot) {
+        List&lt;TimeSlot&gt; availableSlots = getAvailableSlots(doctorId);
+        if (availableSlots.contains(desiredSlot)) {
+            appointments.computeIfAbsent(doctorId, k -&gt; new ArrayList&lt;&gt;()).add(desiredSlot);
+            System.out.println(&#34;预约成功：&#34; &#43; desiredSlot);
+            return true;
+        } else {
+            System.out.println(&#34;预约失败，时间段不可用。&#34;);
+            return false;
+        }
+    }
+
+    // 获取医生的所有预约
+    public List&lt;TimeSlot&gt; getAppointments(String doctorId) {
+        return appointments.getOrDefault(doctorId, new ArrayList&lt;&gt;());
+    }
+}
+
+class TimeSlot {
+    private LocalDateTime start;
+    private LocalDateTime end;
+
+    public TimeSlot(LocalDateTime start, LocalDateTime end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    // 重写 equals 和 hashCode 方法，以便在列表中正确比较 TimeSlot 对象
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof TimeSlot)) return false;
+        TimeSlot other = (TimeSlot) obj;
+        return start.equals(other.start) &amp;&amp; end.equals(other.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end);
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&#34;yyyy-MM-dd HH:mm&#34;);
+        return start.format(formatter) &#43; &#34; - &#34; &#43; end.format(formatter);
+    }
+}
+
+// 示例使用
+public class Main {
+    public static void main(String[] args) {
+        AppointmentScheduler scheduler = new AppointmentScheduler();
+        String doctorId = &#34;Dr_Smith&#34;;
+        String patientId = &#34;Patient_1&#34;;
+
+        // 创建医生的可用时间段
+        List&lt;TimeSlot&gt; slots = new ArrayList&lt;&gt;();
+        LocalDateTime startTime = LocalDateTime.of(2025, 5, 14, 9, 0);
+        for (int i = 0; i &lt; 8; i&#43;&#43;) {
+            TimeSlot slot = new TimeSlot(startTime.plusMinutes(i * 30), startTime.plusMinutes((i &#43; 1) * 30));
+            slots.add(slot);
+        }
+
+        // 添加医生的可用时间段
+        scheduler.addDoctorAvailability(doctorId, slots);
+
+        // 获取并显示可用时间段
+        List&lt;TimeSlot&gt; availableSlots = scheduler.getAvailableSlots(doctorId);
+        System.out.println(&#34;可用时间段：&#34;);
+        for (TimeSlot slot : availableSlots) {
+            System.out.println(slot);
+        }
+
+        // 预约一个时间段
+        TimeSlot desiredSlot = availableSlots.get(0);
+        scheduler.bookAppointment(doctorId, patientId, desiredSlot);
+
+        // 显示所有预约
+        List&lt;TimeSlot&gt; appointments = scheduler.getAppointments(doctorId);
+        System.out.println(&#34;所有预约：&#34;);
+        for (TimeSlot appointment : appointments) {
+            System.out.println(appointment);
+        }
+    }
+}
+
+  说明
+  #
+
+医生可用时间段：通过 addDoctorAvailability 方法添加，系统会根据指定的时间范围生成所有可用的时间段。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/hidden/System-Design%E8%B5%84%E6%96%99/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="君宝的笔记">
+  <meta property="og:description" content="患者预约系统#功能需求#医生：设置可用时间段。
+患者：查看可用时间段并预约。
+系统：返回包含预约时段的字典。
+系统架构#系统采用简化的架构，主要包括以下组件：
+数据存储：使用 Map 存储医生的可用时间段和预约信息。
+预约管理：处理预约的创建和查询。
+Java 实现示例#import java.time.LocalDateTime; import java.time.format.DateTimeFormatter; import java.util.*; class AppointmentScheduler { private Map&lt;String, List&lt;TimeSlot&gt;&gt; doctorAvailability = new HashMap&lt;&gt;(); private Map&lt;String, List&lt;TimeSlot&gt;&gt; appointments = new HashMap&lt;&gt;(); // 添加医生的可用时间段 public void addDoctorAvailability(String doctorId, List&lt;TimeSlot&gt; slots) { doctorAvailability.put(doctorId, slots); } // 获取医生的可用预约时间段 public List&lt;TimeSlot&gt; getAvailableSlots(String doctorId) { List&lt;TimeSlot&gt; available = new ArrayList&lt;&gt;(); List&lt;TimeSlot&gt; allSlots = doctorAvailability.getOrDefault(doctorId, new ArrayList&lt;&gt;()); List&lt;TimeSlot&gt; bookedSlots = appointments.getOrDefault(doctorId, new ArrayList&lt;&gt;()); for (TimeSlot slot : allSlots) { if (!bookedSlots.contains(slot)) { available.add(slot); } } return available; } // 为患者预约指定的时间段 public boolean bookAppointment(String doctorId, String patientId, TimeSlot desiredSlot) { List&lt;TimeSlot&gt; availableSlots = getAvailableSlots(doctorId); if (availableSlots.contains(desiredSlot)) { appointments.computeIfAbsent(doctorId, k -&gt; new ArrayList&lt;&gt;()).add(desiredSlot); System.out.println(&#34;预约成功：&#34; &#43; desiredSlot); return true; } else { System.out.println(&#34;预约失败，时间段不可用。&#34;); return false; } } // 获取医生的所有预约 public List&lt;TimeSlot&gt; getAppointments(String doctorId) { return appointments.getOrDefault(doctorId, new ArrayList&lt;&gt;()); } } class TimeSlot { private LocalDateTime start; private LocalDateTime end; public TimeSlot(LocalDateTime start, LocalDateTime end) { this.start = start; this.end = end; } // 重写 equals 和 hashCode 方法，以便在列表中正确比较 TimeSlot 对象 @Override public boolean equals(Object obj) { if (this == obj) return true; if (!(obj instanceof TimeSlot)) return false; TimeSlot other = (TimeSlot) obj; return start.equals(other.start) &amp;&amp; end.equals(other.end); } @Override public int hashCode() { return Objects.hash(start, end); } @Override public String toString() { DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&#34;yyyy-MM-dd HH:mm&#34;); return start.format(formatter) &#43; &#34; - &#34; &#43; end.format(formatter); } } // 示例使用 public class Main { public static void main(String[] args) { AppointmentScheduler scheduler = new AppointmentScheduler(); String doctorId = &#34;Dr_Smith&#34;; String patientId = &#34;Patient_1&#34;; // 创建医生的可用时间段 List&lt;TimeSlot&gt; slots = new ArrayList&lt;&gt;(); LocalDateTime startTime = LocalDateTime.of(2025, 5, 14, 9, 0); for (int i = 0; i &lt; 8; i&#43;&#43;) { TimeSlot slot = new TimeSlot(startTime.plusMinutes(i * 30), startTime.plusMinutes((i &#43; 1) * 30)); slots.add(slot); } // 添加医生的可用时间段 scheduler.addDoctorAvailability(doctorId, slots); // 获取并显示可用时间段 List&lt;TimeSlot&gt; availableSlots = scheduler.getAvailableSlots(doctorId); System.out.println(&#34;可用时间段：&#34;); for (TimeSlot slot : availableSlots) { System.out.println(slot); } // 预约一个时间段 TimeSlot desiredSlot = availableSlots.get(0); scheduler.bookAppointment(doctorId, patientId, desiredSlot); // 显示所有预约 List&lt;TimeSlot&gt; appointments = scheduler.getAppointments(doctorId); System.out.println(&#34;所有预约：&#34;); for (TimeSlot appointment : appointments) { System.out.println(appointment); } } } 说明#医生可用时间段：通过 addDoctorAvailability 方法添加，系统会根据指定的时间范围生成所有可用的时间段。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>System Design资料 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/hidden/System-Design%E8%B5%84%E6%96%99/">
+<link rel="stylesheet" href="/book.min.e9f68c3fff3d8236a489d16a9caf6de5e4d1a29c20eb4b5524e42cd30be4d319.css" integrity="sha256-6faMP/89gjakidFqnK9t5eTRopwg60tVJOQs0wvk0xk=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.407592ccd3f4d80ecd4d90a7f430fe1573dd5abc723c8eb833c7d92bbf63ae60.js" integrity="sha256-QHWSzNP02A7NTZCn9DD&#43;FXPdWrxyPI64M8fZK79jrmA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <span>学习资料</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/tips/" class="">补充</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>System Design资料</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#患者预约系统">患者预约系统</a>
+      <ul>
+        <li><a href="#功能需求">功能需求</a></li>
+        <li><a href="#系统架构">系统架构</a></li>
+        <li><a href="#java-实现示例">Java 实现示例</a></li>
+        <li><a href="#说明">说明</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    System Design资料
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h1 id="患者预约系统">
+  患者预约系统
+  <a class="anchor" href="#%e6%82%a3%e8%80%85%e9%a2%84%e7%ba%a6%e7%b3%bb%e7%bb%9f">#</a>
+</h1>
+<h2 id="功能需求">
+  功能需求
+  <a class="anchor" href="#%e5%8a%9f%e8%83%bd%e9%9c%80%e6%b1%82">#</a>
+</h2>
+<p>医生：设置可用时间段。</p>
+<p>患者：查看可用时间段并预约。</p>
+<p>系统：返回包含预约时段的字典。</p>
+<h2 id="系统架构">
+  系统架构
+  <a class="anchor" href="#%e7%b3%bb%e7%bb%9f%e6%9e%b6%e6%9e%84">#</a>
+</h2>
+<p>系统采用简化的架构，主要包括以下组件：</p>
+<p>数据存储：使用 Map 存储医生的可用时间段和预约信息。</p>
+<p>预约管理：处理预约的创建和查询。</p>
+<h2 id="java-实现示例">
+  Java 实现示例
+  <a class="anchor" href="#java-%e5%ae%9e%e7%8e%b0%e7%a4%ba%e4%be%8b">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.time.LocalDateTime;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.time.format.DateTimeFormatter;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.*;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppointmentScheduler</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Map<span style="color:#f92672">&lt;</span>String, List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;&gt;</span> doctorAvailability <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> Map<span style="color:#f92672">&lt;</span>String, List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;&gt;</span> appointments <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 添加医生的可用时间段</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addDoctorAvailability</span>(String doctorId, List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> slots) {
+</span></span><span style="display:flex;"><span>        doctorAvailability.<span style="color:#a6e22e">put</span>(doctorId, slots);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取医生的可用预约时间段</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getAvailableSlots</span>(String doctorId) {
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> available <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> allSlots <span style="color:#f92672">=</span> doctorAvailability.<span style="color:#a6e22e">getOrDefault</span>(doctorId, <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>());
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> bookedSlots <span style="color:#f92672">=</span> appointments.<span style="color:#a6e22e">getOrDefault</span>(doctorId, <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (TimeSlot slot : allSlots) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>bookedSlots.<span style="color:#a6e22e">contains</span>(slot)) {
+</span></span><span style="display:flex;"><span>                available.<span style="color:#a6e22e">add</span>(slot);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> available;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 为患者预约指定的时间段</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">bookAppointment</span>(String doctorId, String patientId, TimeSlot desiredSlot) {
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> availableSlots <span style="color:#f92672">=</span> getAvailableSlots(doctorId);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (availableSlots.<span style="color:#a6e22e">contains</span>(desiredSlot)) {
+</span></span><span style="display:flex;"><span>            appointments.<span style="color:#a6e22e">computeIfAbsent</span>(doctorId, k <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>()).<span style="color:#a6e22e">add</span>(desiredSlot);
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;预约成功：&#34;</span> <span style="color:#f92672">+</span> desiredSlot);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;预约失败，时间段不可用。&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 获取医生的所有预约</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">getAppointments</span>(String doctorId) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> appointments.<span style="color:#a6e22e">getOrDefault</span>(doctorId, <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TimeSlot</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDateTime start;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> LocalDateTime end;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">TimeSlot</span>(LocalDateTime start, LocalDateTime end) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">start</span> <span style="color:#f92672">=</span> start;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">end</span> <span style="color:#f92672">=</span> end;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 重写 equals 和 hashCode 方法，以便在列表中正确比较 TimeSlot 对象</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">equals</span>(Object obj) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">this</span> <span style="color:#f92672">==</span> obj) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(obj <span style="color:#66d9ef">instanceof</span> TimeSlot)) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        TimeSlot other <span style="color:#f92672">=</span> (TimeSlot) obj;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> start.<span style="color:#a6e22e">equals</span>(other.<span style="color:#a6e22e">start</span>) <span style="color:#f92672">&amp;&amp;</span> end.<span style="color:#a6e22e">equals</span>(other.<span style="color:#a6e22e">end</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">hashCode</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Objects.<span style="color:#a6e22e">hash</span>(start, end);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">toString</span>() {
+</span></span><span style="display:flex;"><span>        DateTimeFormatter formatter <span style="color:#f92672">=</span> DateTimeFormatter.<span style="color:#a6e22e">ofPattern</span>(<span style="color:#e6db74">&#34;yyyy-MM-dd HH:mm&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> start.<span style="color:#a6e22e">format</span>(formatter) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; - &#34;</span> <span style="color:#f92672">+</span> end.<span style="color:#a6e22e">format</span>(formatter);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 示例使用</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Main</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) {
+</span></span><span style="display:flex;"><span>        AppointmentScheduler scheduler <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AppointmentScheduler();
+</span></span><span style="display:flex;"><span>        String doctorId <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Dr_Smith&#34;</span>;
+</span></span><span style="display:flex;"><span>        String patientId <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Patient_1&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 创建医生的可用时间段</span>
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> slots <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        LocalDateTime startTime <span style="color:#f92672">=</span> LocalDateTime.<span style="color:#a6e22e">of</span>(2025, 5, 14, 9, 0);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> 8; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            TimeSlot slot <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TimeSlot(startTime.<span style="color:#a6e22e">plusMinutes</span>(i <span style="color:#f92672">*</span> 30), startTime.<span style="color:#a6e22e">plusMinutes</span>((i <span style="color:#f92672">+</span> 1) <span style="color:#f92672">*</span> 30));
+</span></span><span style="display:flex;"><span>            slots.<span style="color:#a6e22e">add</span>(slot);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 添加医生的可用时间段</span>
+</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">addDoctorAvailability</span>(doctorId, slots);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 获取并显示可用时间段</span>
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> availableSlots <span style="color:#f92672">=</span> scheduler.<span style="color:#a6e22e">getAvailableSlots</span>(doctorId);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;可用时间段：&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (TimeSlot slot : availableSlots) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(slot);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 预约一个时间段</span>
+</span></span><span style="display:flex;"><span>        TimeSlot desiredSlot <span style="color:#f92672">=</span> availableSlots.<span style="color:#a6e22e">get</span>(0);
+</span></span><span style="display:flex;"><span>        scheduler.<span style="color:#a6e22e">bookAppointment</span>(doctorId, patientId, desiredSlot);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 显示所有预约</span>
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>TimeSlot<span style="color:#f92672">&gt;</span> appointments <span style="color:#f92672">=</span> scheduler.<span style="color:#a6e22e">getAppointments</span>(doctorId);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;所有预约：&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (TimeSlot appointment : appointments) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(appointment);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="说明">
+  说明
+  <a class="anchor" href="#%e8%af%b4%e6%98%8e">#</a>
+</h2>
+<p>医生可用时间段：通过 addDoctorAvailability 方法添加，系统会根据指定的时间范围生成所有可用的时间段。</p>
+<p>获取可用时间段：getAvailableSlots 方法返回医生当前未被预约的时间段。</p>
+<p>预约时间段：bookAppointment 方法允许患者预约一个指定的时间段，如果该时间段可用，则预约成功。</p>
+<p>查看所有预约：getAppointments 方法返回医生的所有预约信息。</p>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#患者预约系统">患者预约系统</a>
+      <ul>
+        <li><a href="#功能需求">功能需求</a></li>
+        <li><a href="#系统架构">系统架构</a></li>
+        <li><a href="#java-实现示例">Java 实现示例</a></li>
+        <li><a href="#说明">说明</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

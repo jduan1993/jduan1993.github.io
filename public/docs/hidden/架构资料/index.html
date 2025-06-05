@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Below are 10 Java and 10 Microservices technical questions—each with concise bilingual answers tailored to your background and the Doctolib Senior Software Engineer role.
+
+  Summary
+  #
+
+结合您在简历和动机信中强调的 Java 全栈、微服务 和 快速学习 能力，以及 Doctolib 对 后端 Java、可扩展架构 的需求，下列问题覆盖核心概念、常见陷阱和实战应用，帮助您在面试中脱颖而出。
+
+
+  一、Java 相关问题
+  #
+
+
+  1. 为什么说 Java 是平台无关的？
+  #
+
+EN: Java bytecode runs on any JVM regardless of underlying OS or hardware, thanks to the “write once, run anywhere” design. (
+  GeeksforGeeks)
+CN： Java 编译生成的字节码 (.class) 可以在任何安装了 JVM 的系统上运行，实现“一次编写，到处运行”(
+  GeeksforGeeks)。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/hidden/%E6%9E%B6%E6%9E%84%E8%B5%84%E6%96%99/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="君宝的笔记">
+  <meta property="og:description" content="Below are 10 Java and 10 Microservices technical questions—each with concise bilingual answers tailored to your background and the Doctolib Senior Software Engineer role.
+Summary#结合您在简历和动机信中强调的 Java 全栈、微服务 和 快速学习 能力，以及 Doctolib 对 后端 Java、可扩展架构 的需求，下列问题覆盖核心概念、常见陷阱和实战应用，帮助您在面试中脱颖而出。
+一、Java 相关问题#1. 为什么说 Java 是平台无关的？#EN: Java bytecode runs on any JVM regardless of underlying OS or hardware, thanks to the “write once, run anywhere” design. (GeeksforGeeks) CN： Java 编译生成的字节码 (.class) 可以在任何安装了 JVM 的系统上运行，实现“一次编写，到处运行”(GeeksforGeeks)。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>架构资料 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/hidden/%E6%9E%B6%E6%9E%84%E8%B5%84%E6%96%99/">
+<link rel="stylesheet" href="/book.min.e9f68c3fff3d8236a489d16a9caf6de5e4d1a29c20eb4b5524e42cd30be4d319.css" integrity="sha256-6faMP/89gjakidFqnK9t5eTRopwg60tVJOQs0wvk0xk=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.407592ccd3f4d80ecd4d90a7f430fe1573dd5abc723c8eb833c7d92bbf63ae60.js" integrity="sha256-QHWSzNP02A7NTZCn9DD&#43;FXPdWrxyPI64M8fZK79jrmA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <span>学习资料</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/tips/" class="">补充</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>架构资料</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#summary">Summary</a></li>
+        <li><a href="#一java-相关问题">一、Java 相关问题</a>
+          <ul>
+            <li><a href="#1-为什么说-java-是平台无关的">1. 为什么说 Java 是平台无关的？</a></li>
+            <li><a href="#2-抽象类和接口有什么区别">2. 抽象类和接口有什么区别？</a></li>
+            <li><a href="#3-java-的垃圾回收是如何工作的">3. Java 的垃圾回收是如何工作的？</a></li>
+            <li><a href="#4-什么是装箱和拆箱">4. 什么是装箱和拆箱？</a></li>
+            <li><a href="#5-hashmap-的底层结构是什么">5. <code>HashMap</code> 的底层结构是什么？</a></li>
+            <li><a href="#6-如何实现线程安全的单例">6. 如何实现线程安全的单例？</a></li>
+            <li><a href="#7-描述-java-8-中的-stream-流操作">7. 描述 Java 8 中的 Stream 流操作。</a></li>
+            <li><a href="#8-synchronized-和-reentrantlock-有何不同">8. <code>synchronized</code> 和 <code>ReentrantLock</code> 有何不同？</a></li>
+            <li><a href="#9-什么是-java-中的异常分为-checked-和-unchecked">9. 什么是 Java 中的异常分为 Checked 和 Unchecked？</a></li>
+            <li><a href="#10-描述-jit-编译器的作用">10. 描述 JIT 编译器的作用。</a></li>
+          </ul>
+        </li>
+        <li><a href="#二微服务相关问题">二、微服务相关问题</a>
+          <ul>
+            <li><a href="#1-什么是微服务架构">1. 什么是微服务架构？</a></li>
+            <li><a href="#2-单体架构与微服务有何区别">2. 单体架构与微服务有何区别？</a></li>
+            <li><a href="#3-服务发现怎么做">3. 服务发现怎么做？</a></li>
+            <li><a href="#4-什么是-api-网关">4. 什么是 API 网关？</a></li>
+            <li><a href="#5-如何保证微服务安全">5. 如何保证微服务安全？</a></li>
+            <li><a href="#6-微服务间如何保证数据一致性">6. 微服务间如何保证数据一致性？</a></li>
+            <li><a href="#7-什么是熔断器circuit-breaker">7. 什么是熔断器（Circuit Breaker）？</a></li>
+            <li><a href="#8-如何监控微服务">8. 如何监控微服务？</a></li>
+            <li><a href="#9-如何处理微服务的配置管理">9. 如何处理微服务的配置管理？</a></li>
+            <li><a href="#10-容器化和编排对微服务的好处">10. 容器化和编排对微服务的好处？</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    架构资料
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>Below are <strong>10 Java</strong> and <strong>10 Microservices</strong> technical questions—each with concise bilingual answers tailored to your background and the Doctolib Senior Software Engineer role.</p>
+<h2 id="summary">
+  Summary
+  <a class="anchor" href="#summary">#</a>
+</h2>
+<p>结合您在简历和动机信中强调的 <strong>Java 全栈</strong>、<strong>微服务</strong> 和 <strong>快速学习</strong> 能力，以及 Doctolib 对 <strong>后端 Java</strong>、<strong>可扩展架构</strong> 的需求，下列问题覆盖核心概念、常见陷阱和实战应用，帮助您在面试中脱颖而出。</p>
+<hr>
+<h2 id="一java-相关问题">
+  一、Java 相关问题
+  <a class="anchor" href="#%e4%b8%80java-%e7%9b%b8%e5%85%b3%e9%97%ae%e9%a2%98">#</a>
+</h2>
+<h3 id="1-为什么说-java-是平台无关的">
+  1. 为什么说 Java 是平台无关的？
+  <a class="anchor" href="#1-%e4%b8%ba%e4%bb%80%e4%b9%88%e8%af%b4-java-%e6%98%af%e5%b9%b3%e5%8f%b0%e6%97%a0%e5%85%b3%e7%9a%84">#</a>
+</h3>
+<p><strong>EN:</strong> Java bytecode runs on any JVM regardless of underlying OS or hardware, thanks to the “write once, run anywhere” design. (
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)
+<strong>CN：</strong> Java 编译生成的字节码 (.class) 可以在任何安装了 JVM 的系统上运行，实现“一次编写，到处运行”(
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)。</p>
+<h3 id="2-抽象类和接口有什么区别">
+  2. 抽象类和接口有什么区别？
+  <a class="anchor" href="#2-%e6%8a%bd%e8%b1%a1%e7%b1%bb%e5%92%8c%e6%8e%a5%e5%8f%a3%e6%9c%89%e4%bb%80%e4%b9%88%e5%8c%ba%e5%88%ab">#</a>
+</h3>
+<p><strong>EN:</strong> An abstract class can have both method bodies and state (fields), while an interface (pre‑Java 8) only declares methods. A class can extend one abstract class but implement multiple interfaces. (
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)
+<strong>CN：</strong> 抽象类既可包含具体方法也可存储状态，接口（Java 8 前）只能声明方法；类只能继承一个抽象类，却能实现多个接口。(
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)</p>
+<h3 id="3-java-的垃圾回收是如何工作的">
+  3. Java 的垃圾回收是如何工作的？
+  <a class="anchor" href="#3-java-%e7%9a%84%e5%9e%83%e5%9c%be%e5%9b%9e%e6%94%b6%e6%98%af%e5%a6%82%e4%bd%95%e5%b7%a5%e4%bd%9c%e7%9a%84">#</a>
+</h3>
+<p><strong>EN:</strong> The JVM’s GC reclaims unreachable objects automatically, typically using generational collectors (young/gen0, old/gen1) to minimize pause times. (
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)
+<strong>CN：</strong> JVM 垃圾回收器自动回收不可达对象，常用分代收集算法（新生代/老年代）以降低停顿。(
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)</p>
+<h3 id="4-什么是装箱和拆箱">
+  4. 什么是装箱和拆箱？
+  <a class="anchor" href="#4-%e4%bb%80%e4%b9%88%e6%98%af%e8%a3%85%e7%ae%b1%e5%92%8c%e6%8b%86%e7%ae%b1">#</a>
+</h3>
+<p><strong>EN:</strong> Autoboxing converts primitives (e.g., <code>int</code>) into wrappers (<code>Integer</code>) automatically; unboxing does the reverse. (
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)
+<strong>CN：</strong> 自动装箱是将基本类型（如 <code>int</code>）隐式转换为其包装类（<code>Integer</code>），拆箱则相反。(
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)</p>
+<h3 id="5-hashmap-的底层结构是什么">
+  5. <code>HashMap</code> 的底层结构是什么？
+  <a class="anchor" href="#5-hashmap-%e7%9a%84%e5%ba%95%e5%b1%82%e7%bb%93%e6%9e%84%e6%98%af%e4%bb%80%e4%b9%88">#</a>
+</h3>
+<p><strong>EN:</strong> A <code>HashMap</code> uses an array of buckets where each bucket is a linked list or red‑black tree (after threshold), with keys’ hashcodes determining bucket index. (
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)
+<strong>CN：</strong> <code>HashMap</code> 底层用数组＋链表（或超阈值后转红黑树）存储键值对，哈希值决定元素落在哪个桶。(
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)</p>
+<h3 id="6-如何实现线程安全的单例">
+  6. 如何实现线程安全的单例？
+  <a class="anchor" href="#6-%e5%a6%82%e4%bd%95%e5%ae%9e%e7%8e%b0%e7%ba%bf%e7%a8%8b%e5%ae%89%e5%85%a8%e7%9a%84%e5%8d%95%e4%be%8b">#</a>
+</h3>
+<p><strong>EN:</strong> Use a static inner helper class or enum singleton; both are thread‑safe and lazily initialized without explicit synchronization. (
+  <a href="https://www.interviewbit.com/java-interview-questions/?utm_source=chatgpt.com" title="Core Java Interview Questions and Answers (2025) - InterviewBit">interviewbit.com</a>)
+<strong>CN：</strong> 可使用静态内部类或枚举单例，它们在类加载时线程安全且支持延迟初始化，无需手动锁。(
+  <a href="https://www.interviewbit.com/java-interview-questions/?utm_source=chatgpt.com" title="Core Java Interview Questions and Answers (2025) - InterviewBit">interviewbit.com</a>)</p>
+<h3 id="7-描述-java-8-中的-stream-流操作">
+  7. 描述 Java 8 中的 Stream 流操作。
+  <a class="anchor" href="#7-%e6%8f%8f%e8%bf%b0-java-8-%e4%b8%ad%e7%9a%84-stream-%e6%b5%81%e6%93%8d%e4%bd%9c">#</a>
+</h3>
+<p><strong>EN:</strong> Streams allow declarative, lazy operations (map, filter, reduce) on collections, enabling parallelizable data pipelines. (
+  <a href="https://www.interviewbit.com/java-8-interview-questions/?utm_source=chatgpt.com" title="Top 30&#43; Java 8 Interview Questions (2025) - InterviewBit">interviewbit.com</a>)
+<strong>CN：</strong> Stream 提供声明式、惰性加载的链式操作（如 map、filter、reduce），并可简单地并行执行。(
+  <a href="https://www.interviewbit.com/java-8-interview-questions/?utm_source=chatgpt.com" title="Top 30&#43; Java 8 Interview Questions (2025) - InterviewBit">interviewbit.com</a>)</p>
+<h3 id="8-synchronized-和-reentrantlock-有何不同">
+  8. <code>synchronized</code> 和 <code>ReentrantLock</code> 有何不同？
+  <a class="anchor" href="#8-synchronized-%e5%92%8c-reentrantlock-%e6%9c%89%e4%bd%95%e4%b8%8d%e5%90%8c">#</a>
+</h3>
+<p><strong>EN:</strong> <code>synchronized</code> is built‑in, blocks on acquisition; <code>ReentrantLock</code> is more flexible (tryLock, timed lock) and supports condition variables. (
+  <a href="https://www.interviewbit.com/java-interview-questions/?utm_source=chatgpt.com" title="Core Java Interview Questions and Answers (2025) - InterviewBit">interviewbit.com</a>)
+<strong>CN：</strong> <code>synchronized</code> 为 JVM 内置锁且阻塞性获取；<code>ReentrantLock</code> 功能更强（支持 tryLock、可中断锁、条件变量）。(
+  <a href="https://www.interviewbit.com/java-interview-questions/?utm_source=chatgpt.com" title="Core Java Interview Questions and Answers (2025) - InterviewBit">interviewbit.com</a>)</p>
+<h3 id="9-什么是-java-中的异常分为-checked-和-unchecked">
+  9. 什么是 Java 中的异常分为 Checked 和 Unchecked？
+  <a class="anchor" href="#9-%e4%bb%80%e4%b9%88%e6%98%af-java-%e4%b8%ad%e7%9a%84%e5%bc%82%e5%b8%b8%e5%88%86%e4%b8%ba-checked-%e5%92%8c-unchecked">#</a>
+</h3>
+<p><strong>EN:</strong> Checked exceptions (e.g., <code>IOException</code>) must be declared or caught; unchecked exceptions (subclasses of <code>RuntimeException</code>) need not be. (
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)
+<strong>CN：</strong> Checked 异常（如 <code>IOException</code>）需在签名中声明或捕获，Unchecked 异常（<code>RuntimeException</code> 子类）则无需。(
+  <a href="https://www.reddit.com/r/programming/comments/xs2yoo/100_most_asked_java_interview_questions_and/?utm_source=chatgpt.com" title="100 most asked Java Interview Questions and Answers - Reddit">Reddit</a>)</p>
+<h3 id="10-描述-jit-编译器的作用">
+  10. 描述 JIT 编译器的作用。
+  <a class="anchor" href="#10-%e6%8f%8f%e8%bf%b0-jit-%e7%bc%96%e8%af%91%e5%99%a8%e7%9a%84%e4%bd%9c%e7%94%a8">#</a>
+</h3>
+<p><strong>EN:</strong> The JIT (Just‑In‑Time) compiler in the JVM converts hot bytecode paths into native code at runtime to boost performance. (
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)
+<strong>CN：</strong> JVM 中的 JIT 编译器在运行时将热点字节码编译成本地机器码，以提升执行效率。(
+  <a href="https://www.geeksforgeeks.org/java-interview-questions/?utm_source=chatgpt.com" title="Java Interview Questions and Answers | GeeksforGeeks">GeeksforGeeks</a>)</p>
+<hr>
+<h2 id="二微服务相关问题">
+  二、微服务相关问题
+  <a class="anchor" href="#%e4%ba%8c%e5%be%ae%e6%9c%8d%e5%8a%a1%e7%9b%b8%e5%85%b3%e9%97%ae%e9%a2%98">#</a>
+</h2>
+<h3 id="1-什么是微服务架构">
+  1. 什么是微服务架构？
+  <a class="anchor" href="#1-%e4%bb%80%e4%b9%88%e6%98%af%e5%be%ae%e6%9c%8d%e5%8a%a1%e6%9e%b6%e6%9e%84">#</a>
+</h3>
+<p><strong>EN:</strong> Microservices split applications into small, independent services, each handling a single business capability and communicating over lightweight protocols. (
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)
+<strong>CN：</strong> 微服务将应用拆分为多个小型独立服务，每个聚焦单一业务能力，通过轻量协议互相通信。(
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)</p>
+<h3 id="2-单体架构与微服务有何区别">
+  2. 单体架构与微服务有何区别？
+  <a class="anchor" href="#2-%e5%8d%95%e4%bd%93%e6%9e%b6%e6%9e%84%e4%b8%8e%e5%be%ae%e6%9c%8d%e5%8a%a1%e6%9c%89%e4%bd%95%e5%8c%ba%e5%88%ab">#</a>
+</h3>
+<p><strong>EN:</strong> Monolith bundles all functions into one deployable unit; microservices decouple features into separately deployable services for independent scaling. (
+  <a href="https://www.turing.com/interview-questions/microservices?utm_source=chatgpt.com" title="100&#43; Microservices Interview Questions and Answers for 2024 - Turing">Turing</a>)
+<strong>CN：</strong> 单体架构将所有功能打包部署，微服务则将其拆分为独立服务，可分别扩展与部署。(
+  <a href="https://www.turing.com/interview-questions/microservices?utm_source=chatgpt.com" title="100&#43; Microservices Interview Questions and Answers for 2024 - Turing">Turing</a>)</p>
+<h3 id="3-服务发现怎么做">
+  3. 服务发现怎么做？
+  <a class="anchor" href="#3-%e6%9c%8d%e5%8a%a1%e5%8f%91%e7%8e%b0%e6%80%8e%e4%b9%88%e5%81%9a">#</a>
+</h3>
+<p><strong>EN:</strong> Use a registry (e.g., Eureka, Consul) where services register themselves; clients or gateway query registry to locate service instances. (
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)
+<strong>CN：</strong> 使用服务注册中心（如 Eureka、Consul），服务启动时注册，客户端或网关通过它查找可用实例。(
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)</p>
+<h3 id="4-什么是-api-网关">
+  4. 什么是 API 网关？
+  <a class="anchor" href="#4-%e4%bb%80%e4%b9%88%e6%98%af-api-%e7%bd%91%e5%85%b3">#</a>
+</h3>
+<p><strong>EN:</strong> An API Gateway routes external requests to appropriate microservices, handles auth, rate‑limiting, and can aggregate responses. (
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)
+<strong>CN：</strong> API 网关负责将外部请求路由到对应服务，同时做鉴权、限流，并可进行结果聚合。(
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)</p>
+<h3 id="5-如何保证微服务安全">
+  5. 如何保证微服务安全？
+  <a class="anchor" href="#5-%e5%a6%82%e4%bd%95%e4%bf%9d%e8%af%81%e5%be%ae%e6%9c%8d%e5%8a%a1%e5%ae%89%e5%85%a8">#</a>
+</h3>
+<p><strong>EN:</strong> Use OAuth2/JWT for auth, HTTPS for transport security, and enforce scopes in the gateway or each service. (
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)
+<strong>CN：</strong> 采用 OAuth2/JWT 做认证授权，全链路使用 HTTPS，并在网关或服务内校验权限。(
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)</p>
+<h3 id="6-微服务间如何保证数据一致性">
+  6. 微服务间如何保证数据一致性？
+  <a class="anchor" href="#6-%e5%be%ae%e6%9c%8d%e5%8a%a1%e9%97%b4%e5%a6%82%e4%bd%95%e4%bf%9d%e8%af%81%e6%95%b0%e6%8d%ae%e4%b8%80%e8%87%b4%e6%80%a7">#</a>
+</h3>
+<p><strong>EN:</strong> Prefer eventual consistency via event‑driven patterns (Kafka events) or SAGA orchestration with compensating transactions. (
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)
+<strong>CN：</strong> 建议采用最终一致性方案，如事件驱动（Kafka）或 SAGA 模式的补偿事务。(
+  <a href="https://medium.com/%40sureshkrishna75525/top-25-microservices-interview-questions-and-answers-in-2025-88492198f345?utm_source=chatgpt.com" title="Top 25 Microservices Interview Questions and Answers in 2025">Medium</a>)</p>
+<h3 id="7-什么是熔断器circuit-breaker">
+  7. 什么是熔断器（Circuit Breaker）？
+  <a class="anchor" href="#7-%e4%bb%80%e4%b9%88%e6%98%af%e7%86%94%e6%96%ad%e5%99%a8circuit-breaker">#</a>
+</h3>
+<p><strong>EN:</strong> A circuit breaker (e.g., via Resilience4j) prevents cascading failures by short‑circuited calls to unhealthy services and provides fallback. (
+  <a href="https://www.simplilearn.com/microservices-interview-questions-article?utm_source=chatgpt.com" title="Top Microservices Interview Questions and Answer for 2025">Simplilearn.com</a>)
+<strong>CN：</strong> 熔断器（如 Resilience4j）通过拦截对不可用服务的调用并快速失败或降级，防止故障蔓延。(
+  <a href="https://www.simplilearn.com/microservices-interview-questions-article?utm_source=chatgpt.com" title="Top Microservices Interview Questions and Answer for 2025">Simplilearn.com</a>)</p>
+<h3 id="8-如何监控微服务">
+  8. 如何监控微服务？
+  <a class="anchor" href="#8-%e5%a6%82%e4%bd%95%e7%9b%91%e6%8e%a7%e5%be%ae%e6%9c%8d%e5%8a%a1">#</a>
+</h3>
+<p><strong>EN:</strong> Use Prometheus + Grafana for metrics, ELK/EFK for centralized logs, and distributed tracing (Jaeger/Zipkin) for request flows. (
+  <a href="https://blog.bytebytego.com/p/7-microservices-interview-questions?utm_source=chatgpt.com" title="7 Microservices Interview Questions - ByteByteGo Newsletter">blog.bytebytego.com</a>)
+<strong>CN：</strong> 使用 Prometheus+Grafana 监控指标，ELK/EFK 集中日志，Jaeger/Zipkin 做分布式链路跟踪。(
+  <a href="https://blog.bytebytego.com/p/7-microservices-interview-questions?utm_source=chatgpt.com" title="7 Microservices Interview Questions - ByteByteGo Newsletter">blog.bytebytego.com</a>)</p>
+<h3 id="9-如何处理微服务的配置管理">
+  9. 如何处理微服务的配置管理？
+  <a class="anchor" href="#9-%e5%a6%82%e4%bd%95%e5%a4%84%e7%90%86%e5%be%ae%e6%9c%8d%e5%8a%a1%e7%9a%84%e9%85%8d%e7%bd%ae%e7%ae%a1%e7%90%86">#</a>
+</h3>
+<p><strong>EN:</strong> Store configs in Spring Cloud Config or Vault; services pull or watch for updates, enabling dynamic reconfiguration. (
+  <a href="https://www.geeksforgeeks.org/microservices-interview-questions/?utm_source=chatgpt.com" title="Java Microservices Interview Questions and Answers - GeeksforGeeks">GeeksforGeeks</a>)
+<strong>CN：</strong> 配置存放于 Spring Cloud Config 或 Vault，服务启动或热刷新时拉取更新，实现动态配置。(
+  <a href="https://www.geeksforgeeks.org/microservices-interview-questions/?utm_source=chatgpt.com" title="Java Microservices Interview Questions and Answers - GeeksforGeeks">GeeksforGeeks</a>)</p>
+<h3 id="10-容器化和编排对微服务的好处">
+  10. 容器化和编排对微服务的好处？
+  <a class="anchor" href="#10-%e5%ae%b9%e5%99%a8%e5%8c%96%e5%92%8c%e7%bc%96%e6%8e%92%e5%af%b9%e5%be%ae%e6%9c%8d%e5%8a%a1%e7%9a%84%e5%a5%bd%e5%a4%84">#</a>
+</h3>
+<p><strong>EN:</strong> Docker containers package services with dependencies; Kubernetes automates scaling, self‑healing, rolling updates, and service discovery. (
+  <a href="https://en.wikipedia.org/wiki/Microservices?utm_source=chatgpt.com" title="Microservices">维基百科</a>)
+<strong>CN：</strong> Docker 将服务及其依赖打包；Kubernetes 自动扩缩容、自愈、滚动升级，并提供内置服务发现。(
+  <a href="https://en.wikipedia.org/wiki/Microservices?utm_source=chatgpt.com" title="Microservices">维基百科</a>)</p>
+<hr>
+<p>以上问题及中英文回答，既涵盖 <strong>Java 核心知识</strong>、<strong>并发、容器化</strong>，也兼顾 <strong>微服务实战</strong> 要点，结合您在 <strong>HSBC 微服务项目</strong> 和 <strong>动机信中提到的技术偏好</strong>，可助您高效准备 Doctolib 面试。祝面试顺利！</p>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#summary">Summary</a></li>
+        <li><a href="#一java-相关问题">一、Java 相关问题</a>
+          <ul>
+            <li><a href="#1-为什么说-java-是平台无关的">1. 为什么说 Java 是平台无关的？</a></li>
+            <li><a href="#2-抽象类和接口有什么区别">2. 抽象类和接口有什么区别？</a></li>
+            <li><a href="#3-java-的垃圾回收是如何工作的">3. Java 的垃圾回收是如何工作的？</a></li>
+            <li><a href="#4-什么是装箱和拆箱">4. 什么是装箱和拆箱？</a></li>
+            <li><a href="#5-hashmap-的底层结构是什么">5. <code>HashMap</code> 的底层结构是什么？</a></li>
+            <li><a href="#6-如何实现线程安全的单例">6. 如何实现线程安全的单例？</a></li>
+            <li><a href="#7-描述-java-8-中的-stream-流操作">7. 描述 Java 8 中的 Stream 流操作。</a></li>
+            <li><a href="#8-synchronized-和-reentrantlock-有何不同">8. <code>synchronized</code> 和 <code>ReentrantLock</code> 有何不同？</a></li>
+            <li><a href="#9-什么是-java-中的异常分为-checked-和-unchecked">9. 什么是 Java 中的异常分为 Checked 和 Unchecked？</a></li>
+            <li><a href="#10-描述-jit-编译器的作用">10. 描述 JIT 编译器的作用。</a></li>
+          </ul>
+        </li>
+        <li><a href="#二微服务相关问题">二、微服务相关问题</a>
+          <ul>
+            <li><a href="#1-什么是微服务架构">1. 什么是微服务架构？</a></li>
+            <li><a href="#2-单体架构与微服务有何区别">2. 单体架构与微服务有何区别？</a></li>
+            <li><a href="#3-服务发现怎么做">3. 服务发现怎么做？</a></li>
+            <li><a href="#4-什么是-api-网关">4. 什么是 API 网关？</a></li>
+            <li><a href="#5-如何保证微服务安全">5. 如何保证微服务安全？</a></li>
+            <li><a href="#6-微服务间如何保证数据一致性">6. 微服务间如何保证数据一致性？</a></li>
+            <li><a href="#7-什么是熔断器circuit-breaker">7. 什么是熔断器（Circuit Breaker）？</a></li>
+            <li><a href="#8-如何监控微服务">8. 如何监控微服务？</a></li>
+            <li><a href="#9-如何处理微服务的配置管理">9. 如何处理微服务的配置管理？</a></li>
+            <li><a href="#10-容器化和编排对微服务的好处">10. 容器化和编排对微服务的好处？</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

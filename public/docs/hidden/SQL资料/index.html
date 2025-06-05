@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  目录
+  #
+
+
+
+  查询数据（SELECT）
+
+
+  基本查询
+
+  查询所有字段
+
+  使用条件（WHERE）
+
+  排序（ORDER BY）
+
+  去重（DISTINCT）
+
+  分页（LIMIT / OFFSET）
+
+
+
+  插入数据（INSERT）
+
+
+  插入单行
+
+  插入多行
+
+
+
+  更新数据（UPDATE）
+
+  删除数据（DELETE）
+
+  聚合函数（GROUP BY &#43; HAVING）
+
+  连接查询（JOIN）
+
+  子查询（Subquery）
+
+  CASE 表达式（类似 IF）
+
+  创建和管理表结构（DDL）
+
+  常用运算符速查
+
+  常见组合例子
+
+
+  SQL常用语法
+  #
+
+
+  一、查询数据（SELECT）
+  #
+
+
+  基本查询
+  #
+
+SELECT column1, column2
+FROM table_name;
+
+  查询所有字段
+  #
+
+SELECT * FROM table_name;
+
+  使用条件（WHERE）
+  #
+
+SELECT name, age
+FROM users
+WHERE age &gt;= 18 AND gender = &#39;F&#39;;
+
+  排序（ORDER BY）
+  #
+
+SELECT name, age
+FROM users
+ORDER BY age DESC, name ASC;
+
+  去重（DISTINCT）
+  #
+
+SELECT DISTINCT city FROM users;
+
+  分页（LIMIT / OFFSET）
+  #
+
+-- MySQL / PostgreSQL
+SELECT * FROM users LIMIT 10 OFFSET 20;
+
+  二、插入数据（INSERT）
+  #
+
+
+  插入单行
+  #
+
+INSERT INTO users (name, age)
+VALUES (&#39;Alice&#39;, 25);
+
+  插入多行
+  #
+
+INSERT INTO users (name, age)
+VALUES 
+  (&#39;Bob&#39;, 30),
+  (&#39;Carol&#39;, 22);
+
+  三、更新数据（UPDATE）
+  #
+
+UPDATE users
+SET age = 26
+WHERE name = &#39;Alice&#39;;
+
+  四、删除数据（DELETE）
+  #
+
+DELETE FROM users
+WHERE age &lt; 18;
+
+  五、聚合函数（GROUP BY &#43; HAVING）
+  #
+
+SELECT department, COUNT(*) AS total
+FROM employees
+GROUP BY department
+HAVING COUNT(*) &gt; 5;
+常见聚合函数：">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/hidden/SQL%E8%B5%84%E6%96%99/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="君宝的笔记">
+  <meta property="og:description" content="目录#查询数据（SELECT） 基本查询 查询所有字段 使用条件（WHERE） 排序（ORDER BY） 去重（DISTINCT） 分页（LIMIT / OFFSET） 插入数据（INSERT） 插入单行 插入多行 更新数据（UPDATE） 删除数据（DELETE） 聚合函数（GROUP BY &#43; HAVING） 连接查询（JOIN） 子查询（Subquery） CASE 表达式（类似 IF） 创建和管理表结构（DDL） 常用运算符速查 常见组合例子 SQL常用语法#一、查询数据（SELECT）#基本查询#SELECT column1, column2 FROM table_name; 查询所有字段#SELECT * FROM table_name; 使用条件（WHERE）#SELECT name, age FROM users WHERE age &gt;= 18 AND gender = &#39;F&#39;; 排序（ORDER BY）#SELECT name, age FROM users ORDER BY age DESC, name ASC; 去重（DISTINCT）#SELECT DISTINCT city FROM users; 分页（LIMIT / OFFSET）#-- MySQL / PostgreSQL SELECT * FROM users LIMIT 10 OFFSET 20; 二、插入数据（INSERT）#插入单行#INSERT INTO users (name, age) VALUES (&#39;Alice&#39;, 25); 插入多行#INSERT INTO users (name, age) VALUES (&#39;Bob&#39;, 30), (&#39;Carol&#39;, 22); 三、更新数据（UPDATE）#UPDATE users SET age = 26 WHERE name = &#39;Alice&#39;; 四、删除数据（DELETE）#DELETE FROM users WHERE age &lt; 18; 五、聚合函数（GROUP BY &#43; HAVING）#SELECT department, COUNT(*) AS total FROM employees GROUP BY department HAVING COUNT(*) &gt; 5; 常见聚合函数：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>Sql资料 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/hidden/SQL%E8%B5%84%E6%96%99/">
+<link rel="stylesheet" href="/book.min.e9f68c3fff3d8236a489d16a9caf6de5e4d1a29c20eb4b5524e42cd30be4d319.css" integrity="sha256-6faMP/89gjakidFqnK9t5eTRopwg60tVJOQs0wvk0xk=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.407592ccd3f4d80ecd4d90a7f430fe1573dd5abc723c8eb833c7d92bbf63ae60.js" integrity="sha256-QHWSzNP02A7NTZCn9DD&#43;FXPdWrxyPI64M8fZK79jrmA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <span>学习资料</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/tips/" class="">补充</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Sql资料</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#目录">目录</a></li>
+    <li><a href="#sql常用语法">SQL常用语法</a>
+      <ul>
+        <li><a href="#一查询数据select">一、查询数据（SELECT）</a>
+          <ul>
+            <li><a href="#基本查询">基本查询</a></li>
+            <li><a href="#查询所有字段">查询所有字段</a></li>
+            <li><a href="#使用条件where">使用条件（WHERE）</a></li>
+            <li><a href="#排序order-by">排序（ORDER BY）</a></li>
+            <li><a href="#去重distinct">去重（DISTINCT）</a></li>
+            <li><a href="#分页limit--offset">分页（LIMIT / OFFSET）</a></li>
+          </ul>
+        </li>
+        <li><a href="#二插入数据insert">二、插入数据（INSERT）</a>
+          <ul>
+            <li><a href="#插入单行">插入单行</a></li>
+            <li><a href="#插入多行">插入多行</a></li>
+          </ul>
+        </li>
+        <li><a href="#三更新数据update">三、更新数据（UPDATE）</a></li>
+        <li><a href="#四删除数据delete">四、删除数据（DELETE）</a></li>
+        <li><a href="#五聚合函数group-by--having">五、聚合函数（GROUP BY + HAVING）</a></li>
+        <li><a href="#六连接查询join">六、连接查询（JOIN）</a></li>
+        <li><a href="#七子查询subquery">七、子查询（Subquery）</a></li>
+        <li><a href="#八case-表达式类似-if">八、CASE 表达式（类似 IF）</a></li>
+        <li><a href="#九创建和管理表结构ddl">九、创建和管理表结构（DDL）</a></li>
+        <li><a href="#十常用运算符速查">十、常用运算符速查</a></li>
+        <li><a href="#常见组合例子">常见组合例子</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    Sql资料
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h1 id="目录">
+  目录
+  <a class="anchor" href="#%e7%9b%ae%e5%bd%95">#</a>
+</h1>
+<ol>
+<li>
+  <a href="#%e4%b8%80%e6%9f%a5%e8%af%a2%e6%95%b0%e6%8d%aeselect">查询数据（SELECT）</a>
+<ul>
+<li>
+  <a href="#%e5%9f%ba%e6%9c%ac%e6%9f%a5%e8%af%a2">基本查询</a></li>
+<li>
+  <a href="#%e6%9f%a5%e8%af%a2%e6%89%80%e6%9c%89%e5%ad%97%e6%ae%b5">查询所有字段</a></li>
+<li>
+  <a href="#%e4%bd%bf%e7%94%a8%e6%9d%a1%e4%bb%b6where">使用条件（WHERE）</a></li>
+<li>
+  <a href="#%e6%8e%92%e5%ba%8forder-by">排序（ORDER BY）</a></li>
+<li>
+  <a href="#%e5%8e%bb%e9%87%8ddistinct">去重（DISTINCT）</a></li>
+<li>
+  <a href="#%e5%88%86%e9%a1%b5limit--offset">分页（LIMIT / OFFSET）</a></li>
+</ul>
+</li>
+<li>
+  <a href="#%e4%ba%8c%e6%8f%92%e5%85%a5%e6%95%b0%e6%8d%aeinsert">插入数据（INSERT）</a>
+<ul>
+<li>
+  <a href="#%e6%8f%92%e5%85%a5%e5%8d%95%e8%a1%8c">插入单行</a></li>
+<li>
+  <a href="#%e6%8f%92%e5%85%a5%e5%a4%9a%e8%a1%8c">插入多行</a></li>
+</ul>
+</li>
+<li>
+  <a href="#%e4%b8%89%e6%9b%b4%e6%96%b0%e6%95%b0%e6%8d%aeupdate">更新数据（UPDATE）</a></li>
+<li>
+  <a href="#%e5%9b%9b%e5%88%a0%e9%99%a4%e6%95%b0%e6%8d%aedelete">删除数据（DELETE）</a></li>
+<li>
+  <a href="#%e4%ba%94%e8%81%9a%e5%90%88%e5%87%bd%e6%95%b0group-by--having">聚合函数（GROUP BY + HAVING）</a></li>
+<li>
+  <a href="#%e5%85%ad%e8%bf%9e%e6%8e%a5%e6%9f%a5%e8%af%a2join">连接查询（JOIN）</a></li>
+<li>
+  <a href="#%e4%b8%83%e5%ad%90%e6%9f%a5%e8%af%a2subquery">子查询（Subquery）</a></li>
+<li>
+  <a href="#%e5%85%abcase-%e8%a1%a8%e8%be%be%e5%bc%8f%e7%b1%bb%e4%bc%bc-if">CASE 表达式（类似 IF）</a></li>
+<li>
+  <a href="#%e4%b9%9d%e5%88%9b%e5%bb%ba%e5%92%8c%e7%ae%a1%e7%90%86%e8%a1%a8%e7%bb%93%e6%9e%84ddl">创建和管理表结构（DDL）</a></li>
+<li>
+  <a href="#%e5%8d%81%e5%b8%b8%e7%94%a8%e8%bf%90%e7%ae%97%e7%ac%a6%e9%80%9f%e6%9f%a5">常用运算符速查</a></li>
+<li>
+  <a href="#%e5%b8%b8%e8%a7%81%e7%bb%84%e5%90%88%e4%be%8b%e5%ad%90">常见组合例子</a></li>
+</ol>
+<h1 id="sql常用语法">
+  SQL常用语法
+  <a class="anchor" href="#sql%e5%b8%b8%e7%94%a8%e8%af%ad%e6%b3%95">#</a>
+</h1>
+<h2 id="一查询数据select">
+  一、查询数据（SELECT）
+  <a class="anchor" href="#%e4%b8%80%e6%9f%a5%e8%af%a2%e6%95%b0%e6%8d%aeselect">#</a>
+</h2>
+<h3 id="基本查询">
+  基本查询
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%9f%a5%e8%af%a2">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> column1, column2
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> <span style="color:#66d9ef">table_name</span>;
+</span></span></code></pre></div><h3 id="查询所有字段">
+  查询所有字段
+  <a class="anchor" href="#%e6%9f%a5%e8%af%a2%e6%89%80%e6%9c%89%e5%ad%97%e6%ae%b5">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> <span style="color:#66d9ef">table_name</span>;
+</span></span></code></pre></div><h3 id="使用条件where">
+  使用条件（WHERE）
+  <a class="anchor" href="#%e4%bd%bf%e7%94%a8%e6%9d%a1%e4%bb%b6where">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name, age
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> users
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> age <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">18</span> <span style="color:#66d9ef">AND</span> gender <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;F&#39;</span>;
+</span></span></code></pre></div><h3 id="排序order-by">
+  排序（ORDER BY）
+  <a class="anchor" href="#%e6%8e%92%e5%ba%8forder-by">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name, age
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> users
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> age <span style="color:#66d9ef">DESC</span>, name <span style="color:#66d9ef">ASC</span>;
+</span></span></code></pre></div><h3 id="去重distinct">
+  去重（DISTINCT）
+  <a class="anchor" href="#%e5%8e%bb%e9%87%8ddistinct">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">DISTINCT</span> city <span style="color:#66d9ef">FROM</span> users;
+</span></span></code></pre></div><h3 id="分页limit--offset">
+  分页（LIMIT / OFFSET）
+  <a class="anchor" href="#%e5%88%86%e9%a1%b5limit--offset">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- MySQL / PostgreSQL
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> users <span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">10</span> <span style="color:#66d9ef">OFFSET</span> <span style="color:#ae81ff">20</span>;
+</span></span></code></pre></div><h2 id="二插入数据insert">
+  二、插入数据（INSERT）
+  <a class="anchor" href="#%e4%ba%8c%e6%8f%92%e5%85%a5%e6%95%b0%e6%8d%aeinsert">#</a>
+</h2>
+<h3 id="插入单行">
+  插入单行
+  <a class="anchor" href="#%e6%8f%92%e5%85%a5%e5%8d%95%e8%a1%8c">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> users (name, age)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">VALUES</span> (<span style="color:#e6db74">&#39;Alice&#39;</span>, <span style="color:#ae81ff">25</span>);
+</span></span></code></pre></div><h3 id="插入多行">
+  插入多行
+  <a class="anchor" href="#%e6%8f%92%e5%85%a5%e5%a4%9a%e8%a1%8c">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">INTO</span> users (name, age)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">VALUES</span> 
+</span></span><span style="display:flex;"><span>  (<span style="color:#e6db74">&#39;Bob&#39;</span>, <span style="color:#ae81ff">30</span>),
+</span></span><span style="display:flex;"><span>  (<span style="color:#e6db74">&#39;Carol&#39;</span>, <span style="color:#ae81ff">22</span>);
+</span></span></code></pre></div><h2 id="三更新数据update">
+  三、更新数据（UPDATE）
+  <a class="anchor" href="#%e4%b8%89%e6%9b%b4%e6%96%b0%e6%95%b0%e6%8d%aeupdate">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">UPDATE</span> users
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">SET</span> age <span style="color:#f92672">=</span> <span style="color:#ae81ff">26</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;Alice&#39;</span>;
+</span></span></code></pre></div><h2 id="四删除数据delete">
+  四、删除数据（DELETE）
+  <a class="anchor" href="#%e5%9b%9b%e5%88%a0%e9%99%a4%e6%95%b0%e6%8d%aedelete">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">DELETE</span> <span style="color:#66d9ef">FROM</span> users
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> age <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">18</span>;
+</span></span></code></pre></div><h2 id="五聚合函数group-by--having">
+  五、聚合函数（GROUP BY + HAVING）
+  <a class="anchor" href="#%e4%ba%94%e8%81%9a%e5%90%88%e5%87%bd%e6%95%b0group-by--having">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> department, <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">AS</span> total
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> department
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">HAVING</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">5</span>;
+</span></span></code></pre></div><p>常见聚合函数：</p>
+<table>
+  <thead>
+      <tr>
+          <th>函数</th>
+          <th>作用</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>COUNT()</code></td>
+          <td>计数</td>
+      </tr>
+      <tr>
+          <td><code>SUM()</code></td>
+          <td>求和</td>
+      </tr>
+      <tr>
+          <td><code>AVG()</code></td>
+          <td>平均值</td>
+      </tr>
+      <tr>
+          <td><code>MAX()</code></td>
+          <td>最大值</td>
+      </tr>
+      <tr>
+          <td><code>MIN()</code></td>
+          <td>最小值</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="六连接查询join">
+  六、连接查询（JOIN）
+  <a class="anchor" href="#%e5%85%ad%e8%bf%9e%e6%8e%a5%e6%9f%a5%e8%af%a2join">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> u.name, o.order_id
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> users u
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">JOIN</span> orders o <span style="color:#66d9ef">ON</span> u.id <span style="color:#f92672">=</span> o.user_id;
+</span></span></code></pre></div><h2 id="七子查询subquery">
+  七、子查询（Subquery）
+  <a class="anchor" href="#%e4%b8%83%e5%ad%90%e6%9f%a5%e8%af%a2subquery">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> users
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> id <span style="color:#66d9ef">IN</span> (
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">SELECT</span> user_id <span style="color:#66d9ef">FROM</span> orders <span style="color:#66d9ef">WHERE</span> amount <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><h2 id="八case-表达式类似-if">
+  八、CASE 表达式（类似 IF）
+  <a class="anchor" href="#%e5%85%abcase-%e8%a1%a8%e8%be%be%e5%bc%8f%e7%b1%bb%e4%bc%bc-if">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> name,
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">CASE</span> 
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">WHEN</span> age <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">18</span> <span style="color:#66d9ef">THEN</span> <span style="color:#e6db74">&#39;minor&#39;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">WHEN</span> age <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">65</span> <span style="color:#66d9ef">THEN</span> <span style="color:#e6db74">&#39;adult&#39;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">ELSE</span> <span style="color:#e6db74">&#39;senior&#39;</span>
+</span></span><span style="display:flex;"><span>       <span style="color:#66d9ef">END</span> <span style="color:#66d9ef">AS</span> age_group
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> users;
+</span></span></code></pre></div><h2 id="九创建和管理表结构ddl">
+  九、创建和管理表结构（DDL）
+  <a class="anchor" href="#%e4%b9%9d%e5%88%9b%e5%bb%ba%e5%92%8c%e7%ae%a1%e7%90%86%e8%a1%a8%e7%bb%93%e6%9e%84ddl">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- 创建表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> users (
+</span></span><span style="display:flex;"><span>  id INT <span style="color:#66d9ef">PRIMARY</span> <span style="color:#66d9ef">KEY</span>,
+</span></span><span style="display:flex;"><span>  name VARCHAR(<span style="color:#ae81ff">100</span>),
+</span></span><span style="display:flex;"><span>  age INT
+</span></span><span style="display:flex;"><span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 修改表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">TABLE</span> users <span style="color:#66d9ef">ADD</span> email VARCHAR(<span style="color:#ae81ff">255</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 删除表
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">DROP</span> <span style="color:#66d9ef">TABLE</span> users;
+</span></span></code></pre></div><h2 id="十常用运算符速查">
+  十、常用运算符速查
+  <a class="anchor" href="#%e5%8d%81%e5%b8%b8%e7%94%a8%e8%bf%90%e7%ae%97%e7%ac%a6%e9%80%9f%e6%9f%a5">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>类别</th>
+          <th>运算符/关键字</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>比较</td>
+          <td>=, &lt;&gt;, &gt;, &lt;, &gt;=, &lt;=</td>
+      </tr>
+      <tr>
+          <td>范围</td>
+          <td><code>BETWEEN x AND y</code></td>
+      </tr>
+      <tr>
+          <td>集合</td>
+          <td><code>IN (..)</code></td>
+      </tr>
+      <tr>
+          <td>模糊匹配</td>
+          <td><code>LIKE '%abc%'</code></td>
+      </tr>
+      <tr>
+          <td>空值检查</td>
+          <td><code>IS NULL</code>, <code>IS NOT NULL</code></td>
+      </tr>
+      <tr>
+          <td>逻辑运算</td>
+          <td><code>AND</code>, <code>OR</code>, <code>NOT</code></td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="常见组合例子">
+  常见组合例子
+  <a class="anchor" href="#%e5%b8%b8%e8%a7%81%e7%bb%84%e5%90%88%e4%be%8b%e5%ad%90">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> department, <span style="color:#66d9ef">AVG</span>(salary)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span> employees
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHERE</span> hire_date <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;2022-01-01&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GROUP</span> <span style="color:#66d9ef">BY</span> department
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">ORDER</span> <span style="color:#66d9ef">BY</span> <span style="color:#66d9ef">AVG</span>(salary) <span style="color:#66d9ef">DESC</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">LIMIT</span> <span style="color:#ae81ff">5</span>;
+</span></span></code></pre></div></div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#目录">目录</a></li>
+    <li><a href="#sql常用语法">SQL常用语法</a>
+      <ul>
+        <li><a href="#一查询数据select">一、查询数据（SELECT）</a>
+          <ul>
+            <li><a href="#基本查询">基本查询</a></li>
+            <li><a href="#查询所有字段">查询所有字段</a></li>
+            <li><a href="#使用条件where">使用条件（WHERE）</a></li>
+            <li><a href="#排序order-by">排序（ORDER BY）</a></li>
+            <li><a href="#去重distinct">去重（DISTINCT）</a></li>
+            <li><a href="#分页limit--offset">分页（LIMIT / OFFSET）</a></li>
+          </ul>
+        </li>
+        <li><a href="#二插入数据insert">二、插入数据（INSERT）</a>
+          <ul>
+            <li><a href="#插入单行">插入单行</a></li>
+            <li><a href="#插入多行">插入多行</a></li>
+          </ul>
+        </li>
+        <li><a href="#三更新数据update">三、更新数据（UPDATE）</a></li>
+        <li><a href="#四删除数据delete">四、删除数据（DELETE）</a></li>
+        <li><a href="#五聚合函数group-by--having">五、聚合函数（GROUP BY + HAVING）</a></li>
+        <li><a href="#六连接查询join">六、连接查询（JOIN）</a></li>
+        <li><a href="#七子查询subquery">七、子查询（Subquery）</a></li>
+        <li><a href="#八case-表达式类似-if">八、CASE 表达式（类似 IF）</a></li>
+        <li><a href="#九创建和管理表结构ddl">九、创建和管理表结构（DDL）</a></li>
+        <li><a href="#十常用运算符速查">十、常用运算符速查</a></li>
+        <li><a href="#常见组合例子">常见组合例子</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
