@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  List
+  #
+
+
+  增加、插入元素
+  #
+
+
+lst.append(x)：在末尾添加元素 x。
+lst.extend(iterable)：在末尾一次性追加一个可迭代对象中的所有元素，相当于多次 append。
+lst.insert(i, x)：在索引 i 位置插入元素 x，后面的元素右移。
+
+
+  删除元素
+  #
+
+
+lst.pop([i])：删除并返回索引 i 处的元素，若不传 i，默认删除并返回最后一个元素。
+lst.remove(x)：删除列表中第一个值为 x 的元素；若不存在则抛 ValueError。
+del lst[i] / del lst[i:j]：通过 del 关键字删除索引 i 处或区间 [i:j] 内的元素。
+lst.clear()：清空列表，等价于 del lst[:]。
+
+
+  查找与统计
+  #
+
+
+lst.index(x[, start[, end]])：返回列表中值为 x 的第一个下标，可选指定查找区间。
+lst.count(x)：统计列表中值为 x 的出现次数。
+
+
+  排序和反转
+  #
+
+
+lst.sort(key=None, reverse=False)：就地（in-place）升序排序，支持 key 函数和 reverse=True（降序）。
+lst.reverse()：就地反转列表顺序。
+sorted(lst, key=None, reverse=False)：内建函数，返回新的排序后列表，不改变原列表。
+
+
+  复制
+  #
+
+
+lst.copy()：浅拷贝列表，相当于 lst[:]。
+
+
+  其他常见操作
+  #
+
+
+len(lst)：返回列表长度。
+lst[i] / lst[i:j:k]：索引或切片操作，可读可写（切片赋值时替换区间）。
+i in lst：判断元素是否在列表中，时间复杂度 O(n)。
+min(lst)、max(lst)：返回最小值/最大值（列表元素需可比较）。
+
+
+  Set
+  #
+
+
+  增加、删除元素
+  #
+
+
+s.add(x)：将元素 x 添加到集合中。
+s.update(iterable)：将可迭代对象中的所有元素加到集合中。
+s.remove(x)：删除元素 x，若不存在则抛 KeyError。
+s.discard(x)：删除元素 x，若不存在不抛异常。
+s.pop()：随机删除并返回一个元素（集合是无序的）。
+s.clear()：清空集合。
+
+
+  Dict
+  #
+
+
+  访问、赋值
+  #
+
+
+d[key]：获取键 key 对应的值，若 key 不存在抛 KeyError。
+d.get(key[, default])：获取键 key 的值，若不存在返回 default（默认为 None）。
+d[key] = value：新增或修改键值对。
+d.setdefault(key[, default])：若 key 存在，返回对应值；若不存在，则将 key: default 加入字典并返回 default。
+
+
+  删除
+  #
+
+
+d.pop(key[, default])：删除键 key 并返回对应值；若不存在且未给 default，抛 KeyError；若提供 default，返回 default。
+d.popitem()：随机（实际是 LIFO 顺序）删除并返回一对 (key, value)；Python3.7&#43; 中为删除最后插入的键值对。
+del d[key]：删除键 key，若不存在抛 KeyError。
+d.clear()：清空所有键值对。
+
+
+  遍历
+  #
+
+
+for k in d:：遍历所有键（同 for k in d.keys():）。
+for k, v in d.items():：同时遍历键和值。
+for v in d.values():：遍历所有值。
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/hidden/1/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="君宝的笔记">
+  <meta property="og:description" content="List#增加、插入元素#lst.append(x)：在末尾添加元素 x。 lst.extend(iterable)：在末尾一次性追加一个可迭代对象中的所有元素，相当于多次 append。 lst.insert(i, x)：在索引 i 位置插入元素 x，后面的元素右移。 删除元素#lst.pop([i])：删除并返回索引 i 处的元素，若不传 i，默认删除并返回最后一个元素。 lst.remove(x)：删除列表中第一个值为 x 的元素；若不存在则抛 ValueError。 del lst[i] / del lst[i:j]：通过 del 关键字删除索引 i 处或区间 [i:j] 内的元素。 lst.clear()：清空列表，等价于 del lst[:]。 查找与统计#lst.index(x[, start[, end]])：返回列表中值为 x 的第一个下标，可选指定查找区间。 lst.count(x)：统计列表中值为 x 的出现次数。 排序和反转#lst.sort(key=None, reverse=False)：就地（in-place）升序排序，支持 key 函数和 reverse=True（降序）。 lst.reverse()：就地反转列表顺序。 sorted(lst, key=None, reverse=False)：内建函数，返回新的排序后列表，不改变原列表。 复制#lst.copy()：浅拷贝列表，相当于 lst[:]。 其他常见操作#len(lst)：返回列表长度。 lst[i] / lst[i:j:k]：索引或切片操作，可读可写（切片赋值时替换区间）。 i in lst：判断元素是否在列表中，时间复杂度 O(n)。 min(lst)、max(lst)：返回最小值/最大值（列表元素需可比较）。 Set#增加、删除元素#s.add(x)：将元素 x 添加到集合中。 s.update(iterable)：将可迭代对象中的所有元素加到集合中。 s.remove(x)：删除元素 x，若不存在则抛 KeyError。 s.discard(x)：删除元素 x，若不存在不抛异常。 s.pop()：随机删除并返回一个元素（集合是无序的）。 s.clear()：清空集合。 Dict#访问、赋值#d[key]：获取键 key 对应的值，若 key 不存在抛 KeyError。 d.get(key[, default])：获取键 key 的值，若不存在返回 default（默认为 None）。 d[key] = value：新增或修改键值对。 d.setdefault(key[, default])：若 key 存在，返回对应值；若不存在，则将 key: default 加入字典并返回 default。 删除#d.pop(key[, default])：删除键 key 并返回对应值；若不存在且未给 default，抛 KeyError；若提供 default，返回 default。 d.popitem()：随机（实际是 LIFO 顺序）删除并返回一对 (key, value)；Python3.7&#43; 中为删除最后插入的键值对。 del d[key]：删除键 key，若不存在抛 KeyError。 d.clear()：清空所有键值对。 遍历#for k in d:：遍历所有键（同 for k in d.keys():）。 for k, v in d.items():：同时遍历键和值。 for v in d.values():：遍历所有值。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>1st | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/hidden/1/">
+<link rel="stylesheet" href="/book.min.e9f68c3fff3d8236a489d16a9caf6de5e4d1a29c20eb4b5524e42cd30be4d319.css" integrity="sha256-6faMP/89gjakidFqnK9t5eTRopwg60tVJOQs0wvk0xk=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.407592ccd3f4d80ecd4d90a7f430fe1573dd5abc723c8eb833c7d92bbf63ae60.js" integrity="sha256-QHWSzNP02A7NTZCn9DD&#43;FXPdWrxyPI64M8fZK79jrmA=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <span>学习资料</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/tips/" class="">补充</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>1st</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#list">List</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#set">Set</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#dict">Dict</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    1st
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h2 id="list">
+  List
+  <a class="anchor" href="#list">#</a>
+</h2>
+<h4 id="增加插入元素">
+  增加、插入元素
+  <a class="anchor" href="#%e5%a2%9e%e5%8a%a0%e6%8f%92%e5%85%a5%e5%85%83%e7%b4%a0">#</a>
+</h4>
+<ul>
+<li>lst.append(x)：在末尾添加元素 x。</li>
+<li>lst.extend(iterable)：在末尾一次性追加一个可迭代对象中的所有元素，相当于多次 append。</li>
+<li>lst.insert(i, x)：在索引 i 位置插入元素 x，后面的元素右移。</li>
+</ul>
+<h4 id="删除元素">
+  删除元素
+  <a class="anchor" href="#%e5%88%a0%e9%99%a4%e5%85%83%e7%b4%a0">#</a>
+</h4>
+<ul>
+<li>lst.pop([i])：删除并返回索引 i 处的元素，若不传 i，默认删除并返回最后一个元素。</li>
+<li>lst.remove(x)：删除列表中第一个值为 x 的元素；若不存在则抛 ValueError。</li>
+<li>del lst[i] / del lst[i:j]：通过 del 关键字删除索引 i 处或区间 [i:j] 内的元素。</li>
+<li>lst.clear()：清空列表，等价于 del lst[:]。</li>
+</ul>
+<h4 id="查找与统计">
+  查找与统计
+  <a class="anchor" href="#%e6%9f%a5%e6%89%be%e4%b8%8e%e7%bb%9f%e8%ae%a1">#</a>
+</h4>
+<ul>
+<li>lst.index(x[, start[, end]])：返回列表中值为 x 的第一个下标，可选指定查找区间。</li>
+<li>lst.count(x)：统计列表中值为 x 的出现次数。</li>
+</ul>
+<h4 id="排序和反转">
+  排序和反转
+  <a class="anchor" href="#%e6%8e%92%e5%ba%8f%e5%92%8c%e5%8f%8d%e8%bd%ac">#</a>
+</h4>
+<ul>
+<li>lst.sort(key=None, reverse=False)：就地（in-place）升序排序，支持 key 函数和 reverse=True（降序）。</li>
+<li>lst.reverse()：就地反转列表顺序。</li>
+<li>sorted(lst, key=None, reverse=False)：内建函数，返回新的排序后列表，不改变原列表。</li>
+</ul>
+<h4 id="复制">
+  复制
+  <a class="anchor" href="#%e5%a4%8d%e5%88%b6">#</a>
+</h4>
+<ul>
+<li>lst.copy()：浅拷贝列表，相当于 lst[:]。</li>
+</ul>
+<h4 id="其他常见操作">
+  其他常见操作
+  <a class="anchor" href="#%e5%85%b6%e4%bb%96%e5%b8%b8%e8%a7%81%e6%93%8d%e4%bd%9c">#</a>
+</h4>
+<ul>
+<li>len(lst)：返回列表长度。</li>
+<li>lst[i] / lst[i:j:k]：索引或切片操作，可读可写（切片赋值时替换区间）。</li>
+<li>i in lst：判断元素是否在列表中，时间复杂度 O(n)。</li>
+<li>min(lst)、max(lst)：返回最小值/最大值（列表元素需可比较）。</li>
+</ul>
+<h2 id="set">
+  Set
+  <a class="anchor" href="#set">#</a>
+</h2>
+<h4 id="增加删除元素">
+  增加、删除元素
+  <a class="anchor" href="#%e5%a2%9e%e5%8a%a0%e5%88%a0%e9%99%a4%e5%85%83%e7%b4%a0">#</a>
+</h4>
+<ul>
+<li>s.add(x)：将元素 x 添加到集合中。</li>
+<li>s.update(iterable)：将可迭代对象中的所有元素加到集合中。</li>
+<li>s.remove(x)：删除元素 x，若不存在则抛 KeyError。</li>
+<li>s.discard(x)：删除元素 x，若不存在不抛异常。</li>
+<li>s.pop()：随机删除并返回一个元素（集合是无序的）。</li>
+<li>s.clear()：清空集合。</li>
+</ul>
+<h2 id="dict">
+  Dict
+  <a class="anchor" href="#dict">#</a>
+</h2>
+<h4 id="访问赋值">
+  访问、赋值
+  <a class="anchor" href="#%e8%ae%bf%e9%97%ae%e8%b5%8b%e5%80%bc">#</a>
+</h4>
+<ul>
+<li>d[key]：获取键 key 对应的值，若 key 不存在抛 KeyError。</li>
+<li>d.get(key[, default])：获取键 key 的值，若不存在返回 default（默认为 None）。</li>
+<li>d[key] = value：新增或修改键值对。</li>
+<li>d.setdefault(key[, default])：若 key 存在，返回对应值；若不存在，则将 key: default 加入字典并返回 default。</li>
+</ul>
+<h4 id="删除">
+  删除
+  <a class="anchor" href="#%e5%88%a0%e9%99%a4">#</a>
+</h4>
+<ul>
+<li>d.pop(key[, default])：删除键 key 并返回对应值；若不存在且未给 default，抛 KeyError；若提供 default，返回 default。</li>
+<li>d.popitem()：随机（实际是 LIFO 顺序）删除并返回一对 (key, value)；Python3.7+ 中为删除最后插入的键值对。</li>
+<li>del d[key]：删除键 key，若不存在抛 KeyError。</li>
+<li>d.clear()：清空所有键值对。</li>
+</ul>
+<h4 id="遍历">
+  遍历
+  <a class="anchor" href="#%e9%81%8d%e5%8e%86">#</a>
+</h4>
+<ul>
+<li>for k in d:：遍历所有键（同 for k in d.keys():）。</li>
+<li>for k, v in d.items():：同时遍历键和值。</li>
+<li>for v in d.values():：遍历所有值。</li>
+</ul>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#list">List</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#set">Set</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#dict">Dict</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
