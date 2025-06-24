@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>前端 on 君宝的笔记</title>
+    <link>http://localhost:1313/docs/study/frontend/</link>
+    <description>Recent content in 前端 on 君宝的笔记</description>
+    <generator>Hugo</generator>
+    <language>zh</language>
+    <atom:link href="http://localhost:1313/docs/study/frontend/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>React 知识</title>
+      <link>http://localhost:1313/docs/study/frontend/react-knowledge/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/docs/study/frontend/react-knowledge/</guid>
+      <description>&lt;p&gt;This is an extensive list covering almost every aspect of React development! I&amp;rsquo;ll provide concise, effective answers for each, suitable for an interview context. Remember to &lt;strong&gt;personalize these answers with your own project examples and specific experiences&lt;/strong&gt; to make them more impactful.&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;-react-核心基础&#34;&gt;&#xD;&#xA;  💡 React 核心基础&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#-react-%e6%a0%b8%e5%bf%83%e5%9f%ba%e7%a1%80&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;hr&gt;&#xA;&lt;h3 id=&#34;react-的核心原理是什么&#34;&gt;&#xD;&#xA;  React 的核心原理是什么？&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#react-%e7%9a%84%e6%a0%b8%e5%bf%83%e5%8e%9f%e7%90%86%e6%98%af%e4%bb%80%e4%b9%88&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h3&gt;&#xD;&#xA;&lt;p&gt;React 的核心原理是&lt;strong&gt;声明式 UI 和组件化&lt;/strong&gt;。我们通过声明式地描述 UI 应该长什么样（给定状态），React 会负责更新 UI 以匹配这个声明。它将 UI 拆分成独立、可复用的组件，每个组件管理自己的状态并渲染特定的 UI 片段。通过&lt;strong&gt;虚拟 DOM 和 Diff 算法&lt;/strong&gt;，React 高效地更新真实 DOM，只修改必要的部分，从而提升性能。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

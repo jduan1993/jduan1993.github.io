@@ -3,282 +3,24 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="
-  要求
-  #
-
-
-  1. 分布式、可扩展。
-  #
-
-
-分布式：微服务、异步通信、分布式缓存、K8s
-可扩展：HPA、分库分表、K8s DNS Service、多AZ、多国家
-
-
-  2. 用户可搜索、可预约、可重新安排、可取消，基于医生的位置、专科、可用时间。
-  #
-
-
-  搜索
-  #
-
-
-Cache Aside，Invalidate when Booking and Cancellation (TTL ~ minutes)
-Caffeine 异步延迟双删
-
-
-  权衡
-  #
-
-
-  
-      
-          优点
-          说明
-      
-  
-  
-      
-          ⚡ 高吞吐
-          Redis 命中率高，支持 QPS &gt; 1000&#43;
-      
-      
-          ⏱️ 低延迟
-          单医生查询 latency ≈ 几 ms
-      
-      
-          ✅ 写后无读
-          Slot 数据预生成、写入后只读，适合缓存
-      
-      
-          🔁 异步更新
-          Cache 由 Kafka 驱动异步更新，无需强一致性
-      
-  
-
-
-  
-      
-          缺点
-          说明
-      
-  
-  
-      
-          🕒 数据轻微不一致
-          TTL 失效期间可能展示已被预约的 slot（在 Booking 阶段兜底）
-      
-      
-          🧠 Cache Invalidate 复杂
-          多服务写入 slot 状态需保证正确清除 Redis 缓存
-      
-      
-          📦 大量 slot
-          Redis 内存占用需控制（可做分片 or 使用 Redis Cluster）
-      
-  
-
-
-  预约
-  #
-
-
-Redlock 加锁 (TTL ~ seconds)
-加入 Request ID 作为唯一性约束
-数据库悲观锁（Pessimistic Lock）双检
-插入预约（Appointment）
-发布 AppointmentCreated 到 Kafka
-释放锁（Unlock）
-响应客户端
-消费者（Search Service）Cache Invalidation
-消费者（Notification Service）发送消息
-
-
-  权衡
-  #
-
-
-  
-      
-          优点
-          说明
-      
-  
-  
-      
-          ✅ 高一致性保障
-          锁&#43;事务双重保证
-      
-      
-          ✅ 幂等设计
-          防止重复预约
-      
-      
-          ✅ 可观测性强
-          Kafka 推送事件用于追踪链路
-      
-      
-          ✅ 异步解耦
-          非核心逻辑（通知、缓存）不影响主流程性能
-      
-  
-
-
-  
-      
-          缺点
-          说明
-      
-  
-  
-      
-          ❗ Redis 不可用
-          Redlock 依赖 Redis，可引入降级机制（fallback DB lock）
-      
-      
-          ❗ 高并发下延迟
-          拥塞在热点 slot（比如热门医生）可用队列排队缓解
-      
-      
-          ❗ 事务复杂性
-          需细致处理锁释放和回滚，避免死锁
-      
-  
-
-
-  重新安排
-  #
-
-
-Redlock加锁 (TTL ~ seconds)
-数据库悲观锁（Pessimistic Lock）双检
-校验修改旧预约，插入新预约
-发布 AppointmentRescheduled 到 Kafka
-释放锁（Unlock）
-响应客户端
-消费者（Search Service）Cache Invalidation
-消费者（Notification Service）发送消息
-
-
-  权衡
-  #
-
-
-  
-      
-          优点
-          说明
-      
-  
-  
-      
-          ✅ 一致性保障
-          事务更新 &#43; 幂等控制，避免错约/重复约
-      
-      
-          ✅ 双 slot 安全管理
-          显式释放旧 slot、锁定新 slot
-      
-      
-          ✅ 解耦逻辑
-          Kafka 用于通知与缓存刷新，主流程不阻塞
-      
-  
-
-
-  
-      
-          缺点
-          说明
-      
-  
-  
-      
-          ❗ 新旧 slot 状态切换逻辑复杂
-          需要明确状态流转模型
-      
-      
-          ❗ Redis 不可用影响锁
-          降级 fallback：数据库悲观锁
-      
-      
-          ❗ 用户误操作可能导致重复 reschedule
-          需限制频率，增强幂等性保障
-      
-  
-
-
-  取消
-  #
-
-
-Redlock加锁 (TTL ~ seconds)
-数据库悲观锁（Pessimistic Lock）双检
-校验修改旧预约
-发布 AppointmentCanceled 到 Kafka
-释放锁（Unlock）
-响应客户端
-消费者（Search Service）Cache Invalidation
-消费者（Notification Service）发送消息
-
-
-  权衡
-  #
-
-
-  3. 服务5000万用户，50万医生，每秒700次搜索，每秒90次预约。
-  #
-
-
-  4. 轻松拓展新地区。
-  #
-
-
-配置层面隔离（Spring Cloud Config）
-数据库分库（Date Partitioning）
-通用服务（Common Services）和差异化定制（Custom Services）
-API设计（/fr, /de）
-多租户部署（namespace）
-日志标签（Label）
-
-
-  5. 要考虑服务之间的扩展性，容错性，数据一致性。
-  #
-
-
-扩展性：HPA，Ingress Controller，Redis Cluster Slot，Kafka Brokers Partition, Database Sharding
-容错性：Service Mesh，多AZ，Redis Redlock，Kafka
-最终一致性：数据库事务，Redis Redlock，SAGA Pattern，异步消息（Async Message），重试（Retry），死信队列（Dead Letter Queue），缓存失效（Cache Invalidation），事件监听（Event-driven Monitoring）
-
-
-  问题
-  #
-
-
-  1. 搜索前（Search）需要经过鉴权（Authorization）吗？
-  #
-
-如果不需要：">
+<meta name="description" content="">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
 <meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/system-design/">
   <meta property="og:site_name" content="君宝的笔记">
   <meta property="og:title" content="系统设计">
-  <meta property="og:description" content="要求#1. 分布式、可扩展。#分布式：微服务、异步通信、分布式缓存、K8s 可扩展：HPA、分库分表、K8s DNS Service、多AZ、多国家 2. 用户可搜索、可预约、可重新安排、可取消，基于医生的位置、专科、可用时间。#搜索#Cache Aside，Invalidate when Booking and Cancellation (TTL ~ minutes) Caffeine 异步延迟双删 权衡#优点 说明 ⚡ 高吞吐 Redis 命中率高，支持 QPS &gt; 1000&#43; ⏱️ 低延迟 单医生查询 latency ≈ 几 ms ✅ 写后无读 Slot 数据预生成、写入后只读，适合缓存 🔁 异步更新 Cache 由 Kafka 驱动异步更新，无需强一致性 缺点 说明 🕒 数据轻微不一致 TTL 失效期间可能展示已被预约的 slot（在 Booking 阶段兜底） 🧠 Cache Invalidate 复杂 多服务写入 slot 状态需保证正确清除 Redis 缓存 📦 大量 slot Redis 内存占用需控制（可做分片 or 使用 Redis Cluster） 预约#Redlock 加锁 (TTL ~ seconds) 加入 Request ID 作为唯一性约束 数据库悲观锁（Pessimistic Lock）双检 插入预约（Appointment） 发布 AppointmentCreated 到 Kafka 释放锁（Unlock） 响应客户端 消费者（Search Service）Cache Invalidation 消费者（Notification Service）发送消息 权衡#优点 说明 ✅ 高一致性保障 锁&#43;事务双重保证 ✅ 幂等设计 防止重复预约 ✅ 可观测性强 Kafka 推送事件用于追踪链路 ✅ 异步解耦 非核心逻辑（通知、缓存）不影响主流程性能 缺点 说明 ❗ Redis 不可用 Redlock 依赖 Redis，可引入降级机制（fallback DB lock） ❗ 高并发下延迟 拥塞在热点 slot（比如热门医生）可用队列排队缓解 ❗ 事务复杂性 需细致处理锁释放和回滚，避免死锁 重新安排#Redlock加锁 (TTL ~ seconds) 数据库悲观锁（Pessimistic Lock）双检 校验修改旧预约，插入新预约 发布 AppointmentRescheduled 到 Kafka 释放锁（Unlock） 响应客户端 消费者（Search Service）Cache Invalidation 消费者（Notification Service）发送消息 权衡#优点 说明 ✅ 一致性保障 事务更新 &#43; 幂等控制，避免错约/重复约 ✅ 双 slot 安全管理 显式释放旧 slot、锁定新 slot ✅ 解耦逻辑 Kafka 用于通知与缓存刷新，主流程不阻塞 缺点 说明 ❗ 新旧 slot 状态切换逻辑复杂 需要明确状态流转模型 ❗ Redis 不可用影响锁 降级 fallback：数据库悲观锁 ❗ 用户误操作可能导致重复 reschedule 需限制频率，增强幂等性保障 取消#Redlock加锁 (TTL ~ seconds) 数据库悲观锁（Pessimistic Lock）双检 校验修改旧预约 发布 AppointmentCanceled 到 Kafka 释放锁（Unlock） 响应客户端 消费者（Search Service）Cache Invalidation 消费者（Notification Service）发送消息 权衡#3. 服务5000万用户，50万医生，每秒700次搜索，每秒90次预约。#4. 轻松拓展新地区。#配置层面隔离（Spring Cloud Config） 数据库分库（Date Partitioning） 通用服务（Common Services）和差异化定制（Custom Services） API设计（/fr, /de） 多租户部署（namespace） 日志标签（Label） 5. 要考虑服务之间的扩展性，容错性，数据一致性。#扩展性：HPA，Ingress Controller，Redis Cluster Slot，Kafka Brokers Partition, Database Sharding 容错性：Service Mesh，多AZ，Redis Redlock，Kafka 最终一致性：数据库事务，Redis Redlock，SAGA Pattern，异步消息（Async Message），重试（Retry），死信队列（Dead Letter Queue），缓存失效（Cache Invalidation），事件监听（Event-driven Monitoring） 问题#1. 搜索前（Search）需要经过鉴权（Authorization）吗？#如果不需要：">
   <meta property="og:locale" content="zh">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="docs">
-    <meta property="article:modified_time" content="2025-05-27T11:38:44+08:00">
+  <meta property="og:type" content="website">
 <title>系统设计 | 君宝的笔记</title>
 <link rel="icon" href="/favicon.png" >
 <link rel="manifest" href="/manifest.json">
 <link rel="canonical" href="http://localhost:1313/docs/study/system-design/">
 <link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
   <script defer src="/fuse.min.js"></script>
-  <script defer src="/zh.search.min.c50e126e23ecc47a20052871e95789824d635e9afbd21d20b6402c0124535251.js" integrity="sha256-xQ4SbiPsxHogBShx6VeJgk1jXpr70h0gtkAsASRTUlE=" crossorigin="anonymous"></script>
+  <script defer src="/zh.search.min.0f92089cbd58f6b549eccc641db80bb133780165aafd3e13ce1f121f979ce091.js" integrity="sha256-D5IInL1Y9rVJ7MxkHbgLsTN4AWWq/T4Tzh8SH5ec4JE=" crossorigin="anonymous"></script>
 
   <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/docs/study/system-design/index.xml" title="君宝的笔记" />
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -363,7 +105,10 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <span>学习资料</span>
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
   
 
           
@@ -376,7 +121,23 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/system-design/" class="active">系统设计</a>
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/tips/" class="">补充</a>
   
 
         </li>
@@ -389,7 +150,96 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/tips/" class="">补充</a>
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle" checked />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="active">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
   
 
         </li>
@@ -402,7 +252,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/doctolib-system-design/" class="">Doctolib系统设计</a>
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
   
 
         </li>
@@ -415,7 +265,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/react-knowledge/" class="">React 知识</a>
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
   
 
         </li>
@@ -428,7 +278,54 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/rpc/" class="">RPC框架</a>
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
   
 
         </li>
@@ -441,21 +338,18 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/study/cache-consistency/" class="">缓存一致性</a>
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
   
 
         </li>
       
     
-      
-        <li>
-          
-  
-  
+  </ul>
 
-  
-    <a href="/docs/study/license-comparison/" class="">主流许可证对比</a>
-  
+        </li>
+      
+    
+  </ul>
 
         </li>
       
@@ -770,22 +664,7 @@ https://github.com/alex-shpak/hugo-book
   <aside class="hidden clearfix">
     
   
-<nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li>
-          <ul>
-            <li><a href="#要求">要求</a></li>
-            <li><a href="#问题">问题</a></li>
-            <li><a href="#可扩展性和安全性">可扩展性和安全性</a></li>
-            <li><a href="#优化">优化</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
+<nav id="TableOfContents"></nav>
 
 
 
@@ -796,443 +675,7 @@ https://github.com/alex-shpak/hugo-book
 
       
       
-<article class="markdown book-post">
-  <h1>
-    系统设计
-  </h1>
-  
-  <div><a class="flex align-center" href="https://github.com/jduan1993/jduan1993.github.io/commit/87061bc8b5156c5174a8e43282b748ed0efeabaa" title='最后修改者 jduan1993 | 五月 27, 2025' target="_blank" rel="noopener">
-    <img src="/svg/calendar.svg" class="book-icon" alt="" />
-    <span>五月 27, 2025</span>
-    </a>
-  </div>
-  
-  
-
-
-  
-
-  
-
-
-  <div class="book-post-content"><h3 id="要求">
-  要求
-  <a class="anchor" href="#%e8%a6%81%e6%b1%82">#</a>
-</h3>
-<h4 id="1-分布式可扩展">
-  1. 分布式、可扩展。
-  <a class="anchor" href="#1-%e5%88%86%e5%b8%83%e5%bc%8f%e5%8f%af%e6%89%a9%e5%b1%95">#</a>
-</h4>
-<ul>
-<li>分布式：微服务、异步通信、分布式缓存、K8s</li>
-<li>可扩展：HPA、分库分表、K8s DNS Service、多AZ、多国家</li>
-</ul>
-<h4 id="2-用户可搜索可预约可重新安排可取消基于医生的位置专科可用时间">
-  2. 用户可搜索、可预约、可重新安排、可取消，基于医生的位置、专科、可用时间。
-  <a class="anchor" href="#2-%e7%94%a8%e6%88%b7%e5%8f%af%e6%90%9c%e7%b4%a2%e5%8f%af%e9%a2%84%e7%ba%a6%e5%8f%af%e9%87%8d%e6%96%b0%e5%ae%89%e6%8e%92%e5%8f%af%e5%8f%96%e6%b6%88%e5%9f%ba%e4%ba%8e%e5%8c%bb%e7%94%9f%e7%9a%84%e4%bd%8d%e7%bd%ae%e4%b8%93%e7%a7%91%e5%8f%af%e7%94%a8%e6%97%b6%e9%97%b4">#</a>
-</h4>
-<h5 id="搜索">
-  搜索
-  <a class="anchor" href="#%e6%90%9c%e7%b4%a2">#</a>
-</h5>
-<ul>
-<li>Cache Aside，Invalidate when Booking and Cancellation (TTL ~ minutes)</li>
-<li>Caffeine 异步延迟双删</li>
-</ul>
-<h6 id="权衡">
-  权衡
-  <a class="anchor" href="#%e6%9d%83%e8%a1%a1">#</a>
-</h6>
-<table>
-  <thead>
-      <tr>
-          <th>优点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>⚡ 高吞吐</td>
-          <td>Redis 命中率高，支持 QPS &gt; 1000+</td>
-      </tr>
-      <tr>
-          <td>⏱️ 低延迟</td>
-          <td>单医生查询 latency ≈ 几 ms</td>
-      </tr>
-      <tr>
-          <td>✅ 写后无读</td>
-          <td>Slot 数据预生成、写入后只读，适合缓存</td>
-      </tr>
-      <tr>
-          <td>🔁 异步更新</td>
-          <td>Cache 由 Kafka 驱动异步更新，无需强一致性</td>
-      </tr>
-  </tbody>
-</table>
-<table>
-  <thead>
-      <tr>
-          <th>缺点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>🕒 数据轻微不一致</td>
-          <td>TTL 失效期间可能展示已被预约的 slot（在 Booking 阶段兜底）</td>
-      </tr>
-      <tr>
-          <td>🧠 Cache Invalidate 复杂</td>
-          <td>多服务写入 slot 状态需保证正确清除 Redis 缓存</td>
-      </tr>
-      <tr>
-          <td>📦 大量 slot</td>
-          <td>Redis 内存占用需控制（可做分片 or 使用 Redis Cluster）</td>
-      </tr>
-  </tbody>
-</table>
-<h5 id="预约">
-  预约
-  <a class="anchor" href="#%e9%a2%84%e7%ba%a6">#</a>
-</h5>
-<ul>
-<li>Redlock 加锁 (TTL ~ seconds)</li>
-<li>加入 Request ID 作为唯一性约束</li>
-<li>数据库悲观锁（Pessimistic Lock）双检</li>
-<li>插入预约（Appointment）</li>
-<li>发布 AppointmentCreated 到 Kafka</li>
-<li>释放锁（Unlock）</li>
-<li>响应客户端</li>
-<li>消费者（Search Service）Cache Invalidation</li>
-<li>消费者（Notification Service）发送消息</li>
-</ul>
-<h6 id="权衡-1">
-  权衡
-  <a class="anchor" href="#%e6%9d%83%e8%a1%a1-1">#</a>
-</h6>
-<table>
-  <thead>
-      <tr>
-          <th>优点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>✅ 高一致性保障</td>
-          <td>锁+事务双重保证</td>
-      </tr>
-      <tr>
-          <td>✅ 幂等设计</td>
-          <td>防止重复预约</td>
-      </tr>
-      <tr>
-          <td>✅ 可观测性强</td>
-          <td>Kafka 推送事件用于追踪链路</td>
-      </tr>
-      <tr>
-          <td>✅ 异步解耦</td>
-          <td>非核心逻辑（通知、缓存）不影响主流程性能</td>
-      </tr>
-  </tbody>
-</table>
-<table>
-  <thead>
-      <tr>
-          <th>缺点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>❗ Redis 不可用</td>
-          <td>Redlock 依赖 Redis，可引入降级机制（fallback DB lock）</td>
-      </tr>
-      <tr>
-          <td>❗ 高并发下延迟</td>
-          <td>拥塞在热点 slot（比如热门医生）可用队列排队缓解</td>
-      </tr>
-      <tr>
-          <td>❗ 事务复杂性</td>
-          <td>需细致处理锁释放和回滚，避免死锁</td>
-      </tr>
-  </tbody>
-</table>
-<h5 id="重新安排">
-  重新安排
-  <a class="anchor" href="#%e9%87%8d%e6%96%b0%e5%ae%89%e6%8e%92">#</a>
-</h5>
-<ul>
-<li>Redlock加锁 (TTL ~ seconds)</li>
-<li>数据库悲观锁（Pessimistic Lock）双检</li>
-<li>校验修改旧预约，插入新预约</li>
-<li>发布 AppointmentRescheduled 到 Kafka</li>
-<li>释放锁（Unlock）</li>
-<li>响应客户端</li>
-<li>消费者（Search Service）Cache Invalidation</li>
-<li>消费者（Notification Service）发送消息</li>
-</ul>
-<h6 id="权衡-2">
-  权衡
-  <a class="anchor" href="#%e6%9d%83%e8%a1%a1-2">#</a>
-</h6>
-<table>
-  <thead>
-      <tr>
-          <th>优点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>✅ 一致性保障</td>
-          <td>事务更新 + 幂等控制，避免错约/重复约</td>
-      </tr>
-      <tr>
-          <td>✅ 双 slot 安全管理</td>
-          <td>显式释放旧 slot、锁定新 slot</td>
-      </tr>
-      <tr>
-          <td>✅ 解耦逻辑</td>
-          <td>Kafka 用于通知与缓存刷新，主流程不阻塞</td>
-      </tr>
-  </tbody>
-</table>
-<table>
-  <thead>
-      <tr>
-          <th>缺点</th>
-          <th>说明</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>❗ 新旧 slot 状态切换逻辑复杂</td>
-          <td>需要明确状态流转模型</td>
-      </tr>
-      <tr>
-          <td>❗ Redis 不可用影响锁</td>
-          <td>降级 fallback：数据库悲观锁</td>
-      </tr>
-      <tr>
-          <td>❗ 用户误操作可能导致重复 reschedule</td>
-          <td>需限制频率，增强幂等性保障</td>
-      </tr>
-  </tbody>
-</table>
-<h5 id="取消">
-  取消
-  <a class="anchor" href="#%e5%8f%96%e6%b6%88">#</a>
-</h5>
-<ul>
-<li>Redlock加锁 (TTL ~ seconds)</li>
-<li>数据库悲观锁（Pessimistic Lock）双检</li>
-<li>校验修改旧预约</li>
-<li>发布 AppointmentCanceled 到 Kafka</li>
-<li>释放锁（Unlock）</li>
-<li>响应客户端</li>
-<li>消费者（Search Service）Cache Invalidation</li>
-<li>消费者（Notification Service）发送消息</li>
-</ul>
-<h6 id="权衡-3">
-  权衡
-  <a class="anchor" href="#%e6%9d%83%e8%a1%a1-3">#</a>
-</h6>
-<h4 id="3-服务5000万用户50万医生每秒700次搜索每秒90次预约">
-  3. 服务5000万用户，50万医生，每秒700次搜索，每秒90次预约。
-  <a class="anchor" href="#3-%e6%9c%8d%e5%8a%a15000%e4%b8%87%e7%94%a8%e6%88%b750%e4%b8%87%e5%8c%bb%e7%94%9f%e6%af%8f%e7%a7%92700%e6%ac%a1%e6%90%9c%e7%b4%a2%e6%af%8f%e7%a7%9290%e6%ac%a1%e9%a2%84%e7%ba%a6">#</a>
-</h4>
-<h4 id="4-轻松拓展新地区">
-  4. 轻松拓展新地区。
-  <a class="anchor" href="#4-%e8%bd%bb%e6%9d%be%e6%8b%93%e5%b1%95%e6%96%b0%e5%9c%b0%e5%8c%ba">#</a>
-</h4>
-<ul>
-<li>配置层面隔离（Spring Cloud Config）</li>
-<li>数据库分库（Date Partitioning）</li>
-<li>通用服务（Common Services）和差异化定制（Custom Services）</li>
-<li>API设计（/fr, /de）</li>
-<li>多租户部署（namespace）</li>
-<li>日志标签（Label）</li>
-</ul>
-<h4 id="5-要考虑服务之间的扩展性容错性数据一致性">
-  5. 要考虑服务之间的扩展性，容错性，数据一致性。
-  <a class="anchor" href="#5-%e8%a6%81%e8%80%83%e8%99%91%e6%9c%8d%e5%8a%a1%e4%b9%8b%e9%97%b4%e7%9a%84%e6%89%a9%e5%b1%95%e6%80%a7%e5%ae%b9%e9%94%99%e6%80%a7%e6%95%b0%e6%8d%ae%e4%b8%80%e8%87%b4%e6%80%a7">#</a>
-</h4>
-<ul>
-<li>扩展性：HPA，Ingress Controller，Redis Cluster Slot，Kafka Brokers Partition, Database Sharding</li>
-<li>容错性：Service Mesh，多AZ，Redis Redlock，Kafka</li>
-<li>最终一致性：数据库事务，Redis Redlock，SAGA Pattern，异步消息（Async Message），重试（Retry），死信队列（Dead Letter Queue），缓存失效（Cache Invalidation），事件监听（Event-driven Monitoring）</li>
-</ul>
-<h3 id="问题">
-  问题
-  <a class="anchor" href="#%e9%97%ae%e9%a2%98">#</a>
-</h3>
-<h4 id="1-搜索前search需要经过鉴权authorization吗">
-  1. 搜索前（Search）需要经过鉴权（Authorization）吗？
-  <a class="anchor" href="#1-%e6%90%9c%e7%b4%a2%e5%89%8dsearch%e9%9c%80%e8%a6%81%e7%bb%8f%e8%bf%87%e9%89%b4%e6%9d%83authorization%e5%90%97">#</a>
-</h4>
-<p>如果不需要：</p>
-<ul>
-<li>把Search Service置前</li>
-<li>这样可能更吸引用户</li>
-<li>但是会增加访问量</li>
-</ul>
-<h4 id="2-搜索时都有什么筛选条件filter-condition">
-  2. 搜索时都有什么筛选条件（Filter Condition）？
-  <a class="anchor" href="#2-%e6%90%9c%e7%b4%a2%e6%97%b6%e9%83%bd%e6%9c%89%e4%bb%80%e4%b9%88%e7%ad%9b%e9%80%89%e6%9d%a1%e4%bb%b6filter-condition">#</a>
-</h4>
-<p>如果涉及到距离，交通工具，路程用时等条件：</p>
-<ul>
-<li>可以设计第三方供应商（3rd-Party Vendors）提供地图（Map API）等接口</li>
-</ul>
-<p>如果涉及到医生简介（Summary），全文搜索（Full-Text Search）:</p>
-<ul>
-<li>可以引入ElasticSearch</li>
-</ul>
-<h4 id="3-我们不同国家的市场使用同一个应用the-only-one-app吗">
-  3. 我们不同国家的市场使用同一个应用（The only one app）吗？
-  <a class="anchor" href="#3-%e6%88%91%e4%bb%ac%e4%b8%8d%e5%90%8c%e5%9b%bd%e5%ae%b6%e7%9a%84%e5%b8%82%e5%9c%ba%e4%bd%bf%e7%94%a8%e5%90%8c%e4%b8%80%e4%b8%aa%e5%ba%94%e7%94%a8the-only-one-app%e5%90%97">#</a>
-</h4>
-<p>如果是：</p>
-<ul>
-<li>国际化（Internationalization），时间、语言、货币、日期格式</li>
-<li>配置开关（Feature Flag）</li>
-<li>根据设备本地时间（Device Time）或者定位（Localization）</li>
-</ul>
-<p>如果不是：</p>
-<ul>
-<li>部署过程要考虑更多模块</li>
-</ul>
-<h4 id="4-预约会跨天span-2-days吗">
-  4. 预约会跨天（Span 2 days）吗？
-  <a class="anchor" href="#4-%e9%a2%84%e7%ba%a6%e4%bc%9a%e8%b7%a8%e5%a4%a9span-2-days%e5%90%97">#</a>
-</h4>
-<ul>
-<li>要考虑数据库表结构（Database table structure)</li>
-<li>代码逻辑中要考虑</li>
-</ul>
-<h4 id="5-每秒700次搜索和90次预约是最高峰值maximum-peak-value吗">
-  5. 每秒700次搜索和90次预约是最高峰值（Maximum Peak Value）吗？
-  <a class="anchor" href="#5-%e6%af%8f%e7%a7%92700%e6%ac%a1%e6%90%9c%e7%b4%a2%e5%92%8c90%e6%ac%a1%e9%a2%84%e7%ba%a6%e6%98%af%e6%9c%80%e9%ab%98%e5%b3%b0%e5%80%bcmaximum-peak-value%e5%90%97">#</a>
-</h4>
-<ul>
-<li>影响规模（Scale）</li>
-</ul>
-<h3 id="可扩展性和安全性">
-  可扩展性和安全性
-  <a class="anchor" href="#%e5%8f%af%e6%89%a9%e5%b1%95%e6%80%a7%e5%92%8c%e5%ae%89%e5%85%a8%e6%80%a7">#</a>
-</h3>
-<h4 id="1-可扩展性">
-  1. 可扩展性
-  <a class="anchor" href="#1-%e5%8f%af%e6%89%a9%e5%b1%95%e6%80%a7">#</a>
-</h4>
-<table>
-  <thead>
-      <tr>
-          <th>方面</th>
-          <th>关键实践</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><strong>水平扩展（Horizontal Scaling）</strong></td>
-          <td>每个服务可以独立部署多个副本</td>
-      </tr>
-      <tr>
-          <td><strong>服务自治（Service Autonomy）</strong></td>
-          <td>各服务可独立扩缩，不依赖整体系统</td>
-      </tr>
-      <tr>
-          <td><strong>容器化部署</strong></td>
-          <td>使用 Docker + Kubernetes 实现自动扩缩容</td>
-      </tr>
-      <tr>
-          <td><strong>负载均衡（Load Balancing）</strong></td>
-          <td>使用 API Gateway 或 Service Mesh 均衡流量</td>
-      </tr>
-      <tr>
-          <td><strong>异步通信</strong></td>
-          <td>Kafka、RabbitMQ 等提高吞吐量和解耦</td>
-      </tr>
-      <tr>
-          <td><strong>缓存策略</strong></td>
-          <td>Redis、本地缓存，减少数据库压力</td>
-      </tr>
-      <tr>
-          <td><strong>数据库分库分表</strong></td>
-          <td>水平拆分提升并发能力</td>
-      </tr>
-      <tr>
-          <td><strong>服务熔断/限流</strong></td>
-          <td>Sentinel、Hystrix 防止雪崩效应</td>
-      </tr>
-  </tbody>
-</table>
-<h4 id="2-安全性">
-  2. 安全性
-  <a class="anchor" href="#2-%e5%ae%89%e5%85%a8%e6%80%a7">#</a>
-</h4>
-<table>
-  <thead>
-      <tr>
-          <th>安全领域</th>
-          <th>技术手段</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><strong>身份认证（Authentication）</strong></td>
-          <td>OAuth 2.0、OIDC、JWT Token</td>
-      </tr>
-      <tr>
-          <td><strong>服务授权（Authorization）</strong></td>
-          <td>RBAC、ABAC、API 权限网关</td>
-      </tr>
-      <tr>
-          <td><strong>通信加密</strong></td>
-          <td>HTTPS / TLS、gRPC + mTLS</td>
-      </tr>
-      <tr>
-          <td><strong>服务间认证</strong></td>
-          <td>Service Mesh（如 Istio）支持 mTLS 自动加密</td>
-      </tr>
-      <tr>
-          <td><strong>API 网关安全</strong></td>
-          <td>限流、防止重放攻击、请求签名验证</td>
-      </tr>
-      <tr>
-          <td><strong>数据安全</strong></td>
-          <td>数据加密（传输 + 存储）、脱敏、访问审计</td>
-      </tr>
-      <tr>
-          <td><strong>容器安全</strong></td>
-          <td>镜像扫描、Kubernetes 安全策略（PodSecurityPolicy）</td>
-      </tr>
-      <tr>
-          <td><strong>日志审计</strong></td>
-          <td>审计用户行为、异常访问记录</td>
-      </tr>
-      <tr>
-          <td><strong>防攻击</strong></td>
-          <td>防止 XSS / CSRF / SQL 注入，使用 WAF、防火墙等</td>
-      </tr>
-  </tbody>
-</table>
-<h3 id="优化">
-  优化
-  <a class="anchor" href="#%e4%bc%98%e5%8c%96">#</a>
-</h3>
-<ul>
-<li>服务间通信双向TLS（Mutual TLS between services）</li>
-<li>用Service Mesh统一做熔断、限流、重试（Centralized resiliency by service mesh）</li>
-<li>多AZ部署，包括Services，Redis Cluster等（Multi-AZ）</li>
-<li>二级缓存，一级Caffeine（Local），二级Redis（Distributed）</li>
-<li>数据库读写分离（Read-Write Separation），分库分表（Sharding）</li>
-<li>全链路Trace（Telemetry，end-to-end tracing）</li>
-<li>固定时间批处理热点时间多（Scheduled batch to store hot time slots）</li>
-</ul>
-</div>
-</article>
+  <article class="markdown book-article"></article>
  
       
 
@@ -1266,10 +709,6 @@ https://github.com/alex-shpak/hugo-book
 
       
   
-  <div class="book-comments">
-
-</div>
-  
  
 
       <label for="menu-control" class="hidden book-menu-overlay"></label>
@@ -1280,22 +719,7 @@ https://github.com/alex-shpak/hugo-book
       <div class="book-toc-content">
         
   
-<nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li>
-          <ul>
-            <li><a href="#要求">要求</a></li>
-            <li><a href="#问题">问题</a></li>
-            <li><a href="#可扩展性和安全性">可扩展性和安全性</a></li>
-            <li><a href="#优化">优化</a></li>
-          </ul>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</nav>
+<nav id="TableOfContents"></nav>
 
 
  

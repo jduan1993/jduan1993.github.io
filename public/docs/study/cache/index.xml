@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>缓存 on 君宝的笔记</title>
+    <link>http://localhost:1313/docs/study/cache/</link>
+    <description>Recent content in 缓存 on 君宝的笔记</description>
+    <generator>Hugo</generator>
+    <language>zh</language>
+    <atom:link href="http://localhost:1313/docs/study/cache/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>缓存一致性</title>
+      <link>http://localhost:1313/docs/study/cache/cache-consistency/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/docs/study/cache/cache-consistency/</guid>
+      <description>&lt;h2 id=&#34;延迟双删-vs-kafka&#34;&gt;&#xD;&#xA;  延迟双删 vs Kafka&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e5%bb%b6%e8%bf%9f%e5%8f%8c%e5%88%a0-vs-kafka&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;table&gt;&#xA;  &lt;thead&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;th&gt;对比维度&lt;/th&gt;&#xA;          &lt;th&gt;延迟双删&lt;/th&gt;&#xA;          &lt;th&gt;Kafka 缓存失效通知&lt;/th&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/thead&gt;&#xA;  &lt;tbody&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;实现难度&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;简单，代码内实现&lt;/td&gt;&#xA;          &lt;td&gt;需要接入 Kafka + 消费机制&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;缓存一致性控制力&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;不稳定（延迟期间仍可能被覆盖）&lt;/td&gt;&#xA;          &lt;td&gt;强一致（通知所有消费者实时失效）&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;适应多服务 / 多副本&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;差，需每个服务都实现&lt;/td&gt;&#xA;          &lt;td&gt;强，多服务可统一订阅通知&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;异步解耦能力&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;弱，紧耦合在业务逻辑中&lt;/td&gt;&#xA;          &lt;td&gt;强，数据库变更 → 异步通知&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;故障可追溯性&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;差，删失败难定位&lt;/td&gt;&#xA;          &lt;td&gt;强，Kafka 留存消息可回溯&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;&lt;strong&gt;网络异常容错性&lt;/strong&gt;&lt;/td&gt;&#xA;          &lt;td&gt;差，失败后不易重试&lt;/td&gt;&#xA;          &lt;td&gt;好，可消费失败后重试&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/tbody&gt;&#xA;&lt;/table&gt;</description>
+    </item>
+  </channel>
+</rss>

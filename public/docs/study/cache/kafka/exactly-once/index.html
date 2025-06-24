@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="下面基于上述 Exactly-Once 语义实现的内容，对“重要场景”与“关键设计”分别进行归纳与解释。
+
+
+  1. 重要场景及 Kafka 在其中的角色
+  #
+
+
+
+At-Most-Once / At-Least-Once vs Exactly-Once 流处理场景对比
+
+场景说明：流处理通常涉及“消费-处理-生产”（Consume-Process-Produce）流程；若仅用 At-Least-Once 语义，会因网络抖动或进程崩溃导致消息重复处理；若 At-Most-Once，则可能丢失消息。
+Kafka 角色：提供端到端 Exactly-Once 能力（在消费来源于 Kafka，且输出写回 Kafka 的场景）。通过幂等生产者与事务机制，避免重复消息与丢失，确保每条输入消息“恰好一次”被处理并产出消息，同时提交位点也被原子化地与输出挂钩。
+
+
+
+网络 ACK 丢失导致重试的重复写入场景
+
+场景说明：生产者发送消息，Broker 实际已写入但 ACK 丢失，客户端误以为失败重试，导致重复写入。
+Kafka 角色：在幂等生产者中，通过 Producer ID &#43; 分区内序列号、服务端维护最近 N 条批次信息，判重与乱序检测；再结合事务可保证跨会话的幂等，避免因 ACK 丢失产生重复。
+
+
+
+消费端已发送输出但尚未提交位点前崩溃导致重读并重复写入场景
+
+场景说明：在流处理应用中，消息处理完并向目标 Topic 发送成功后，若在提交 consumer offset 之前崩溃，重启后会再次消费并重复发送。
+Kafka 角色：通过事务：把“发送消息到目标 Topic”与“提交源 Topic 的位点（__consumer_offsets）”都纳入同一事务。若事务最终提交，则两者一起生效；若中途失败或崩溃未提交，则事务回滚，输出消息不可见且位点也不会生效，从而避免重复计算。
+
+
+
+多分区或多次读写操作的原子性需求场景
+
+场景说明：流处理可能对多个分区写入，或同时需要向多个 Topic-Partition 发送结果，并提交多个操作（如写结果、更新状态 topic、提交位点等）。需要保证这些操作要么都生效，要么都不生效。
+Kafka 角色：引入事务协调者（Transaction Coordinator），在事务上下文中跟踪涉及的所有分区信息；最终通过控制消息（WriteTxnMarker）通知各分区 Leader 提交或回滚，确保原子性。
+
+
+
+跨会话恢复场景
+
+场景说明：流处理应用或生产者进程重启后，若使用相同的事务 ID，应能识别前一会话未完成的事务并进行恰当回滚或继续。
+Kafka 角色：Transactional ID（用户提供）&#43; 服务端分配的 PID &#43; epoch 机制。重启后客户端用相同 Transactional ID 找到协调者，协调者检测到旧事务未完成，会回滚旧事务，给新的会话分配新的 epoch，从而保证幂等与正确恢复。
+
+
+
+Broker/协调者故障或网络分区场景">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/cache/kafka/exactly-once/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="Kafka Exactly-Once">
+  <meta property="og:description" content="下面基于上述 Exactly-Once 语义实现的内容，对“重要场景”与“关键设计”分别进行归纳与解释。
+1. 重要场景及 Kafka 在其中的角色#At-Most-Once / At-Least-Once vs Exactly-Once 流处理场景对比
+场景说明：流处理通常涉及“消费-处理-生产”（Consume-Process-Produce）流程；若仅用 At-Least-Once 语义，会因网络抖动或进程崩溃导致消息重复处理；若 At-Most-Once，则可能丢失消息。 Kafka 角色：提供端到端 Exactly-Once 能力（在消费来源于 Kafka，且输出写回 Kafka 的场景）。通过幂等生产者与事务机制，避免重复消息与丢失，确保每条输入消息“恰好一次”被处理并产出消息，同时提交位点也被原子化地与输出挂钩。 网络 ACK 丢失导致重试的重复写入场景
+场景说明：生产者发送消息，Broker 实际已写入但 ACK 丢失，客户端误以为失败重试，导致重复写入。 Kafka 角色：在幂等生产者中，通过 Producer ID &#43; 分区内序列号、服务端维护最近 N 条批次信息，判重与乱序检测；再结合事务可保证跨会话的幂等，避免因 ACK 丢失产生重复。 消费端已发送输出但尚未提交位点前崩溃导致重读并重复写入场景
+场景说明：在流处理应用中，消息处理完并向目标 Topic 发送成功后，若在提交 consumer offset 之前崩溃，重启后会再次消费并重复发送。 Kafka 角色：通过事务：把“发送消息到目标 Topic”与“提交源 Topic 的位点（__consumer_offsets）”都纳入同一事务。若事务最终提交，则两者一起生效；若中途失败或崩溃未提交，则事务回滚，输出消息不可见且位点也不会生效，从而避免重复计算。 多分区或多次读写操作的原子性需求场景
+场景说明：流处理可能对多个分区写入，或同时需要向多个 Topic-Partition 发送结果，并提交多个操作（如写结果、更新状态 topic、提交位点等）。需要保证这些操作要么都生效，要么都不生效。 Kafka 角色：引入事务协调者（Transaction Coordinator），在事务上下文中跟踪涉及的所有分区信息；最终通过控制消息（WriteTxnMarker）通知各分区 Leader 提交或回滚，确保原子性。 跨会话恢复场景
+场景说明：流处理应用或生产者进程重启后，若使用相同的事务 ID，应能识别前一会话未完成的事务并进行恰当回滚或继续。 Kafka 角色：Transactional ID（用户提供）&#43; 服务端分配的 PID &#43; epoch 机制。重启后客户端用相同 Transactional ID 找到协调者，协调者检测到旧事务未完成，会回滚旧事务，给新的会话分配新的 epoch，从而保证幂等与正确恢复。 Broker/协调者故障或网络分区场景">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>Kafka Exactly-Once | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/cache/kafka/exactly-once/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.97873f976fde36760dc46fda13c37fdafa558a6df496afbb79570adf364ef2a8.js" integrity="sha256-l4c/l2/eNnYNxG/aE8N/2vpVim30lq&#43;7eVcK3zZO8qg=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>缓存</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/kafka/exactly-once/" class="active">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>基础</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/tips/" class="">补充</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>前端</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>系统设计</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Kafka Exactly-Once</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-重要场景及-kafka-在其中的角色">1. 重要场景及 Kafka 在其中的角色</a></li>
+        <li><a href="#2-关键设计及其理念解决问题和作用">2. 关键设计及其理念、解决问题和作用</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    Kafka Exactly-Once
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>下面基于上述 Exactly-Once 语义实现的内容，对“重要场景”与“关键设计”分别进行归纳与解释。</p>
+<hr>
+<h2 id="1-重要场景及-kafka-在其中的角色">
+  1. 重要场景及 Kafka 在其中的角色
+  <a class="anchor" href="#1-%e9%87%8d%e8%a6%81%e5%9c%ba%e6%99%af%e5%8f%8a-kafka-%e5%9c%a8%e5%85%b6%e4%b8%ad%e7%9a%84%e8%a7%92%e8%89%b2">#</a>
+</h2>
+<ol>
+<li>
+<p><strong>At-Most-Once / At-Least-Once vs Exactly-Once 流处理场景对比</strong></p>
+<ul>
+<li><strong>场景说明</strong>：流处理通常涉及“消费-处理-生产”（Consume-Process-Produce）流程；若仅用 At-Least-Once 语义，会因网络抖动或进程崩溃导致消息重复处理；若 At-Most-Once，则可能丢失消息。</li>
+<li><strong>Kafka 角色</strong>：提供端到端 Exactly-Once 能力（在消费来源于 Kafka，且输出写回 Kafka 的场景）。通过幂等生产者与事务机制，避免重复消息与丢失，确保每条输入消息“恰好一次”被处理并产出消息，同时提交位点也被原子化地与输出挂钩。</li>
+</ul>
+</li>
+<li>
+<p><strong>网络 ACK 丢失导致重试的重复写入场景</strong></p>
+<ul>
+<li><strong>场景说明</strong>：生产者发送消息，Broker 实际已写入但 ACK 丢失，客户端误以为失败重试，导致重复写入。</li>
+<li><strong>Kafka 角色</strong>：在幂等生产者中，通过 Producer ID + 分区内序列号、服务端维护最近 N 条批次信息，判重与乱序检测；再结合事务可保证跨会话的幂等，避免因 ACK 丢失产生重复。</li>
+</ul>
+</li>
+<li>
+<p><strong>消费端已发送输出但尚未提交位点前崩溃导致重读并重复写入场景</strong></p>
+<ul>
+<li><strong>场景说明</strong>：在流处理应用中，消息处理完并向目标 Topic 发送成功后，若在提交 consumer offset 之前崩溃，重启后会再次消费并重复发送。</li>
+<li><strong>Kafka 角色</strong>：通过事务：把“发送消息到目标 Topic”与“提交源 Topic 的位点（__consumer_offsets）”都纳入同一事务。若事务最终提交，则两者一起生效；若中途失败或崩溃未提交，则事务回滚，输出消息不可见且位点也不会生效，从而避免重复计算。</li>
+</ul>
+</li>
+<li>
+<p><strong>多分区或多次读写操作的原子性需求场景</strong></p>
+<ul>
+<li><strong>场景说明</strong>：流处理可能对多个分区写入，或同时需要向多个 Topic-Partition 发送结果，并提交多个操作（如写结果、更新状态 topic、提交位点等）。需要保证这些操作要么都生效，要么都不生效。</li>
+<li><strong>Kafka 角色</strong>：引入事务协调者（Transaction Coordinator），在事务上下文中跟踪涉及的所有分区信息；最终通过控制消息（WriteTxnMarker）通知各分区 Leader 提交或回滚，确保原子性。</li>
+</ul>
+</li>
+<li>
+<p><strong>跨会话恢复场景</strong></p>
+<ul>
+<li><strong>场景说明</strong>：流处理应用或生产者进程重启后，若使用相同的事务 ID，应能识别前一会话未完成的事务并进行恰当回滚或继续。</li>
+<li><strong>Kafka 角色</strong>：Transactional ID（用户提供）+ 服务端分配的 PID + epoch 机制。重启后客户端用相同 Transactional ID 找到协调者，协调者检测到旧事务未完成，会回滚旧事务，给新的会话分配新的 epoch，从而保证幂等与正确恢复。</li>
+</ul>
+</li>
+<li>
+<p><strong>Broker/协调者故障或网络分区场景</strong></p>
+<ul>
+<li>
+<p><strong>场景说明</strong>：事务协调者或分区 Leader 崩溃、切换；网络暂时不可达等。需要确保事务能在故障后继续或回滚，不会出现混乱或数据丢失。</p>
+</li>
+<li>
+<p><strong>Kafka 角色</strong>：</p>
+<ul>
+<li><strong>事务协调者 HA</strong>：协调者元数据持久化于内部 __transaction_state compacted Topic，多副本复制保障；故障切换后，新协调者通过读取日志恢复状态并继续发送控制消息或回滚。</li>
+<li><strong>分区 Leader HA</strong>：PID Snapshot、日志恢复机制，让服务端恢复 Producer State 映射，继续判重与乱序检测；WriteTxnMarker 重试机制确保控制消息最终写入。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>长事务与 Last Stable Offset (LSO) 策略场景</strong></p>
+<ul>
+<li><strong>场景说明</strong>：某些事务可能较大，未提交期间可能阻塞后续已提交消息的可读性；消费端不应看到尚未提交的事务消息。</li>
+<li><strong>Kafka 角色</strong>：客户端采用 <code>read_committed</code> 模式，Broker 基于 LSO 策略只返回 ≤ LSO 的消息；LSO 定义为第一个未完成事务的起始位置，过滤掉尚未提交的消息。已提交的但位于 LSO 之后的短事务消息，因被长事务阻塞，也暂时无法返回；这样做兼顾正确性与性能/内存压力。此外，Broker 维护 <code>.txnindex</code> 记录已回滚事务的区间，以便消费端在拉取时提前过滤回滚数据，减轻客户端缓存压力。</li>
+</ul>
+</li>
+<li>
+<p><strong>事务超时与清理场景</strong></p>
+<ul>
+<li>
+<p><strong>场景说明</strong>：若生产者开启事务后长期无进展（超时），或事务 ID 长期未使用，需回滚并回收资源。</p>
+</li>
+<li>
+<p><strong>Kafka 角色</strong>：</p>
+<ul>
+<li><strong>事务操作超时</strong>：客户端设定 transaction.timeout.ms，若超时未提交，协调者主动回滚事务；服务端有 max.transaction.timeout.ms 上限。</li>
+<li><strong>事务 ID 过期</strong>：协调者定期检查 transaction.id.expiration.ms，若某事务 ID 长期无请求，则清理对应元数据，释放 PID 等资源。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-关键设计及其理念解决问题和作用">
+  2. 关键设计及其理念、解决问题和作用
+  <a class="anchor" href="#2-%e5%85%b3%e9%94%ae%e8%ae%be%e8%ae%a1%e5%8f%8a%e5%85%b6%e7%90%86%e5%bf%b5%e8%a7%a3%e5%86%b3%e9%97%ae%e9%a2%98%e5%92%8c%e4%bd%9c%e7%94%a8">#</a>
+</h2>
+<p>下面按逻辑模块或角色逐一列举，并说明设计初衷、解决的问题及在 Exactly-Once 流场景中的作用。</p>
+<ol>
+<li>
+<p><strong>Producer ID (PID) 与分区内序列号 + 幂等生产者</strong></p>
+<ul>
+<li><strong>设计理念</strong>：通过给每个生产者会话分配唯一 PID，并在每个 Topic-Partition 维度维护序列号，服务端只需保存有限最近批次信息即可判重与乱序，而非保存所有消息 ID。</li>
+<li><strong>解决问题</strong>：解决单会话中由于网络 ACK 丢失或重试导致的重复写入与乱序写入问题，实现幂等性（Exactly-Once at least on single-session, single-partition）。</li>
+<li><strong>作用</strong>：为后续跨会话幂等与事务提供基础；在每个 ProduceRequest 中携带 PID + epoch +序列号，Broker 检测重复或乱序并拒绝或忽略，从而保证单会话单分区写入的幂等性。</li>
+</ul>
+</li>
+<li>
+<p><strong>Transactional ID + Epoch (Fencing) 机制</strong></p>
+<ul>
+<li><strong>设计理念</strong>：用户为流处理应用提供一个稳定的 Transactional ID；服务端为该 ID 分配 PID，并在每次初始化或重启时通过 epoch 隔离过期会话，避免“僵尸生产者”混入。</li>
+<li><strong>解决问题</strong>：跨会话恢复时，若旧会话崩溃，新会话仍能以同一 Transactional ID 继续或回滚上次未完成事务；防止多个生产者同时用同一 Transactional ID 导致竞态（fencing）。</li>
+<li><strong>作用</strong>：实现跨会话幂等写入：旧事务若未完成会被主动回滚；新会话获得更高 epoch，旧会话请求因 epoch 较低将被拒绝，从而保证只有当前活跃会话能提交。</li>
+</ul>
+</li>
+<li>
+<p><strong>事务协调者 (Transaction Coordinator)</strong></p>
+<ul>
+<li>
+<p><strong>设计理念</strong>：集中管理事务元数据（Transactional ID、PID、epoch、涉及分区列表、消费位点信息等），并在事务完成后统一负责广播提交/回滚控制消息。</p>
+</li>
+<li>
+<p><strong>解决问题</strong>：在多分区写入、多个操作原子性需求下，避免客户端对每个分区 Leader 逐一发送“提交/回滚”命令；也便于在协调者故障切换时通过集中日志恢复。</p>
+</li>
+<li>
+<p><strong>作用</strong>：</p>
+<ul>
+<li><strong>分配与管理 PID</strong>（与 ProducerIdManager 交互，从 ZooKeeper 或内部机制获取 ID 段，并维护最新状态）。</li>
+<li><strong>跟踪事务涉及的所有 Topic-Partition</strong>：在发送事务消息前，客户端通过 AddPartitionsToTxnRequest 通知协调者，协调者持久化到 __transaction_state。</li>
+<li><strong>跟踪消费位点提交信息</strong>：通过 AddOffsetsToTxnRequest 同步要提交的 __consumer_offsets 分区信息到事务元数据，并最终向 Group Coordinator 提交。</li>
+<li><strong>提交/回滚决策</strong>：接收 EndTxnRequest 后，更新 <em><em>transaction_state 到 PREPARE</em>* 状态，再异步向各分区 Leader 发送 WriteTxnMarker 控制消息；待所有控制消息成功持久化，再更新状态到 COMPLETE</em>* 并释放资源。</li>
+<li><strong>HA 与持久化</strong>：利用内部 __transaction_state compacted Topic，多副本保证日志不丢失；故障切换后可从日志恢复正在进行的事务状态。</li>
+<li><strong>定期回滚超时事务</strong>、清理过期事务 ID。</li>
+<li><strong>在故障场景中接管</strong>：若客户端崩溃但 EndTxnRequest 已到达协调者，协调者可继续完成提交/回滚流程；若 EndTxnRequest 未到达，则超时自动回滚。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>内部事务状态 Topic (__transaction_state)</strong></p>
+<ul>
+<li><strong>设计理念</strong>：持久化事务元数据（Transactional ID → 当前状态、PID+epoch、涉及分区集合、提交位点信息等），类似一个分布式 KV 存储。</li>
+<li><strong>解决问题</strong>：提供 HA 恢复能力：协调者故障后可从该 Topic 读取最新状态；保证事务状态机在集群重启或切换时不丢失。</li>
+<li><strong>作用</strong>：记录事务状态转移（EMPTY → ONGOING → PREPARE_COMMIT/ABORT → COMPLETE_COMMIT/ABORT → DEAD），关键节点持久化；协调者通过该日志驱动后续控制消息发送与资源清理。</li>
+</ul>
+</li>
+<li>
+<p><strong>控制消息 (Transaction Markers, WriteTxnMarkerRequest)</strong></p>
+<ul>
+<li><strong>设计理念</strong>：将“提交”或“回滚”决策以控制消息形式写入普通日志，与业务消息共存；消费端读取到控制消息后，得知对应事务消息是否可见。</li>
+<li><strong>解决问题</strong>：一方面避免在 Broker 内存中临时缓存大量未完成消息；另一方面让消费者通过读取日志中的控制消息来判断事务边界。</li>
+<li><strong>作用</strong>：事务协调者在 PREPARE 阶段向各分区 Leader 发送 WriteTxnMarker，Leader 将此写入日志。消费者在 read_committed 模式下，见到控制消息后再决定允许看到之前的消息或忽略（依据提交或回滚）。协调者会不断重试直到所有分区成功写入控制消息，保证原子提交/回滚。</li>
+</ul>
+</li>
+<li>
+<p><strong>ProducerIdManager / PID Snapshot 机制</strong></p>
+<ul>
+<li><strong>设计理念</strong>：服务端维护分配给各 Transactional ID 的 PID 段，并在内存中跟踪当前活跃 PID → 分区内最高序列号映射；通过定期快照减少重启恢复时读取全量日志的开销。</li>
+<li><strong>解决问题</strong>：避免每次 Broker 重启时扫描全部日志以重建 PID 序列号映射；提升恢复速度；同时确保在故障恢复后依然能进行幂等判重。</li>
+<li><strong>作用</strong>：在 Broker 启动或 Leader 切换时，通过 PID Snapshot 和日志中记录恢复 ProducerState；在运行时对 ProduceRequest 进行序列号校验；支持事务中对重复批次识别。</li>
+</ul>
+</li>
+<li>
+<p><strong>Group Coordinator / __consumer_offsets 与 sendOffsetsToTransaction 设计</strong></p>
+<ul>
+<li>
+<p><strong>设计理念</strong>：在事务中，消费者提交 offset 需与输出消息一同原子提交；借助 Producer 作为客户端在事务上下文中先向事务协调者同步将要提交的 offset 分区，再正式向 Group Coordinator 提交但不更新缓存，待事务提交后才让消费者看到新位点。</p>
+</li>
+<li>
+<p><strong>解决问题</strong>：避免先提交位点而输出消息回滚时出现“丢数据”或先输出消息而位点未提交时崩溃导致“重复处理”。</p>
+</li>
+<li>
+<p><strong>作用</strong>：</p>
+<ul>
+<li>生产者调用 sendOffsetsToTransaction()，先发 AddOffsetsToTxnRequest 给事务协调者，协调者将该 offset 分区信息加入事务元数据；收到响应后，再发 TxnOffsetCommitRequest 给 Group Coordinator，将 offset 写入 __consumer_offsets 日志但不更新缓存；只有当事务提交完成，协调者才能将该位点对消费者可见。</li>
+<li>Group Coordinator 接收包含 PID/epoch 的 TxnOffsetCommitRequest，持久化 offset；但直到事务完成，不会更新消费进度缓存，保证原子性。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Last Stable Offset (LSO) 与 read_committed 消费模式</strong></p>
+<ul>
+<li><strong>设计理念</strong>：在消费端只返回“已提交且稳定”的消息，屏蔽尚未提交的事务消息；用 LSO 标记首个未完成事务的起始位置。</li>
+<li><strong>解决问题</strong>：避免消费者看到未完成或回滚事务的数据；同时避免服务器或客户端因缓存所有未提交消息导致 OOM 或性能下降。</li>
+<li><strong>作用</strong>：Broker 在 read_committed 模式下根据分区 LSO，只返回 ≤ LSO 的消息；当长事务阻塞后续短事务，短事务即使已提交，也暂时不被返回，但可在后续重新计算 LSO 后消费；结合 .txnindex 提前过滤回滚事务区间，减轻客户端处理压力。</li>
+</ul>
+</li>
+<li>
+<p><strong>.txnindex 回滚事务索引</strong></p>
+<ul>
+<li><strong>设计理念</strong>：Broker 为每个分区维护已回滚事务对应的日志起止位点索引，并持久化于 .txnindex 文件。</li>
+<li><strong>解决问题</strong>：让消费端在拉取时可以提前获知哪些区间的数据属于已回滚事务，从而跳过，无需客户端缓存后续等待控制消息。</li>
+<li><strong>作用</strong>：提高消费效率，减少因等待控制消息而占用内存或重复拉取的开销。</li>
+</ul>
+</li>
+<li>
+<p><strong>事务超时与过期清理</strong></p>
+<ul>
+<li><strong>设计理念</strong>：设置事务超时时间（transaction.timeout.ms）以限制客户端完成事务的最长时限；协调者有最大可接受超时 max.transaction.timeout.ms；此外通过 transaction.id.expiration.ms 清理长期不活跃的事务 ID。</li>
+<li><strong>解决问题</strong>：避免事务无限期挂起占用资源；确保故障恢复后能及时回滚或释放；释放 PID 资源，防止元数据膨胀。</li>
+<li><strong>作用</strong>：协调者定期扫描并回滚超时事务；清理过期事务 ID &amp; PID 映射，保证系统健康和资源回收。</li>
+</ul>
+</li>
+<li>
+<p><strong>内部 HA 与故障恢复设计</strong></p>
+<ul>
+<li>
+<p><strong>设计理念</strong>：利用 Kafka 本身多副本、Leader 选举机制，以及内部 compacted Topics（如 __transaction_state、__consumer_offsets），保证在 Broker 或协调者故障后可快速恢复状态。</p>
+</li>
+<li>
+<p><strong>解决问题</strong>：在分布式环境中，任何节点崩溃都不应导致事务状态不一致或丢失，保证 Exactly-Once 语义在故障场景下依然成立。</p>
+</li>
+<li>
+<p><strong>作用</strong>：</p>
+<ul>
+<li>协调者失败后，新任协调者读取 __transaction_state 恢复正在进行的事务状态并继续发送控制消息或回滚。</li>
+<li>分区 Leader 失败后，通过日志与 PID Snapshot 恢复 ProducerState；协调者重试 WriteTxnMarker；消费者继续消费已提交数据。</li>
+<li>Group Coordinator 维护 __consumer_offsets 多副本以恢复 offset 提交。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>客户端状态机管理</strong></p>
+<ul>
+<li><strong>设计理念</strong>：在 Producer 客户端内部维护一组状态（UNINITIALIZED → INITIALIZING → READY → IN_TRANSACTION → COMMITTING/ABORTING_TRANSACTION → &hellip;），确保在不同阶段只有合法操作，并在异常时进入 ABORTABLE_ERROR 或 FATAL_ERROR，触发回滚或关闭。</li>
+<li><strong>解决问题</strong>：避免客户端在不合适时机调用事务 API；在出错时能及时回滚并清理本地状态；配合服务端状态一致性。</li>
+<li><strong>作用</strong>：在调用 initTransactions、beginTransaction、send/sendOffsetsToTransaction、commitTransaction/abortTransaction 各阶段，通过状态转换与校验保证正确调用顺序；在异常或超时场景自动回滚或报告错误。</li>
+</ul>
+</li>
+<li>
+<p><strong>消费模式区分（read_uncommitted vs read_committed）</strong></p>
+<ul>
+<li><strong>设计理念</strong>：提供两种消费语义：默认 read_uncommitted（可见所有消息，包括未提交事务消息）；read_committed（仅见已提交且稳定的）。</li>
+<li><strong>解决问题</strong>：支持不同应用需求：某些场景可能容忍看到未提交消息（如内部分析）；多数场景需要 Exactly-Once 语义，则使用 read_committed，屏蔽未提交或回滚数据。</li>
+<li><strong>作用</strong>：在客户端配置中设置 isolation.level; Broker 根据 LSO 及控制消息决定返回哪些消息。</li>
+</ul>
+</li>
+<li>
+<p><strong>生产者与协调者的交互协议设计（各种 Request 类型）</strong></p>
+<ul>
+<li><strong>设计理念</strong>：通过一系列 Request/Response：FindCoordinatorRequest、InitProducerIdRequest、AddPartitionsToTxnRequest、ProduceRequest（携带 PID+序列号+事务标识）、AddOffsetsToTxnRequest、TxnOffsetCommitRequest、EndTxnRequest、WriteTxnMarkerRequest（由协调者发起）、确保每一步都有明确目的、可持久化与可重试。</li>
+<li><strong>解决问题</strong>：结构化定义各阶段交互，使客户端和服务端对事务元数据更新、消息写入、位点提交等都有清晰流程；支持重试与故障恢复；避免协议混乱。</li>
+<li><strong>作用</strong>：各请求携带必要标识（Transactional ID、PID、epoch、分区列表、offset、commit/abort 标志等），服务端对应处理并持久化，协调者集中管理后续步骤。</li>
+</ul>
+</li>
+<li>
+<p><strong>ZooKeeper 或内部机制管理 PID 段分配</strong></p>
+<ul>
+<li><strong>设计理念</strong>：为产生全局唯一的 PID，协调者通过 ProducerIdManager 从 ZooKeeper（或新版 Kafka 可内置替代）申请 ID 段；每次申请一段（如 1000 IDs），减少频繁交互。</li>
+<li><strong>解决问题</strong>：确保 PID 唯一；高效分配；支持扩展与 HA。</li>
+<li><strong>作用</strong>：协调者在 InitPidRequest 阶段分配 PID，并记录最新分配区间；客户端获得 PID 后用于后续幂等与事务；Broker 重启恢复时也需恢复 PID-序列号映射。</li>
+</ul>
+</li>
+<li>
+<p><strong>事务 Marker 发送与重试机制</strong></p>
+<ul>
+<li><strong>设计理念</strong>：协调者在 PREPARE 阶段发出 WriteTxnMarkerRequest，并不断重试直至所有分区确认成功后，才更新状态为 COMPLETE；任何失败导致无限重试或故障切换后继续重试。</li>
+<li><strong>解决问题</strong>：保证事务消息的提交或回滚通知可靠送达，即使在网络或 Broker 故障时亦可最终一致；避免半提交状态导致数据可见性错误。</li>
+<li><strong>作用</strong>：协调者内部维护待发送队列（markersQueuePerBroker），对失败分区重新 enqueue；整体成功后触发事务完成清理；若协调者自身失败，新协调者从 __transaction_state 恢复并继续发送。</li>
+</ul>
+</li>
+<li>
+<p><strong>事务状态机与状态转移</strong></p>
+<ul>
+<li>
+<p><strong>设计理念</strong>：在服务端与客户端分别维护明确状态机，描述生命周期；状态转换时伴随持久化或必要的交互。</p>
+</li>
+<li>
+<p><strong>解决问题</strong>：确保仅在合法阶段执行对应操作；在异常或故障时能根据当前状态采取回滚、重试或清理；便于理解和维护。</p>
+</li>
+<li>
+<p><strong>作用</strong>：</p>
+<ul>
+<li>服务端状态：EMPTY → ONGOING → PREPARE_COMMIT / PREPARE_ABORT → COMPLETE_COMMIT / COMPLETE_ABORT → DEAD → (清理)；协调者根据 EndTxnRequest、超时检测等进行状态转移并持久化。</li>
+<li>客户端状态：UNINITIALIZED → INITIALIZING → READY → IN_TRANSACTION → COMMITTING_TRANSACTION / ABORTING_TRANSACTION → READY 或 ABORTABLE_ERROR / FATAL_ERROR；保证 API 调用顺序及异常处理。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<blockquote>
+<p><strong>总结</strong>：Kafka 在流处理场景下端到端 Exactly-Once 能力，核心依赖于幂等生产者（PID+序列号+判重）、事务机制（Transactional ID+Epoch+Transaction Coordinator+内部 __transaction_state 日志+控制消息+LSO/read_committed+.txnindex）、以及消费端配合（sendOffsetsToTransaction、read_committed）。各设计模块相互协作，通过分层协议与持久化机制，在分布式、故障、网络抖动场景下仍能提供正确的恰好一次处理语义。</p></blockquote>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-重要场景及-kafka-在其中的角色">1. 重要场景及 Kafka 在其中的角色</a></li>
+        <li><a href="#2-关键设计及其理念解决问题和作用">2. 关键设计及其理念、解决问题和作用</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
