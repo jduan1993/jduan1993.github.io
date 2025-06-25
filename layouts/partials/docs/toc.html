@@ -1,0 +1,9 @@
+{{ partial "docs/inject/toc-before" . }}
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#{{ .Title }}">{{ .Title }}</a></li>
+{{ .TableOfContents }}
+{{ partial "docs/inject/toc-after" . }}
