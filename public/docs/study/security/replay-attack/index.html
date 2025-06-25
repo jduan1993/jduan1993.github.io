@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="重放攻击（Replay Attack）是一种网络攻击手段，攻击者拦截并保存合法请求的数据包，然后在稍后“重发”这些数据包到服务器，试图欺骗系统重复执行某些操作（如转账、登录等）。
+
+
+  🧨 一句话理解：
+  #
+
+
+攻击者不是伪造请求，而是“复读”别人发的合法请求来骗系统重复操作！
+
+
+  📦 举个例子：
+  #
+
+你在网银发送了如下转账请求（加密传输）：
+POST /transfer
+{
+  &#34;to&#34;: &#34;Alice&#34;,
+  &#34;amount&#34;: 100
+}
+攻击者通过某种方式（如网络监听）捕获了这条请求，然后在你不知情的情况下原样重放这条请求。
+结果系统再次转账了 100 元到 Alice，你损失了 200 元。
+
+
+  🧠 为什么这条“旧的请求”还会被服务器接受？
+  #
+
+因为很多系统：
+
+没有识别请求是否重复
+没对请求加时间戳 / 唯一标识
+加密是对内容加密，不代表防止重发
+
+
+
+  🔐 重放攻击常见于哪些协议场景？
+  #
+
+
+  
+      
+          场景
+          原因
+      
+  
+  
+      
+          HTTPS（0-RTT 模式）
+          早期数据可能在握手前被接受
+      
+      
+          API 接口（如支付接口）
+          攻击者重放旧接口实现重复操作
+      
+      
+          登录认证（token）
+          旧 token 被截获后仍可登录
+      
+      
+          智能设备通信
+          设备控制指令被复用（开锁、支付等）
+      
+  
+
+
+
+  🛡️ 如何防御重放攻击？
+  #
+
+
+  ✅ 1. 使用唯一请求 ID（nonce）
+  #
+
+
+每个请求携带唯一的随机字符串
+服务端校验是否已处理过该 ID（如 Redis 去重）
+
+
+  ✅ 2. 添加时间戳并设有效期
+  #
+
+
+请求中携带当前时间
+服务器验证是否在允许的时间窗口内（如 2 分钟）
+
+
+  ✅ 3. 使用 HMAC 签名请求参数
+  #
+
+
+客户端对请求参数 &#43; 时间戳生成签名
+服务端验证签名是否正确、是否被篡改
+
+
+  ✅ 4. 使用 TLS 防中间人监听（基础防线）
+  #
+
+
+如果攻击者无法截获原始数据，就不能重放
+
+
+  ✅ 5. 对 0-RTT 请求做幂等性校验（QUIC/TLS 1.3 特别注意）
+  #
+
+
+拒绝非幂等类型（如 POST/PUT）使用 0-RTT
+服务端缓存并验证历史 0-RTT 请求
+
+
+
+  💡 补充：幂等请求 vs 非幂等请求
+  #
+
+
+  
+      
+          请求类型
+          是否幂等
+          说明
+      
+  
+  
+      
+          GET
+          ✅
+          多次访问结果一样
+      
+      
+          POST
+          ❌
+          多次发送可能产生副作用（如转账）
+      
+      
+          PUT
+          ✅
+          设置某值，多次是一样的
+      
+      
+          DELETE
+          ✅/❌
+          一般幂等，但有特殊情况除外
+      
+  
+
+
+
+  🎯 总结一句话：
+  #
+
+
+重放攻击 = 重发旧的有效请求，欺骗系统重复执行操作。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/security/replay-attack/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="重放攻击">
+  <meta property="og:description" content="重放攻击（Replay Attack）是一种网络攻击手段，攻击者拦截并保存合法请求的数据包，然后在稍后“重发”这些数据包到服务器，试图欺骗系统重复执行某些操作（如转账、登录等）。
+🧨 一句话理解：#攻击者不是伪造请求，而是“复读”别人发的合法请求来骗系统重复操作！
+📦 举个例子：#你在网银发送了如下转账请求（加密传输）：
+POST /transfer{&#34;to&#34;: &#34;Alice&#34;,&#34;amount&#34;: 100} 攻击者通过某种方式（如网络监听）捕获了这条请求，然后在你不知情的情况下原样重放这条请求。
+结果系统再次转账了 100 元到 Alice，你损失了 200 元。
+🧠 为什么这条“旧的请求”还会被服务器接受？#因为很多系统：
+没有识别请求是否重复 没对请求加时间戳 / 唯一标识 加密是对内容加密，不代表防止重发 🔐 重放攻击常见于哪些协议场景？#场景 原因 HTTPS（0-RTT 模式） 早期数据可能在握手前被接受 API 接口（如支付接口） 攻击者重放旧接口实现重复操作 登录认证（token） 旧 token 被截获后仍可登录 智能设备通信 设备控制指令被复用（开锁、支付等） 🛡️ 如何防御重放攻击？#✅ 1. 使用唯一请求 ID（nonce）#每个请求携带唯一的随机字符串 服务端校验是否已处理过该 ID（如 Redis 去重） ✅ 2. 添加时间戳并设有效期#请求中携带当前时间 服务器验证是否在允许的时间窗口内（如 2 分钟） ✅ 3. 使用 HMAC 签名请求参数#客户端对请求参数 &#43; 时间戳生成签名 服务端验证签名是否正确、是否被篡改 ✅ 4. 使用 TLS 防中间人监听（基础防线）#如果攻击者无法截获原始数据，就不能重放 ✅ 5. 对 0-RTT 请求做幂等性校验（QUIC/TLS 1.3 特别注意）#拒绝非幂等类型（如 POST/PUT）使用 0-RTT 服务端缓存并验证历史 0-RTT 请求 💡 补充：幂等请求 vs 非幂等请求#请求类型 是否幂等 说明 GET ✅ 多次访问结果一样 POST ❌ 多次发送可能产生副作用（如转账） PUT ✅ 设置某值，多次是一样的 DELETE ✅/❌ 一般幂等，但有特殊情况除外 🎯 总结一句话：#重放攻击 = 重发旧的有效请求，欺骗系统重复执行操作。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>重放攻击 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/security/replay-attack/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.aed2e596e43e250839764ea6a5e722a63665fd860c6f1a749396aad8dc8cdf67.js" integrity="sha256-rtLlluQ&#43;JQg5dk6mpecipjZl/YYMbxp0k5aq2NyM32c=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>安全</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="active">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>缓存</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>网络</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>重放攻击</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一句话理解">🧨 一句话理解：</a></li>
+        <li><a href="#-举个例子">📦 举个例子：</a></li>
+        <li><a href="#-为什么这条旧的请求还会被服务器接受">🧠 为什么这条“旧的请求”还会被服务器接受？</a></li>
+        <li><a href="#-重放攻击常见于哪些协议场景">🔐 重放攻击常见于哪些协议场景？</a></li>
+        <li><a href="#-如何防御重放攻击">🛡️ 如何防御重放攻击？</a>
+          <ul>
+            <li><a href="#-1-使用唯一请求-idnonce">✅ 1. 使用唯一请求 ID（nonce）</a></li>
+            <li><a href="#-2-添加时间戳并设有效期">✅ 2. 添加时间戳并设有效期</a></li>
+            <li><a href="#-3-使用-hmac-签名请求参数">✅ 3. 使用 HMAC 签名请求参数</a></li>
+            <li><a href="#-4-使用-tls-防中间人监听基础防线">✅ 4. 使用 TLS 防中间人监听（基础防线）</a></li>
+            <li><a href="#-5-对-0-rtt-请求做幂等性校验quictls-13-特别注意">✅ 5. 对 0-RTT 请求做幂等性校验（QUIC/TLS 1.3 特别注意）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-补充幂等请求-vs-非幂等请求">💡 补充：幂等请求 vs 非幂等请求</a></li>
+        <li><a href="#-总结一句话">🎯 总结一句话：</a></li>
+      </ul>
+    </li>
+    <li><a href="#最佳实践">最佳实践</a>
+      <ul>
+        <li><a href="#1-请求唯一性使用-nonce-或唯一请求-id">1. 请求唯一性（使用 Nonce 或唯一请求 ID）</a></li>
+        <li><a href="#2-时间戳和有效期限制">2. 时间戳和有效期限制</a></li>
+        <li><a href="#3-请求签名hmac-或数字签名">3. 请求签名（HMAC 或数字签名）</a></li>
+        <li><a href="#4-幂等接口设计">4. 幂等接口设计</a></li>
+        <li><a href="#5-使用安全协议tls-13">5. 使用安全协议（TLS 1.3）</a></li>
+        <li><a href="#6-对-0-rtt-请求特别防护针对-quictls-13">6. 对 0-RTT 请求特别防护（针对 QUIC/TLS 1.3）</a></li>
+        <li><a href="#7-监控与告警">7. 监控与告警</a></li>
+        <li><a href="#8-具体技术栈示例">8. 具体技术栈示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#案例">案例</a>
+      <ul>
+        <li><a href="#1-请求体设计">1. 请求体设计</a></li>
+        <li><a href="#2-签名规则">2. 签名规则</a></li>
+        <li><a href="#3-伪代码示范">3. 伪代码示范</a></li>
+        <li><a href="#4-说明">4. 说明</a></li>
+        <li><a href="#5-生产中需要考虑">5. 生产中需要考虑</a></li>
+      </ul>
+    </li>
+    <li><a href="#hmac">HMAC</a>
+      <ul>
+        <li><a href="#1-为什么用-hmac">1. 为什么用 HMAC？</a></li>
+        <li><a href="#2-生产环境的最佳实践是用-hmac-吗">2. 生产环境的最佳实践是用 HMAC 吗？</a></li>
+        <li><a href="#3-什么时候不用-hmac">3. 什么时候不用 HMAC？</a></li>
+        <li><a href="#4-生产中其他常见做法">4. 生产中其他常见做法</a></li>
+        <li><a href="#5-总结">5. 总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#faq">FAQ</a>
+      <ul>
+        <li><a href="#1-前后端都要知道hmac密钥吗">1. <strong>前后端都要知道HMAC密钥吗？</strong></a>
+          <ul>
+            <li><a href="#理想设计原则不应该让前端知道完整的-hmac-服务器密钥">理想设计原则：<strong>不应该让前端知道完整的 HMAC 服务器密钥</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#2-前端如何做签名">2. 前端如何做签名？</a></li>
+        <li><a href="#3-微服务中如何用hmac防重放完成支付流程">3. <strong>微服务中如何用HMAC防重放完成支付流程？</strong></a>
+          <ul>
+            <li><a href="#典型流程示例">典型流程示例：</a></li>
+            <li><a href="#详细步骤">详细步骤</a></li>
+            <li><a href="#关键点说明">关键点说明</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-典型架构图示意">4. 典型架构图示意</a></li>
+        <li><a href="#5-总结-1">5. 总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="%E9%87%8D%E6%94%BE%E6%94%BB%E5%87%BB">
+    重放攻击
+    <a class="anchor" href="#%25E9%2587%258D%25E6%2594%25BE%25E6%2594%25BB%25E5%2587%25BB">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>重放攻击（<strong>Replay Attack</strong>）是一种网络攻击手段，攻击者<strong>拦截并保存合法请求的数据包</strong>，然后<strong>在稍后“重发”这些数据包</strong>到服务器，试图欺骗系统重复执行某些操作（如转账、登录等）。</p>
+<hr>
+<h2 id="-一句话理解">
+  🧨 一句话理解：
+  <a class="anchor" href="#-%e4%b8%80%e5%8f%a5%e8%af%9d%e7%90%86%e8%a7%a3">#</a>
+</h2>
+<blockquote>
+<p><strong>攻击者不是伪造请求，而是“复读”别人发的合法请求来骗系统重复操作！</strong></p></blockquote>
+<hr>
+<h2 id="-举个例子">
+  📦 举个例子：
+  <a class="anchor" href="#-%e4%b8%be%e4%b8%aa%e4%be%8b%e5%ad%90">#</a>
+</h2>
+<p>你在网银发送了如下转账请求（加密传输）：</p>
+<pre tabindex="0"><code>POST /transfer
+{
+  &#34;to&#34;: &#34;Alice&#34;,
+  &#34;amount&#34;: 100
+}
+</code></pre><p>攻击者通过某种方式（如网络监听）捕获了这条请求，然后在你不知情的情况下<strong>原样重放</strong>这条请求。</p>
+<p>结果系统再次转账了 100 元到 Alice，<strong>你损失了 200 元</strong>。</p>
+<hr>
+<h2 id="-为什么这条旧的请求还会被服务器接受">
+  🧠 为什么这条“旧的请求”还会被服务器接受？
+  <a class="anchor" href="#-%e4%b8%ba%e4%bb%80%e4%b9%88%e8%bf%99%e6%9d%a1%e6%97%a7%e7%9a%84%e8%af%b7%e6%b1%82%e8%bf%98%e4%bc%9a%e8%a2%ab%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%8e%a5%e5%8f%97">#</a>
+</h2>
+<p>因为很多系统：</p>
+<ul>
+<li><strong>没有识别请求是否重复</strong></li>
+<li><strong>没对请求加时间戳 / 唯一标识</strong></li>
+<li><strong>加密是对内容加密，不代表防止重发</strong></li>
+</ul>
+<hr>
+<h2 id="-重放攻击常见于哪些协议场景">
+  🔐 重放攻击常见于哪些协议场景？
+  <a class="anchor" href="#-%e9%87%8d%e6%94%be%e6%94%bb%e5%87%bb%e5%b8%b8%e8%a7%81%e4%ba%8e%e5%93%aa%e4%ba%9b%e5%8d%8f%e8%ae%ae%e5%9c%ba%e6%99%af">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>场景</th>
+          <th>原因</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>HTTPS（0-RTT 模式）</td>
+          <td>早期数据可能在握手前被接受</td>
+      </tr>
+      <tr>
+          <td>API 接口（如支付接口）</td>
+          <td>攻击者重放旧接口实现重复操作</td>
+      </tr>
+      <tr>
+          <td>登录认证（token）</td>
+          <td>旧 token 被截获后仍可登录</td>
+      </tr>
+      <tr>
+          <td>智能设备通信</td>
+          <td>设备控制指令被复用（开锁、支付等）</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-如何防御重放攻击">
+  🛡️ 如何防御重放攻击？
+  <a class="anchor" href="#-%e5%a6%82%e4%bd%95%e9%98%b2%e5%be%a1%e9%87%8d%e6%94%be%e6%94%bb%e5%87%bb">#</a>
+</h2>
+<h3 id="-1-使用唯一请求-idnonce">
+  ✅ 1. 使用唯一请求 ID（nonce）
+  <a class="anchor" href="#-1-%e4%bd%bf%e7%94%a8%e5%94%af%e4%b8%80%e8%af%b7%e6%b1%82-idnonce">#</a>
+</h3>
+<ul>
+<li>每个请求携带唯一的随机字符串</li>
+<li>服务端校验是否已处理过该 ID（如 Redis 去重）</li>
+</ul>
+<h3 id="-2-添加时间戳并设有效期">
+  ✅ 2. 添加时间戳并设有效期
+  <a class="anchor" href="#-2-%e6%b7%bb%e5%8a%a0%e6%97%b6%e9%97%b4%e6%88%b3%e5%b9%b6%e8%ae%be%e6%9c%89%e6%95%88%e6%9c%9f">#</a>
+</h3>
+<ul>
+<li>请求中携带当前时间</li>
+<li>服务器验证是否在允许的时间窗口内（如 2 分钟）</li>
+</ul>
+<h3 id="-3-使用-hmac-签名请求参数">
+  ✅ 3. 使用 HMAC 签名请求参数
+  <a class="anchor" href="#-3-%e4%bd%bf%e7%94%a8-hmac-%e7%ad%be%e5%90%8d%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0">#</a>
+</h3>
+<ul>
+<li>客户端对请求参数 + 时间戳生成签名</li>
+<li>服务端验证签名是否正确、是否被篡改</li>
+</ul>
+<h3 id="-4-使用-tls-防中间人监听基础防线">
+  ✅ 4. 使用 TLS 防中间人监听（基础防线）
+  <a class="anchor" href="#-4-%e4%bd%bf%e7%94%a8-tls-%e9%98%b2%e4%b8%ad%e9%97%b4%e4%ba%ba%e7%9b%91%e5%90%ac%e5%9f%ba%e7%a1%80%e9%98%b2%e7%ba%bf">#</a>
+</h3>
+<ul>
+<li>如果攻击者无法截获原始数据，就不能重放</li>
+</ul>
+<h3 id="-5-对-0-rtt-请求做幂等性校验quictls-13-特别注意">
+  ✅ 5. 对 0-RTT 请求做幂等性校验（QUIC/TLS 1.3 特别注意）
+  <a class="anchor" href="#-5-%e5%af%b9-0-rtt-%e8%af%b7%e6%b1%82%e5%81%9a%e5%b9%82%e7%ad%89%e6%80%a7%e6%a0%a1%e9%aa%8cquictls-13-%e7%89%b9%e5%88%ab%e6%b3%a8%e6%84%8f">#</a>
+</h3>
+<ul>
+<li>拒绝非幂等类型（如 POST/PUT）使用 0-RTT</li>
+<li>服务端缓存并验证历史 0-RTT 请求</li>
+</ul>
+<hr>
+<h2 id="-补充幂等请求-vs-非幂等请求">
+  💡 补充：幂等请求 vs 非幂等请求
+  <a class="anchor" href="#-%e8%a1%a5%e5%85%85%e5%b9%82%e7%ad%89%e8%af%b7%e6%b1%82-vs-%e9%9d%9e%e5%b9%82%e7%ad%89%e8%af%b7%e6%b1%82">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>请求类型</th>
+          <th>是否幂等</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>GET</td>
+          <td>✅</td>
+          <td>多次访问结果一样</td>
+      </tr>
+      <tr>
+          <td>POST</td>
+          <td>❌</td>
+          <td>多次发送可能产生副作用（如转账）</td>
+      </tr>
+      <tr>
+          <td>PUT</td>
+          <td>✅</td>
+          <td>设置某值，多次是一样的</td>
+      </tr>
+      <tr>
+          <td>DELETE</td>
+          <td>✅/❌</td>
+          <td>一般幂等，但有特殊情况除外</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-总结一句话">
+  🎯 总结一句话：
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e4%b8%80%e5%8f%a5%e8%af%9d">#</a>
+</h2>
+<blockquote>
+<p><strong>重放攻击 = 重发旧的有效请求，欺骗系统重复执行操作。</strong></p>
+<p>防御关键在于<strong>识别请求是否“独一无二、在有效时间内、未处理过”</strong>。</p></blockquote>
+<hr>
+<h1 id="最佳实践">
+  最佳实践
+  <a class="anchor" href="#%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5">#</a>
+</h1>
+<p>生产环境中防止重放攻击的最佳实践主要围绕以下几个核心措施展开，目标是确保每个请求<strong>唯一且不可重复执行</strong>，同时保证安全性和性能：</p>
+<hr>
+<h2 id="1-请求唯一性使用-nonce-或唯一请求-id">
+  1. 请求唯一性（使用 Nonce 或唯一请求 ID）
+  <a class="anchor" href="#1-%e8%af%b7%e6%b1%82%e5%94%af%e4%b8%80%e6%80%a7%e4%bd%bf%e7%94%a8-nonce-%e6%88%96%e5%94%af%e4%b8%80%e8%af%b7%e6%b1%82-id">#</a>
+</h2>
+<ul>
+<li>
+<p><strong>客户端生成唯一的随机字符串（Nonce）</strong>，每次请求携带</p>
+</li>
+<li>
+<p><strong>服务端维护一张已使用 Nonce 的缓存表（如 Redis）</strong></p>
+</li>
+<li>
+<p>收到请求时检查 Nonce 是否已被处理过：</p>
+<ul>
+<li>是 → 拒绝，防止重复执行</li>
+<li>否 → 继续处理，并记录 Nonce</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：缓存 Nonce 的有效期应合理，防止缓存爆炸。</p></blockquote>
+<hr>
+<h2 id="2-时间戳和有效期限制">
+  2. 时间戳和有效期限制
+  <a class="anchor" href="#2-%e6%97%b6%e9%97%b4%e6%88%b3%e5%92%8c%e6%9c%89%e6%95%88%e6%9c%9f%e9%99%90%e5%88%b6">#</a>
+</h2>
+<ul>
+<li>请求携带时间戳（如 UNIX 时间戳）</li>
+<li>服务端验证请求时间与当前时间差是否在允许窗口内（例如 ±5 分钟）</li>
+<li>超时请求拒绝处理，避免老请求被重放</li>
+</ul>
+<hr>
+<h2 id="3-请求签名hmac-或数字签名">
+  3. 请求签名（HMAC 或数字签名）
+  <a class="anchor" href="#3-%e8%af%b7%e6%b1%82%e7%ad%be%e5%90%8dhmac-%e6%88%96%e6%95%b0%e5%ad%97%e7%ad%be%e5%90%8d">#</a>
+</h2>
+<ul>
+<li>客户端对请求参数（包括 Nonce、时间戳等）进行签名，保证请求未被篡改</li>
+<li>服务端用共享密钥验证签名</li>
+<li>签名同时防止篡改和保证请求的完整性</li>
+</ul>
+<hr>
+<h2 id="4-幂等接口设计">
+  4. 幂等接口设计
+  <a class="anchor" href="#4-%e5%b9%82%e7%ad%89%e6%8e%a5%e5%8f%a3%e8%ae%be%e8%ae%a1">#</a>
+</h2>
+<ul>
+<li>尽量设计幂等的接口，保证重复请求不会造成副作用（如支付接口多次请求只扣一次）</li>
+<li>对非幂等操作，通过上面 Nonce 和签名严格限制重复请求</li>
+</ul>
+<hr>
+<h2 id="5-使用安全协议tls-13">
+  5. 使用安全协议（TLS 1.3）
+  <a class="anchor" href="#5-%e4%bd%bf%e7%94%a8%e5%ae%89%e5%85%a8%e5%8d%8f%e8%ae%aetls-13">#</a>
+</h2>
+<ul>
+<li>通过加密防止中间人抓包窃听和篡改</li>
+<li>减少攻击者获取请求内容的可能</li>
+</ul>
+<hr>
+<h2 id="6-对-0-rtt-请求特别防护针对-quictls-13">
+  6. 对 0-RTT 请求特别防护（针对 QUIC/TLS 1.3）
+  <a class="anchor" href="#6-%e5%af%b9-0-rtt-%e8%af%b7%e6%b1%82%e7%89%b9%e5%88%ab%e9%98%b2%e6%8a%a4%e9%92%88%e5%af%b9-quictls-13">#</a>
+</h2>
+<ul>
+<li>限制 0-RTT 只用在幂等操作</li>
+<li>服务器维护已接受的 0-RTT 请求缓存，防止重复执行</li>
+<li>对非幂等请求禁用 0-RTT</li>
+</ul>
+<hr>
+<h2 id="7-监控与告警">
+  7. 监控与告警
+  <a class="anchor" href="#7-%e7%9b%91%e6%8e%a7%e4%b8%8e%e5%91%8a%e8%ad%a6">#</a>
+</h2>
+<ul>
+<li>对异常重复请求频繁的 IP 或用户，触发告警</li>
+<li>结合风控策略限制请求速率和行为异常</li>
+</ul>
+<hr>
+<h2 id="8-具体技术栈示例">
+  8. 具体技术栈示例
+  <a class="anchor" href="#8-%e5%85%b7%e4%bd%93%e6%8a%80%e6%9c%af%e6%a0%88%e7%a4%ba%e4%be%8b">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>技术</th>
+          <th>推荐方案</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>缓存</td>
+          <td>Redis，支持快速去重缓存 Nonce</td>
+      </tr>
+      <tr>
+          <td>签名算法</td>
+          <td>HMAC-SHA256，RSA 数字签名</td>
+      </tr>
+      <tr>
+          <td>时间同步</td>
+          <td>NTP 保证服务器时间准确</td>
+      </tr>
+      <tr>
+          <td>防火墙 &amp; WAF</td>
+          <td>监测并阻断异常请求</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h1 id="总结">
+  总结
+  <a class="anchor" href="#%e6%80%bb%e7%bb%93">#</a>
+</h1>
+<table>
+  <thead>
+      <tr>
+          <th>防重放手段</th>
+          <th>作用</th>
+          <th>实施难度</th>
+          <th>备注</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Nonce 唯一值</td>
+          <td>保证请求不可重复执行</td>
+          <td>中</td>
+          <td>需管理缓存有效期</td>
+      </tr>
+      <tr>
+          <td>时间戳校验</td>
+          <td>限制请求有效时间窗口</td>
+          <td>低</td>
+          <td>防止旧请求被重放</td>
+      </tr>
+      <tr>
+          <td>请求签名</td>
+          <td>保证请求完整性与合法性</td>
+          <td>中</td>
+          <td>需安全管理密钥</td>
+      </tr>
+      <tr>
+          <td>幂等设计</td>
+          <td>降低重复请求风险</td>
+          <td>设计层面</td>
+          <td>尽量设计业务幂等</td>
+      </tr>
+      <tr>
+          <td>0-RTT 限制</td>
+          <td>防止早期数据重放攻击</td>
+          <td>高</td>
+          <td>仅支持幂等请求</td>
+      </tr>
+      <tr>
+          <td>安全传输（TLS）</td>
+          <td>防止中间人抓包</td>
+          <td>低</td>
+          <td>基础防线</td>
+      </tr>
+      <tr>
+          <td>监控告警</td>
+          <td>实时发现异常行为</td>
+          <td>中</td>
+          <td>配合自动化防御策略</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h1 id="案例">
+  案例
+  <a class="anchor" href="#%e6%a1%88%e4%be%8b">#</a>
+</h1>
+<h2 id="1-请求体设计">
+  1. 请求体设计
+  <a class="anchor" href="#1-%e8%af%b7%e6%b1%82%e4%bd%93%e8%ae%be%e8%ae%a1">#</a>
+</h2>
+<p>假设这是前端或客户端发出的请求 JSON：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;userId&#34;</span>: <span style="color:#e6db74">&#34;12345&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;action&#34;</span>: <span style="color:#e6db74">&#34;transfer&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;amount&#34;</span>: <span style="color:#ae81ff">100</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;timestamp&#34;</span>: <span style="color:#ae81ff">1687645200</span>,          <span style="color:#75715e">// UNIX时间戳，秒级
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">&#34;nonce&#34;</span>: <span style="color:#e6db74">&#34;a1b2c3d4e5f6&#34;</span>,          <span style="color:#75715e">// 唯一请求ID，防重放
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">&#34;signature&#34;</span>: <span style="color:#e6db74">&#34;abcdef1234567890&#34;</span>   <span style="color:#75715e">// 请求签名，防篡改
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><hr>
+<h2 id="2-签名规则">
+  2. 签名规则
+  <a class="anchor" href="#2-%e7%ad%be%e5%90%8d%e8%a7%84%e5%88%99">#</a>
+</h2>
+<blockquote>
+<p>签名 = HMAC_SHA256(secret_key, 拼接所有请求参数（除 signature）)</p></blockquote>
+<p>常见拼接方式（参数按字典序）：</p>
+<pre tabindex="0"><code>action=transfer&amp;amount=100&amp;nonce=a1b2c3d4e5f6&amp;timestamp=1687645200&amp;userId=12345
+</code></pre><hr>
+<h2 id="3-伪代码示范">
+  3. 伪代码示范
+  <a class="anchor" href="#3-%e4%bc%aa%e4%bb%a3%e7%a0%81%e7%a4%ba%e8%8c%83">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.crypto.Mac;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.crypto.spec.SecretKeySpec;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.util.*;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.nio.charset.StandardCharsets;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ReplayProtection</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">final</span> String SECRET_KEY <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;YOUR_SECRET_KEY&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 计算签名</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> String <span style="color:#a6e22e">generateSignature</span>(Map<span style="color:#f92672">&lt;</span>String, String<span style="color:#f92672">&gt;</span> params) <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 排序参数名</span>
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> keys <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>(params.<span style="color:#a6e22e">keySet</span>());
+</span></span><span style="display:flex;"><span>        Collections.<span style="color:#a6e22e">sort</span>(keys);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 拼接字符串，排除 signature 字段</span>
+</span></span><span style="display:flex;"><span>        StringBuilder sb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (String key : keys) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (key.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;signature&#34;</span>)) <span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>            sb.<span style="color:#a6e22e">append</span>(key).<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;=&#34;</span>).<span style="color:#a6e22e">append</span>(params.<span style="color:#a6e22e">get</span>(key)).<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;&amp;&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        sb.<span style="color:#a6e22e">deleteCharAt</span>(sb.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">-</span> 1); <span style="color:#75715e">// 去掉最后的&amp;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// HMAC-SHA256 计算</span>
+</span></span><span style="display:flex;"><span>        Mac sha256_HMAC <span style="color:#f92672">=</span> Mac.<span style="color:#a6e22e">getInstance</span>(<span style="color:#e6db74">&#34;HmacSHA256&#34;</span>);
+</span></span><span style="display:flex;"><span>        SecretKeySpec secret_key <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> SecretKeySpec(SECRET_KEY.<span style="color:#a6e22e">getBytes</span>(StandardCharsets.<span style="color:#a6e22e">UTF_8</span>), <span style="color:#e6db74">&#34;HmacSHA256&#34;</span>);
+</span></span><span style="display:flex;"><span>        sha256_HMAC.<span style="color:#a6e22e">init</span>(secret_key);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">byte</span><span style="color:#f92672">[]</span> hash <span style="color:#f92672">=</span> sha256_HMAC.<span style="color:#a6e22e">doFinal</span>(sb.<span style="color:#a6e22e">toString</span>().<span style="color:#a6e22e">getBytes</span>(StandardCharsets.<span style="color:#a6e22e">UTF_8</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 转16进制字符串</span>
+</span></span><span style="display:flex;"><span>        StringBuilder result <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">byte</span> b : hash) {
+</span></span><span style="display:flex;"><span>            result.<span style="color:#a6e22e">append</span>(String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;%02x&#34;</span>, b));
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> result.<span style="color:#a6e22e">toString</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 验证请求</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">verifyRequest</span>(Map<span style="color:#f92672">&lt;</span>String, String<span style="color:#f92672">&gt;</span> params, Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> nonceCache, <span style="color:#66d9ef">long</span> allowedTimeWindowSeconds) <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 1. 验证时间戳</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> timestamp <span style="color:#f92672">=</span> Long.<span style="color:#a6e22e">parseLong</span>(params.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;timestamp&#34;</span>));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">long</span> now <span style="color:#f92672">=</span> System.<span style="color:#a6e22e">currentTimeMillis</span>() <span style="color:#f92672">/</span> 1000;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (Math.<span style="color:#a6e22e">abs</span>(now <span style="color:#f92672">-</span> timestamp) <span style="color:#f92672">&gt;</span> allowedTimeWindowSeconds) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;请求时间戳超时&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 2. 验证nonce唯一性（防重放）</span>
+</span></span><span style="display:flex;"><span>        String nonce <span style="color:#f92672">=</span> params.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;nonce&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (nonceCache.<span style="color:#a6e22e">contains</span>(nonce)) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;请求nonce重复，疑似重放攻击&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        nonceCache.<span style="color:#a6e22e">add</span>(nonce);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 3. 验证签名</span>
+</span></span><span style="display:flex;"><span>        String clientSign <span style="color:#f92672">=</span> params.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;signature&#34;</span>);
+</span></span><span style="display:flex;"><span>        String serverSign <span style="color:#f92672">=</span> generateSignature(params);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>serverSign.<span style="color:#a6e22e">equals</span>(clientSign)) {
+</span></span><span style="display:flex;"><span>            System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;签名校验失败&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 模拟请求参数</span>
+</span></span><span style="display:flex;"><span>        Map<span style="color:#f92672">&lt;</span>String, String<span style="color:#f92672">&gt;</span> requestParams <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;userId&#34;</span>, <span style="color:#e6db74">&#34;12345&#34;</span>);
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;action&#34;</span>, <span style="color:#e6db74">&#34;transfer&#34;</span>);
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;amount&#34;</span>, <span style="color:#e6db74">&#34;100&#34;</span>);
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;timestamp&#34;</span>, String.<span style="color:#a6e22e">valueOf</span>(System.<span style="color:#a6e22e">currentTimeMillis</span>() <span style="color:#f92672">/</span> 1000));
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;nonce&#34;</span>, UUID.<span style="color:#a6e22e">randomUUID</span>().<span style="color:#a6e22e">toString</span>().<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">&#34;-&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 生成签名并加入请求参数</span>
+</span></span><span style="display:flex;"><span>        String signature <span style="color:#f92672">=</span> generateSignature(requestParams);
+</span></span><span style="display:flex;"><span>        requestParams.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;signature&#34;</span>, signature);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 模拟服务器缓存nonce（实际可用 Redis 等存储）</span>
+</span></span><span style="display:flex;"><span>        Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> nonceCache <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 验证请求</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">boolean</span> valid <span style="color:#f92672">=</span> verifyRequest(requestParams, nonceCache, 300);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;请求是否有效：&#34;</span> <span style="color:#f92672">+</span> valid);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 模拟重放请求（同一个nonce）</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">boolean</span> replay <span style="color:#f92672">=</span> verifyRequest(requestParams, nonceCache, 300);
+</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;重放请求是否有效：&#34;</span> <span style="color:#f92672">+</span> replay);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="4-说明">
+  4. 说明
+  <a class="anchor" href="#4-%e8%af%b4%e6%98%8e">#</a>
+</h2>
+<ul>
+<li><strong>timestamp</strong> 防止旧请求被重放，服务器只接受一定时间窗口内的请求</li>
+<li><strong>nonce</strong> 保证请求唯一，服务端缓存已用 nonce，重复使用判定为重放攻击</li>
+<li><strong>signature</strong> 用 HMAC-SHA256 绑定所有参数，防止篡改</li>
+<li><strong>nonceCache</strong> 这里用 HashSet 模拟，生产中应用 Redis 或其他分布式缓存并设置过期</li>
+</ul>
+<hr>
+<h2 id="5-生产中需要考虑">
+  5. 生产中需要考虑
+  <a class="anchor" href="#5-%e7%94%9f%e4%ba%a7%e4%b8%ad%e9%9c%80%e8%a6%81%e8%80%83%e8%99%91">#</a>
+</h2>
+<ul>
+<li><strong>nonce 缓存大小和过期策略</strong>：防止内存/缓存爆满</li>
+<li><strong>时间同步</strong>：客户端和服务器时间要同步（NTP）</li>
+<li><strong>签名算法和密钥安全</strong>：密钥要安全管理，避免泄露</li>
+<li><strong>接口幂等设计</strong>：即使请求未被重放，也要保证多次执行不出错</li>
+<li><strong>失败重试和并发控制</strong></li>
+</ul>
+<hr>
+<p>需要我帮你写一个基于Spring Boot的拦截器示例，或者其他语言版本的实现吗？</p>
+<p>很好的问题！关于<strong>为什么用HMAC，以及生产环境的最佳实践</strong>，我详细说说。</p>
+<hr>
+<h1 id="hmac">
+  HMAC
+  <a class="anchor" href="#hmac">#</a>
+</h1>
+<h2 id="1-为什么用-hmac">
+  1. 为什么用 HMAC？
+  <a class="anchor" href="#1-%e4%b8%ba%e4%bb%80%e4%b9%88%e7%94%a8-hmac">#</a>
+</h2>
+<p><strong>HMAC（Hash-based Message Authentication Code）</strong> 是一种基于密钥的消息认证码算法，常用来保证消息的完整性和真实性。它的优势包括：</p>
+<ul>
+<li>
+<p><strong>防篡改性强</strong>
+HMAC 用一个<strong>共享的密钥</strong>和哈希算法（如 SHA-256）结合生成签名，只有知道密钥才能正确计算和验证签名，防止消息被篡改。</p>
+</li>
+<li>
+<p><strong>计算效率高</strong>
+相比公钥签名（RSA/ECDSA），HMAC 速度快、性能开销小，适合高并发场景。</p>
+</li>
+<li>
+<p><strong>简单易用</strong>
+只需共享密钥，客户端和服务端都能快速实现，无需复杂的公私钥管理。</p>
+</li>
+<li>
+<p><strong>抗碰撞强</strong>
+结合哈希算法的抗碰撞性，保证签名唯一且安全。</p>
+</li>
+</ul>
+<hr>
+<h2 id="2-生产环境的最佳实践是用-hmac-吗">
+  2. 生产环境的最佳实践是用 HMAC 吗？
+  <a class="anchor" href="#2-%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e7%9a%84%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5%e6%98%af%e7%94%a8-hmac-%e5%90%97">#</a>
+</h2>
+<p><strong>大部分互联网公司和金融系统都采用 HMAC 作为请求签名和防重放的核心手段。</strong></p>
+<p>原因：</p>
+<table>
+  <thead>
+      <tr>
+          <th>优势</th>
+          <th>解释</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>性能优异</td>
+          <td>适合海量请求的快速签名和验证</td>
+      </tr>
+      <tr>
+          <td>安全性足够强</td>
+          <td>对称密钥机制，在密钥管理得当下安全</td>
+      </tr>
+      <tr>
+          <td>实现和维护成本低</td>
+          <td>几乎所有语言和平台都有标准实现</td>
+      </tr>
+      <tr>
+          <td>容易集成</td>
+          <td>适用于移动端、前端、服务器端签名</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="3-什么时候不用-hmac">
+  3. 什么时候不用 HMAC？
+  <a class="anchor" href="#3-%e4%bb%80%e4%b9%88%e6%97%b6%e5%80%99%e4%b8%8d%e7%94%a8-hmac">#</a>
+</h2>
+<ul>
+<li>
+<p><strong>需要非对称签名</strong>（公钥/私钥）场景
+如 OAuth、JWT、数字证书签名，保证签名者身份公开验证。</p>
+</li>
+<li>
+<p><strong>多方交互，不能共享密钥</strong>
+需要公私钥体系保证身份不可伪造。</p>
+</li>
+</ul>
+<hr>
+<h2 id="4-生产中其他常见做法">
+  4. 生产中其他常见做法
+  <a class="anchor" href="#4-%e7%94%9f%e4%ba%a7%e4%b8%ad%e5%85%b6%e4%bb%96%e5%b8%b8%e8%a7%81%e5%81%9a%e6%b3%95">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>方案</th>
+          <th>适用场景</th>
+          <th>备注</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>HMAC（SHA-256等）</td>
+          <td>内部服务调用、API签名</td>
+          <td>高性能，简单</td>
+      </tr>
+      <tr>
+          <td>RSA/ECDSA 数字签名</td>
+          <td>跨服务或第三方交互</td>
+          <td>身份验证，非对称更安全</td>
+      </tr>
+      <tr>
+          <td>JWT + 签名</td>
+          <td>无状态认证</td>
+          <td>集成身份和权限，方便传递</td>
+      </tr>
+      <tr>
+          <td>OAuth 2.0 / OpenID</td>
+          <td>统一认证授权</td>
+          <td>标准协议，多方授权</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="5-总结">
+  5. 总结
+  <a class="anchor" href="#5-%e6%80%bb%e7%bb%93">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>特点</th>
+          <th>HMAC</th>
+          <th>公钥签名（RSA/ECDSA）</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>安全性</td>
+          <td>高（对称密钥，密钥需安全）</td>
+          <td>更高（非对称，可公开验证）</td>
+      </tr>
+      <tr>
+          <td>性能</td>
+          <td>快</td>
+          <td>慢，计算开销大</td>
+      </tr>
+      <tr>
+          <td>实现复杂度</td>
+          <td>低</td>
+          <td>高，需密钥管理和分发</td>
+      </tr>
+      <tr>
+          <td>典型使用场景</td>
+          <td>内部 API 签名，防篡改，防重放</td>
+          <td>跨系统身份认证、电子签名</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<p>如果你要设计的系统是<strong>公司内部服务、API接口调用、移动端调用</strong>，HMAC几乎是最实用且广泛认可的方案。</p>
+<p>需要，我可以帮你写一份<strong>HMAC密钥管理最佳实践</strong>或更详细的<strong>公钥签名对比分析</strong>。你感兴趣吗？</p>
+<p>这是个非常关键且实用的问题！我帮你拆解讲清楚：</p>
+<hr>
+<h1 id="faq">
+  FAQ
+  <a class="anchor" href="#faq">#</a>
+</h1>
+<h2 id="1-前后端都要知道hmac密钥吗">
+  1. <strong>前后端都要知道HMAC密钥吗？</strong>
+  <a class="anchor" href="#1-%e5%89%8d%e5%90%8e%e7%ab%af%e9%83%bd%e8%a6%81%e7%9f%a5%e9%81%93hmac%e5%af%86%e9%92%a5%e5%90%97">#</a>
+</h2>
+<h3 id="理想设计原则不应该让前端知道完整的-hmac-服务器密钥">
+  理想设计原则：<strong>不应该让前端知道完整的 HMAC 服务器密钥</strong>
+  <a class="anchor" href="#%e7%90%86%e6%83%b3%e8%ae%be%e8%ae%a1%e5%8e%9f%e5%88%99%e4%b8%8d%e5%ba%94%e8%af%a5%e8%ae%a9%e5%89%8d%e7%ab%af%e7%9f%a5%e9%81%93%e5%ae%8c%e6%95%b4%e7%9a%84-hmac-%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%af%86%e9%92%a5">#</a>
+</h3>
+<ul>
+<li>
+<p><strong>HMAC密钥是“共享密钥”，只要泄露，攻击者就能伪造签名。</strong>
+所以，<strong>服务器端密钥必须严格保密，不能暴露给客户端（浏览器、移动端）</strong>。</p>
+</li>
+<li>
+<p><strong>前端无法持有真正的服务器密钥，但需要某种机制签名请求，防止篡改和重放。</strong></p>
+</li>
+</ul>
+<hr>
+<h2 id="2-前端如何做签名">
+  2. 前端如何做签名？
+  <a class="anchor" href="#2-%e5%89%8d%e7%ab%af%e5%a6%82%e4%bd%95%e5%81%9a%e7%ad%be%e5%90%8d">#</a>
+</h2>
+<ul>
+<li>
+<p><strong>做法一：前端使用客户端密钥（Client Secret）生成签名</strong>
+适用于移动App或可信客户端。</p>
+<ul>
+<li>服务器为每个客户端分配唯一密钥</li>
+<li>前端用自己的密钥计算签名，后端校验对应密钥</li>
+<li>密钥隐藏在客户端代码中，防止泄漏（但有一定风险）</li>
+</ul>
+</li>
+<li>
+<p><strong>做法二：前端不签名，服务器端对请求做签名验证 + 防重放策略</strong>
+适合Web前端。</p>
+<ul>
+<li>前端传递必要参数（含nonce、timestamp）</li>
+<li>服务器端校验nonce唯一和时间戳有效，</li>
+<li>结合身份认证（Token、Session）限制重复请求</li>
+</ul>
+</li>
+<li>
+<p><strong>做法三：API Gateway / 网关负责签名和校验</strong></p>
+<ul>
+<li>网关和后端服务共享密钥</li>
+<li>前端请求经过网关统一验证</li>
+<li>后端服务只信任网关转发的合法请求</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-微服务中如何用hmac防重放完成支付流程">
+  3. <strong>微服务中如何用HMAC防重放完成支付流程？</strong>
+  <a class="anchor" href="#3-%e5%be%ae%e6%9c%8d%e5%8a%a1%e4%b8%ad%e5%a6%82%e4%bd%95%e7%94%a8hmac%e9%98%b2%e9%87%8d%e6%94%be%e5%ae%8c%e6%88%90%e6%94%af%e4%bb%98%e6%b5%81%e7%a8%8b">#</a>
+</h2>
+<h3 id="典型流程示例">
+  典型流程示例：
+  <a class="anchor" href="#%e5%85%b8%e5%9e%8b%e6%b5%81%e7%a8%8b%e7%a4%ba%e4%be%8b">#</a>
+</h3>
+<pre tabindex="0"><code>[客户端] → 发起支付请求 → [API网关] → [支付服务] → [支付网关]
+</code></pre><hr>
+<h3 id="详细步骤">
+  详细步骤
+  <a class="anchor" href="#%e8%af%a6%e7%bb%86%e6%ad%a5%e9%aa%a4">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>步骤</th>
+          <th>描述</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1. 客户端发起支付请求</td>
+          <td>前端发送支付参数（金额、订单号、时间戳、nonce等）到API网关</td>
+      </tr>
+      <tr>
+          <td>2. API网关签名请求</td>
+          <td>API网关用<strong>自身的密钥</strong>对请求参数计算 HMAC 签名，附加到请求头或参数中</td>
+      </tr>
+      <tr>
+          <td>3. 支付服务验证签名</td>
+          <td>支付服务从API网关接收请求，使用共享密钥验证签名，确保请求未被篡改</td>
+      </tr>
+      <tr>
+          <td>4. 支付服务校验nonce</td>
+          <td>检查请求中的nonce是否已使用，防止重复支付请求</td>
+      </tr>
+      <tr>
+          <td>5. 支付服务验证时间戳</td>
+          <td>时间戳检查，防止过期请求</td>
+      </tr>
+      <tr>
+          <td>6. 支付执行</td>
+          <td>通过验证后，调用支付网关完成支付</td>
+      </tr>
+      <tr>
+          <td>7. 返回结果</td>
+          <td>支付服务返回结果给API网关，API网关反馈给客户端</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="关键点说明">
+  关键点说明
+  <a class="anchor" href="#%e5%85%b3%e9%94%ae%e7%82%b9%e8%af%b4%e6%98%8e">#</a>
+</h3>
+<ul>
+<li><strong>HMAC密钥仅存在于API网关和支付服务之间，不暴露给客户端</strong></li>
+<li><strong>客户端不需要知道密钥，也不直接计算HMAC签名</strong></li>
+<li><strong>API网关是可信代理，负责对请求签名和校验</strong></li>
+<li><strong>支付服务通过nonce和时间戳保证请求唯一且及时</strong></li>
+<li><strong>对nonce缓存一般存储在分布式缓存（Redis）中，设置过期时间</strong></li>
+<li><strong>时间同步依赖NTP，防止时间差过大导致请求被误拒</strong></li>
+</ul>
+<hr>
+<h2 id="4-典型架构图示意">
+  4. 典型架构图示意
+  <a class="anchor" href="#4-%e5%85%b8%e5%9e%8b%e6%9e%b6%e6%9e%84%e5%9b%be%e7%a4%ba%e6%84%8f">#</a>
+</h2>
+<pre tabindex="0"><code>客户端
+  |
+  | 请求（无HMAC签名，带时间戳+nonce）
+  ↓
+API网关 (生成HMAC签名)
+  |
+  | 带签名的请求
+  ↓
+支付服务 (验证签名 + 防重放)
+  |
+  ↓
+支付网关
+</code></pre><hr>
+<h2 id="5-总结-1">
+  5. 总结
+  <a class="anchor" href="#5-%e6%80%bb%e7%bb%93-1">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>角色</th>
+          <th>是否知道HMAC密钥</th>
+          <th>负责什么</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>客户端</td>
+          <td>否</td>
+          <td>生成请求参数（时间戳、nonce）</td>
+      </tr>
+      <tr>
+          <td>API网关</td>
+          <td>是</td>
+          <td>计算并添加 HMAC 签名</td>
+      </tr>
+      <tr>
+          <td>支付服务</td>
+          <td>是</td>
+          <td>验证签名，检查 nonce 和时间戳</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一句话理解">🧨 一句话理解：</a></li>
+        <li><a href="#-举个例子">📦 举个例子：</a></li>
+        <li><a href="#-为什么这条旧的请求还会被服务器接受">🧠 为什么这条“旧的请求”还会被服务器接受？</a></li>
+        <li><a href="#-重放攻击常见于哪些协议场景">🔐 重放攻击常见于哪些协议场景？</a></li>
+        <li><a href="#-如何防御重放攻击">🛡️ 如何防御重放攻击？</a>
+          <ul>
+            <li><a href="#-1-使用唯一请求-idnonce">✅ 1. 使用唯一请求 ID（nonce）</a></li>
+            <li><a href="#-2-添加时间戳并设有效期">✅ 2. 添加时间戳并设有效期</a></li>
+            <li><a href="#-3-使用-hmac-签名请求参数">✅ 3. 使用 HMAC 签名请求参数</a></li>
+            <li><a href="#-4-使用-tls-防中间人监听基础防线">✅ 4. 使用 TLS 防中间人监听（基础防线）</a></li>
+            <li><a href="#-5-对-0-rtt-请求做幂等性校验quictls-13-特别注意">✅ 5. 对 0-RTT 请求做幂等性校验（QUIC/TLS 1.3 特别注意）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-补充幂等请求-vs-非幂等请求">💡 补充：幂等请求 vs 非幂等请求</a></li>
+        <li><a href="#-总结一句话">🎯 总结一句话：</a></li>
+      </ul>
+    </li>
+    <li><a href="#最佳实践">最佳实践</a>
+      <ul>
+        <li><a href="#1-请求唯一性使用-nonce-或唯一请求-id">1. 请求唯一性（使用 Nonce 或唯一请求 ID）</a></li>
+        <li><a href="#2-时间戳和有效期限制">2. 时间戳和有效期限制</a></li>
+        <li><a href="#3-请求签名hmac-或数字签名">3. 请求签名（HMAC 或数字签名）</a></li>
+        <li><a href="#4-幂等接口设计">4. 幂等接口设计</a></li>
+        <li><a href="#5-使用安全协议tls-13">5. 使用安全协议（TLS 1.3）</a></li>
+        <li><a href="#6-对-0-rtt-请求特别防护针对-quictls-13">6. 对 0-RTT 请求特别防护（针对 QUIC/TLS 1.3）</a></li>
+        <li><a href="#7-监控与告警">7. 监控与告警</a></li>
+        <li><a href="#8-具体技术栈示例">8. 具体技术栈示例</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#案例">案例</a>
+      <ul>
+        <li><a href="#1-请求体设计">1. 请求体设计</a></li>
+        <li><a href="#2-签名规则">2. 签名规则</a></li>
+        <li><a href="#3-伪代码示范">3. 伪代码示范</a></li>
+        <li><a href="#4-说明">4. 说明</a></li>
+        <li><a href="#5-生产中需要考虑">5. 生产中需要考虑</a></li>
+      </ul>
+    </li>
+    <li><a href="#hmac">HMAC</a>
+      <ul>
+        <li><a href="#1-为什么用-hmac">1. 为什么用 HMAC？</a></li>
+        <li><a href="#2-生产环境的最佳实践是用-hmac-吗">2. 生产环境的最佳实践是用 HMAC 吗？</a></li>
+        <li><a href="#3-什么时候不用-hmac">3. 什么时候不用 HMAC？</a></li>
+        <li><a href="#4-生产中其他常见做法">4. 生产中其他常见做法</a></li>
+        <li><a href="#5-总结">5. 总结</a></li>
+      </ul>
+    </li>
+    <li><a href="#faq">FAQ</a>
+      <ul>
+        <li><a href="#1-前后端都要知道hmac密钥吗">1. <strong>前后端都要知道HMAC密钥吗？</strong></a>
+          <ul>
+            <li><a href="#理想设计原则不应该让前端知道完整的-hmac-服务器密钥">理想设计原则：<strong>不应该让前端知道完整的 HMAC 服务器密钥</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#2-前端如何做签名">2. 前端如何做签名？</a></li>
+        <li><a href="#3-微服务中如何用hmac防重放完成支付流程">3. <strong>微服务中如何用HMAC防重放完成支付流程？</strong></a>
+          <ul>
+            <li><a href="#典型流程示例">典型流程示例：</a></li>
+            <li><a href="#详细步骤">详细步骤</a></li>
+            <li><a href="#关键点说明">关键点说明</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-典型架构图示意">4. 典型架构图示意</a></li>
+        <li><a href="#5-总结-1">5. 总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

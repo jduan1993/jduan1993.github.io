@@ -1,7 +1,8 @@
 {{ define "main" }}
 <article class="markdown book-post">
-  <h1>
+  <h1 id="{{ .Title | urlize }}">
     {{ partial "docs/title.html" . }}
+    <a class="anchor" href="#{{ .Title | urlize }}">#</a>
   </h1>
   {{ if and .GitInfo .Site.Params.BookRepo }}
   <div>

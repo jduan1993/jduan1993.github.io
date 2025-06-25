@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PostgreSQL 和 MySQL 的选型，常见于后端架构设计中。两者都是主流开源关系型数据库，各有优势。决定性因素往往取决于项目的需求、团队的经验和使用场景。
+
+
+  ✅ 决定 PostgreSQL vs MySQL 的关键几点如下：
+  #
+
+
+  
+      
+          决定点
+          PostgreSQL
+          MySQL
+      
+  
+  
+      
+          1. 标准兼容性 &amp; 复杂查询支持
+          ✅ 优秀的 SQL 标准兼容性，支持复杂查询、窗口函数、CTE、并发写优化等高级特性。适合复杂业务逻辑。
+          ❌ 查询功能稍弱，对复杂查询支持不如 Postgres。更适合 CRUD 类型系统。
+      
+      
+          2. JSON 支持
+          ✅ 强大的 JSON / JSONB 数据类型支持，几乎等同于文档数据库功能。
+          ⚠️ 有 JSON 支持，但功能较弱，主要用于存储，不利于复杂查询。
+      
+      
+          3. 一致性与事务支持
+          ✅ 真正的 MVCC，多版本并发控制，实现级别的事务隔离（支持 SERIALIZABLE），更适合金融/高可靠系统。
+          ⚠️ InnoDB 虽支持事务，但隔离性和一致性在高并发时略逊一筹。
+      
+      
+          4. 插件/扩展能力
+          ✅ 支持用户自定义函数（UDF）、PostGIS、全文检索等强大扩展机制。
+          ❌ 扩展性不如 Postgres，主要靠内置功能。
+      
+      
+          5. 性能（单点读写）
+          ⚠️ 查询优化能力强，但单纯的 CRUD 性能略低于 MySQL。
+          ✅ 对简单查询/写入优化很好，CRUD 系统性能优于 Postgres。
+      
+      
+          6. 社区生态/学习成本
+          ⚠️ 功能多但复杂，学习曲线略高，文档丰富。
+          ✅ 使用更广泛，生态成熟，学习上手快。
+      
+      
+          7. 兼容性和托管服务
+          ✅ AWS RDS, Aurora, GCP, Azure 均支持，兼容较好。
+          ✅ 所有主流云平台支持，部分平台如阿里云/腾讯云更偏向 MySQL。
+      
+      
+          8. 数据量与扩展性
+          ✅ 更适合大数据场景（例如 TB 级别），表分区、逻辑分区做得较好。
+          ⚠️ 表结构大时管理不如 PostgreSQL 灵活。
+      
+  
+
+
+
+  🏁 结论建议（实际选型建议）：
+  #
+
+
+  ✅ 选择 PostgreSQL 的场景：
+  #
+
+
+业务逻辑复杂，需要高级查询功能；
+大量使用 JSON / 半结构化数据；
+需要强一致性事务；
+构建复杂系统（如 BI、ERP、金融）；
+需要空间数据、全文搜索或其他扩展功能。
+
+
+  ✅ 选择 MySQL 的场景：
+  #
+
+
+Web 系统、轻量 CRUD 类应用；
+对性能要求高但事务需求不高；
+团队已有 MySQL 经验；
+快速迭代的初创项目或中小型系统；
+云平台默认提供（如阿里云、腾讯云偏好 MySQL）。
+
+
+
+  ✅ 一致性与事务支持：PostgreSQL vs MySQL
+  #
+
+
+  🔹 1. PostgreSQL：事务一致性更强
+  #
+
+
+  ✅ 真正的 MVCC（多版本并发控制）
+  #
+
+
+PostgreSQL 对每个事务生成自己的数据快照，实现无锁读写。
+写入时并不会阻塞读取，冲突由事务隔离等级控制，保证并发安全。
+实现机制更贴近学术定义，事务隔离更严格、可控性更好。
+
+
+  ✅ 支持完整的 SQL 标准隔离级别：
+  #
+
+
+READ COMMITTED（默认）
+REPEATABLE READ
+SERIALIZABLE（通过 Serializable Snapshot Isolation 实现，非锁定式，适合金融类应用）
+
+
+  ✅ 高度可靠的 WAL（预写日志）机制：
+  #
+
+
+所有修改操作先写日志，再写磁盘，崩溃后可以精确恢复。
+数据恢复机制成熟、安全性更高。
+
+
+  🔍 衍生优势：
+  #
+
+
+更适合对数据一致性要求极高的系统，如：银行、交易所、账本类系统。
+
+
+
+  🔹 2. MySQL：一致性不如 PostgreSQL 稳健
+  #
+
+
+  ⚠️ 依赖 InnoDB 引擎（默认）提供事务支持：
+  #
+
+
+也实现了 MVCC，但实现细节与 PostgreSQL 不同。
+REPEATABLE READ 是默认隔离级别，使用**间隙锁（Gap Lock）**避免幻读，但容易引发死锁和性能瓶颈。
+
+
+  ⚠️ SERIALIZABLE 支持有限：
+  #
+
+
+是通过加锁实现，性能开销大，不推荐在高并发场景使用。
+实际中，很少系统用 MySQL 启用 SERIALIZABLE 隔离级别。
+
+
+  🚨 潜在问题：
+  #
+
+
+在高并发、复杂事务场景下，一致性可能出现“边缘案例”问题；
+特别在主从复制中，默认是异步复制，会导致读写延迟或脏读。
+
+
+
+  ✅ 数据量与扩展性：PostgreSQL vs MySQL
+  #
+
+
+  🔹 1. PostgreSQL：面向大规模数据更具优势
+  #
+
+
+  ✅ 表分区（Partitioning）能力更强
+  #
+
+
+支持声明式分区（PostgreSQL 10&#43;）；
+支持范围、列表、哈希分区；
+查询优化器可以自动分区裁剪（Partition Pruning），大数据量时性能更稳定；
+非常适合日志库、时间序列库、大表数据归档场景。
+
+
+  ✅ 并行查询能力
+  #
+
+
+支持并行 Seq Scan、并行聚合（Aggregate）、并行索引扫描；
+对 OLAP 友好（虽然不是专门为 OLAP 设计）；
+大数据集查询性能明显优于 MySQL。
+
+
+  ✅ 扩展性强：可以外挂插件（如 TimescaleDB）做时间序列、分布式处理。
+  #
+
+
+
+  🔹 2. MySQL：轻量快速但扩展能力有限
+  #
+
+
+  ⚠️ 分区支持较弱：
+  #
+
+
+支持分区表，但功能受限，不支持外键、全文索引等；
+分区优化器能力较弱，很多查询无法自动命中合适分区；
+实际应用中，大部分公司会选择手动做“分库分表” 而非使用原生分区。
+
+
+  ⚠️ 扩展能力靠中间件实现：
+  #
+
+
+遇到 TB 级别或热点大表，常依赖 Sharding 中间件（如 ShardingSphere、Vitess）；
+架构更复杂，维护成本更高；
+很难做到 PostgreSQL 那种“开箱即用”的分区和扩展能力。
+
+
+
+  📌 总结对比（深度场景推荐）：
+  #
+
+
+  
+      
+          维度
+          PostgreSQL
+          MySQL
+      
+  
+  
+      
+          事务隔离能力
+          强：支持可串行化隔离，MVCC 机制严谨
+          弱：SERIALIZABLE 实现粗糙，容易死锁
+      
+      
+          写入一致性保障
+          强：WAL &#43; MVCC &#43; 快照机制
+          一般：InnoDB MVCC 有局限，复制异步
+      
+      
+          并发性能
+          高并发下更稳健
+          并发高时容易死锁或锁等待
+      
+      
+          大数据分区
+          支持多种分区方式，自动优化
+          分区功能弱，需手动实现或依赖中间件
+      
+      
+          并行查询
+          支持，OLAP 友好
+          不支持并行查询
+      
+      
+          插件扩展
+          丰富，如时序库、地理空间等
+          少，功能主要靠核心功能或外部方案
+      
+  
+
+
+
+  ✅ 最终建议（事务&#43;大数据场景）：
+  #
+
+
+✅ 如果你要构建 金融系统、审计系统、复杂账本系统，或处理 TB 级大表、复杂报表分析 → 优选 PostgreSQL
+⚠️ 如果你是以读写性能优先的中小型系统、偏 CRUD 操作、单表不大，或者已有大量 MySQL 资产 → MySQL 依然可行
+
+
+你的这些问题都非常关键，涉及数据库内核、事务模型以及数据库在不同场景下的表现。以下是针对每个问题的详细解析，配合类比和示意，便于理解。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/database/postgresql-mysql/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="PostgreSQL vs MySQL (InnoDB) 选型">
+  <meta property="og:description" content="PostgreSQL 和 MySQL 的选型，常见于后端架构设计中。两者都是主流开源关系型数据库，各有优势。决定性因素往往取决于项目的需求、团队的经验和使用场景。
+✅ 决定 PostgreSQL vs MySQL 的关键几点如下：#决定点 PostgreSQL MySQL 1. 标准兼容性 &amp; 复杂查询支持 ✅ 优秀的 SQL 标准兼容性，支持复杂查询、窗口函数、CTE、并发写优化等高级特性。适合复杂业务逻辑。 ❌ 查询功能稍弱，对复杂查询支持不如 Postgres。更适合 CRUD 类型系统。 2. JSON 支持 ✅ 强大的 JSON / JSONB 数据类型支持，几乎等同于文档数据库功能。 ⚠️ 有 JSON 支持，但功能较弱，主要用于存储，不利于复杂查询。 3. 一致性与事务支持 ✅ 真正的 MVCC，多版本并发控制，实现级别的事务隔离（支持 SERIALIZABLE），更适合金融/高可靠系统。 ⚠️ InnoDB 虽支持事务，但隔离性和一致性在高并发时略逊一筹。 4. 插件/扩展能力 ✅ 支持用户自定义函数（UDF）、PostGIS、全文检索等强大扩展机制。 ❌ 扩展性不如 Postgres，主要靠内置功能。 5. 性能（单点读写） ⚠️ 查询优化能力强，但单纯的 CRUD 性能略低于 MySQL。 ✅ 对简单查询/写入优化很好，CRUD 系统性能优于 Postgres。 6. 社区生态/学习成本 ⚠️ 功能多但复杂，学习曲线略高，文档丰富。 ✅ 使用更广泛，生态成熟，学习上手快。 7. 兼容性和托管服务 ✅ AWS RDS, Aurora, GCP, Azure 均支持，兼容较好。 ✅ 所有主流云平台支持，部分平台如阿里云/腾讯云更偏向 MySQL。 8. 数据量与扩展性 ✅ 更适合大数据场景（例如 TB 级别），表分区、逻辑分区做得较好。 ⚠️ 表结构大时管理不如 PostgreSQL 灵活。 🏁 结论建议（实际选型建议）：#✅ 选择 PostgreSQL 的场景：#业务逻辑复杂，需要高级查询功能； 大量使用 JSON / 半结构化数据； 需要强一致性事务； 构建复杂系统（如 BI、ERP、金融）； 需要空间数据、全文搜索或其他扩展功能。 ✅ 选择 MySQL 的场景：#Web 系统、轻量 CRUD 类应用； 对性能要求高但事务需求不高； 团队已有 MySQL 经验； 快速迭代的初创项目或中小型系统； 云平台默认提供（如阿里云、腾讯云偏好 MySQL）。 ✅ 一致性与事务支持：PostgreSQL vs MySQL#🔹 1. PostgreSQL：事务一致性更强#✅ 真正的 MVCC（多版本并发控制）#PostgreSQL 对每个事务生成自己的数据快照，实现无锁读写。 写入时并不会阻塞读取，冲突由事务隔离等级控制，保证并发安全。 实现机制更贴近学术定义，事务隔离更严格、可控性更好。 ✅ 支持完整的 SQL 标准隔离级别：#READ COMMITTED（默认） REPEATABLE READ SERIALIZABLE（通过 Serializable Snapshot Isolation 实现，非锁定式，适合金融类应用） ✅ 高度可靠的 WAL（预写日志）机制：#所有修改操作先写日志，再写磁盘，崩溃后可以精确恢复。 数据恢复机制成熟、安全性更高。 🔍 衍生优势：#更适合对数据一致性要求极高的系统，如：银行、交易所、账本类系统。 🔹 2. MySQL：一致性不如 PostgreSQL 稳健#⚠️ 依赖 InnoDB 引擎（默认）提供事务支持：#也实现了 MVCC，但实现细节与 PostgreSQL 不同。 REPEATABLE READ 是默认隔离级别，使用**间隙锁（Gap Lock）**避免幻读，但容易引发死锁和性能瓶颈。 ⚠️ SERIALIZABLE 支持有限：#是通过加锁实现，性能开销大，不推荐在高并发场景使用。 实际中，很少系统用 MySQL 启用 SERIALIZABLE 隔离级别。 🚨 潜在问题：#在高并发、复杂事务场景下，一致性可能出现“边缘案例”问题； 特别在主从复制中，默认是异步复制，会导致读写延迟或脏读。 ✅ 数据量与扩展性：PostgreSQL vs MySQL#🔹 1. PostgreSQL：面向大规模数据更具优势#✅ 表分区（Partitioning）能力更强#支持声明式分区（PostgreSQL 10&#43;）； 支持范围、列表、哈希分区； 查询优化器可以自动分区裁剪（Partition Pruning），大数据量时性能更稳定； 非常适合日志库、时间序列库、大表数据归档场景。 ✅ 并行查询能力#支持并行 Seq Scan、并行聚合（Aggregate）、并行索引扫描； 对 OLAP 友好（虽然不是专门为 OLAP 设计）； 大数据集查询性能明显优于 MySQL。 ✅ 扩展性强：可以外挂插件（如 TimescaleDB）做时间序列、分布式处理。#🔹 2. MySQL：轻量快速但扩展能力有限#⚠️ 分区支持较弱：#支持分区表，但功能受限，不支持外键、全文索引等； 分区优化器能力较弱，很多查询无法自动命中合适分区； 实际应用中，大部分公司会选择手动做“分库分表” 而非使用原生分区。 ⚠️ 扩展能力靠中间件实现：#遇到 TB 级别或热点大表，常依赖 Sharding 中间件（如 ShardingSphere、Vitess）； 架构更复杂，维护成本更高； 很难做到 PostgreSQL 那种“开箱即用”的分区和扩展能力。 📌 总结对比（深度场景推荐）：#维度 PostgreSQL MySQL 事务隔离能力 强：支持可串行化隔离，MVCC 机制严谨 弱：SERIALIZABLE 实现粗糙，容易死锁 写入一致性保障 强：WAL &#43; MVCC &#43; 快照机制 一般：InnoDB MVCC 有局限，复制异步 并发性能 高并发下更稳健 并发高时容易死锁或锁等待 大数据分区 支持多种分区方式，自动优化 分区功能弱，需手动实现或依赖中间件 并行查询 支持，OLAP 友好 不支持并行查询 插件扩展 丰富，如时序库、地理空间等 少，功能主要靠核心功能或外部方案 ✅ 最终建议（事务&#43;大数据场景）：#✅ 如果你要构建 金融系统、审计系统、复杂账本系统，或处理 TB 级大表、复杂报表分析 → 优选 PostgreSQL ⚠️ 如果你是以读写性能优先的中小型系统、偏 CRUD 操作、单表不大，或者已有大量 MySQL 资产 → MySQL 依然可行 你的这些问题都非常关键，涉及数据库内核、事务模型以及数据库在不同场景下的表现。以下是针对每个问题的详细解析，配合类比和示意，便于理解。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>PostgreSQL vs MySQL (InnoDB) 选型 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/database/postgresql-mysql/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.aed2e596e43e250839764ea6a5e722a63665fd860c6f1a749396aad8dc8cdf67.js" integrity="sha256-rtLlluQ&#43;JQg5dk6mpecipjZl/YYMbxp0k5aq2NyM32c=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>安全</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>缓存</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle" checked />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="active">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>网络</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>PostgreSQL vs MySQL (InnoDB) 选型</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#-决定-postgresql-vs-mysql-的关键几点如下">✅ 决定 PostgreSQL vs MySQL 的关键几点如下：</a></li>
+            <li><a href="#-结论建议实际选型建议">🏁 结论建议（实际选型建议）：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-一致性与事务支持postgresql-vs-mysql">✅ 一致性与事务支持：PostgreSQL vs MySQL</a>
+          <ul>
+            <li><a href="#-1-postgresql事务一致性更强">🔹 1. PostgreSQL：事务一致性更强</a></li>
+            <li><a href="#-2-mysql一致性不如-postgresql-稳健">🔹 2. MySQL：一致性不如 PostgreSQL 稳健</a></li>
+          </ul>
+        </li>
+        <li><a href="#-数据量与扩展性postgresql-vs-mysql">✅ 数据量与扩展性：PostgreSQL vs MySQL</a>
+          <ul>
+            <li><a href="#-1-postgresql面向大规模数据更具优势">🔹 1. PostgreSQL：面向大规模数据更具优势</a></li>
+            <li><a href="#-2-mysql轻量快速但扩展能力有限">🔹 2. MySQL：轻量快速但扩展能力有限</a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结对比深度场景推荐">📌 总结对比（深度场景推荐）：</a></li>
+        <li><a href="#-最终建议事务大数据场景">✅ 最终建议（事务+大数据场景）：</a></li>
+        <li><a href="#1-什么是间隙锁gap-lock">1️⃣ <strong>什么是间隙锁（Gap Lock）？</strong></a>
+          <ul>
+            <li><a href="#-定义">🔹 定义：</a></li>
+            <li><a href="#-举例说明">🔍 举例说明：</a></li>
+            <li><a href="#-作用">✅ 作用：</a></li>
+            <li><a href="#-副作用">⚠️ 副作用：</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-什么是-serializable-snapshot-isolationssi">2️⃣ <strong>什么是 Serializable Snapshot Isolation（SSI）？</strong></a>
+          <ul>
+            <li><a href="#-背景">🔹 背景：</a></li>
+            <li><a href="#-工作原理">🔍 工作原理：</a></li>
+            <li><a href="#-优势">✅ 优势：</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-olap-和-oltp-的区别">3️⃣ <strong>OLAP 和 OLTP 的区别？</strong></a></li>
+        <li><a href="#4-postgresql-的分区方式有哪些">4️⃣ <strong>PostgreSQL 的分区方式有哪些？</strong></a>
+          <ul>
+            <li><a href="#-1-范围分区range-partitioning">🔹 1. 范围分区（Range Partitioning）：</a></li>
+            <li><a href="#-2-列表分区list-partitioning">🔹 2. 列表分区（List Partitioning）：</a></li>
+            <li><a href="#-3-哈希分区hash-partitioning">🔹 3. 哈希分区（Hash Partitioning）：</a></li>
+            <li><a href="#-分区优势">✅ 分区优势：</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-并行查询parallel-query是什么">5️⃣ <strong>并行查询（Parallel Query）是什么？</strong></a>
+          <ul>
+            <li><a href="#-定义-1">🔹 定义：</a></li>
+            <li><a href="#-示例场景">🔍 示例场景：</a></li>
+            <li><a href="#-效果">✅ 效果：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结速览">✅ 总结速览：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    PostgreSQL vs MySQL (InnoDB) 选型
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>PostgreSQL 和 MySQL 的选型，常见于后端架构设计中。两者都是主流开源关系型数据库，各有优势。决定性因素往往取决于项目的需求、团队的经验和使用场景。</p>
+<hr>
+<h3 id="-决定-postgresql-vs-mysql-的关键几点如下">
+  ✅ 决定 PostgreSQL vs MySQL 的关键几点如下：
+  <a class="anchor" href="#-%e5%86%b3%e5%ae%9a-postgresql-vs-mysql-%e7%9a%84%e5%85%b3%e9%94%ae%e5%87%a0%e7%82%b9%e5%a6%82%e4%b8%8b">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>决定点</th>
+          <th>PostgreSQL</th>
+          <th>MySQL</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>1. 标准兼容性 &amp; 复杂查询支持</strong></td>
+          <td>✅ 优秀的 SQL 标准兼容性，支持复杂查询、窗口函数、CTE、并发写优化等高级特性。适合复杂业务逻辑。</td>
+          <td>❌ 查询功能稍弱，对复杂查询支持不如 Postgres。更适合 CRUD 类型系统。</td>
+      </tr>
+      <tr>
+          <td><strong>2. JSON 支持</strong></td>
+          <td>✅ 强大的 JSON / JSONB 数据类型支持，几乎等同于文档数据库功能。</td>
+          <td>⚠️ 有 JSON 支持，但功能较弱，主要用于存储，不利于复杂查询。</td>
+      </tr>
+      <tr>
+          <td><strong>3. 一致性与事务支持</strong></td>
+          <td>✅ 真正的 MVCC，多版本并发控制，实现级别的事务隔离（支持 SERIALIZABLE），更适合金融/高可靠系统。</td>
+          <td>⚠️ InnoDB 虽支持事务，但隔离性和一致性在高并发时略逊一筹。</td>
+      </tr>
+      <tr>
+          <td><strong>4. 插件/扩展能力</strong></td>
+          <td>✅ 支持用户自定义函数（UDF）、PostGIS、全文检索等强大扩展机制。</td>
+          <td>❌ 扩展性不如 Postgres，主要靠内置功能。</td>
+      </tr>
+      <tr>
+          <td><strong>5. 性能（单点读写）</strong></td>
+          <td>⚠️ 查询优化能力强，但单纯的 CRUD 性能略低于 MySQL。</td>
+          <td>✅ 对简单查询/写入优化很好，CRUD 系统性能优于 Postgres。</td>
+      </tr>
+      <tr>
+          <td><strong>6. 社区生态/学习成本</strong></td>
+          <td>⚠️ 功能多但复杂，学习曲线略高，文档丰富。</td>
+          <td>✅ 使用更广泛，生态成熟，学习上手快。</td>
+      </tr>
+      <tr>
+          <td><strong>7. 兼容性和托管服务</strong></td>
+          <td>✅ AWS RDS, Aurora, GCP, Azure 均支持，兼容较好。</td>
+          <td>✅ 所有主流云平台支持，部分平台如阿里云/腾讯云更偏向 MySQL。</td>
+      </tr>
+      <tr>
+          <td><strong>8. 数据量与扩展性</strong></td>
+          <td>✅ 更适合大数据场景（例如 TB 级别），表分区、逻辑分区做得较好。</td>
+          <td>⚠️ 表结构大时管理不如 PostgreSQL 灵活。</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="-结论建议实际选型建议">
+  🏁 结论建议（实际选型建议）：
+  <a class="anchor" href="#-%e7%bb%93%e8%ae%ba%e5%bb%ba%e8%ae%ae%e5%ae%9e%e9%99%85%e9%80%89%e5%9e%8b%e5%bb%ba%e8%ae%ae">#</a>
+</h3>
+<h4 id="-选择-postgresql-的场景">
+  ✅ 选择 PostgreSQL 的场景：
+  <a class="anchor" href="#-%e9%80%89%e6%8b%a9-postgresql-%e7%9a%84%e5%9c%ba%e6%99%af">#</a>
+</h4>
+<ul>
+<li>业务逻辑复杂，需要高级查询功能；</li>
+<li>大量使用 JSON / 半结构化数据；</li>
+<li>需要强一致性事务；</li>
+<li>构建复杂系统（如 BI、ERP、金融）；</li>
+<li>需要空间数据、全文搜索或其他扩展功能。</li>
+</ul>
+<h4 id="-选择-mysql-的场景">
+  ✅ 选择 MySQL 的场景：
+  <a class="anchor" href="#-%e9%80%89%e6%8b%a9-mysql-%e7%9a%84%e5%9c%ba%e6%99%af">#</a>
+</h4>
+<ul>
+<li>Web 系统、轻量 CRUD 类应用；</li>
+<li>对性能要求高但事务需求不高；</li>
+<li>团队已有 MySQL 经验；</li>
+<li>快速迭代的初创项目或中小型系统；</li>
+<li>云平台默认提供（如阿里云、腾讯云偏好 MySQL）。</li>
+</ul>
+<hr>
+<h2 id="-一致性与事务支持postgresql-vs-mysql">
+  ✅ 一致性与事务支持：PostgreSQL vs MySQL
+  <a class="anchor" href="#-%e4%b8%80%e8%87%b4%e6%80%a7%e4%b8%8e%e4%ba%8b%e5%8a%a1%e6%94%af%e6%8c%81postgresql-vs-mysql">#</a>
+</h2>
+<h3 id="-1-postgresql事务一致性更强">
+  🔹 1. PostgreSQL：事务一致性更强
+  <a class="anchor" href="#-1-postgresql%e4%ba%8b%e5%8a%a1%e4%b8%80%e8%87%b4%e6%80%a7%e6%9b%b4%e5%bc%ba">#</a>
+</h3>
+<h4 id="-真正的-mvcc多版本并发控制">
+  ✅ 真正的 <strong>MVCC（多版本并发控制）</strong>
+  <a class="anchor" href="#-%e7%9c%9f%e6%ad%a3%e7%9a%84-mvcc%e5%a4%9a%e7%89%88%e6%9c%ac%e5%b9%b6%e5%8f%91%e6%8e%a7%e5%88%b6">#</a>
+</h4>
+<ul>
+<li>PostgreSQL 对每个事务生成<strong>自己的数据快照</strong>，实现无锁读写。</li>
+<li>写入时并不会阻塞读取，冲突由事务隔离等级控制，保证并发安全。</li>
+<li>实现机制更贴近学术定义，<strong>事务隔离更严格、可控性更好</strong>。</li>
+</ul>
+<h4 id="-支持完整的-sql-标准隔离级别">
+  ✅ 支持完整的 SQL 标准隔离级别：
+  <a class="anchor" href="#-%e6%94%af%e6%8c%81%e5%ae%8c%e6%95%b4%e7%9a%84-sql-%e6%a0%87%e5%87%86%e9%9a%94%e7%a6%bb%e7%ba%a7%e5%88%ab">#</a>
+</h4>
+<ul>
+<li><code>READ COMMITTED</code>（默认）</li>
+<li><code>REPEATABLE READ</code></li>
+<li><code>SERIALIZABLE</code>（通过 Serializable Snapshot Isolation 实现，非锁定式，适合金融类应用）</li>
+</ul>
+<h4 id="-高度可靠的-wal预写日志机制">
+  ✅ 高度可靠的 WAL（预写日志）机制：
+  <a class="anchor" href="#-%e9%ab%98%e5%ba%a6%e5%8f%af%e9%9d%a0%e7%9a%84-wal%e9%a2%84%e5%86%99%e6%97%a5%e5%bf%97%e6%9c%ba%e5%88%b6">#</a>
+</h4>
+<ul>
+<li>所有修改操作先写日志，再写磁盘，崩溃后可以精确恢复。</li>
+<li><strong>数据恢复机制成熟、安全性更高</strong>。</li>
+</ul>
+<h4 id="-衍生优势">
+  🔍 衍生优势：
+  <a class="anchor" href="#-%e8%a1%8d%e7%94%9f%e4%bc%98%e5%8a%bf">#</a>
+</h4>
+<ul>
+<li>更适合对<strong>数据一致性要求极高</strong>的系统，如：银行、交易所、账本类系统。</li>
+</ul>
+<hr>
+<h3 id="-2-mysql一致性不如-postgresql-稳健">
+  🔹 2. MySQL：一致性不如 PostgreSQL 稳健
+  <a class="anchor" href="#-2-mysql%e4%b8%80%e8%87%b4%e6%80%a7%e4%b8%8d%e5%a6%82-postgresql-%e7%a8%b3%e5%81%a5">#</a>
+</h3>
+<h4 id="-依赖-innodb-引擎默认提供事务支持">
+  ⚠️ 依赖 InnoDB 引擎（默认）提供事务支持：
+  <a class="anchor" href="#-%e4%be%9d%e8%b5%96-innodb-%e5%bc%95%e6%93%8e%e9%bb%98%e8%ae%a4%e6%8f%90%e4%be%9b%e4%ba%8b%e5%8a%a1%e6%94%af%e6%8c%81">#</a>
+</h4>
+<ul>
+<li>也实现了 MVCC，但实现细节与 PostgreSQL 不同。</li>
+<li><code>REPEATABLE READ</code> 是默认隔离级别，使用**间隙锁（Gap Lock）**避免幻读，但容易引发死锁和性能瓶颈。</li>
+</ul>
+<h4 id="-serializable-支持有限">
+  ⚠️ SERIALIZABLE 支持有限：
+  <a class="anchor" href="#-serializable-%e6%94%af%e6%8c%81%e6%9c%89%e9%99%90">#</a>
+</h4>
+<ul>
+<li>是通过加锁实现，性能开销大，不推荐在高并发场景使用。</li>
+<li>实际中，很少系统用 MySQL 启用 SERIALIZABLE 隔离级别。</li>
+</ul>
+<h4 id="-潜在问题">
+  🚨 潜在问题：
+  <a class="anchor" href="#-%e6%bd%9c%e5%9c%a8%e9%97%ae%e9%a2%98">#</a>
+</h4>
+<ul>
+<li>在高并发、复杂事务场景下，一致性可能出现“边缘案例”问题；</li>
+<li>特别在主从复制中，默认是<strong>异步复制</strong>，会导致<strong>读写延迟或脏读</strong>。</li>
+</ul>
+<hr>
+<h2 id="-数据量与扩展性postgresql-vs-mysql">
+  ✅ 数据量与扩展性：PostgreSQL vs MySQL
+  <a class="anchor" href="#-%e6%95%b0%e6%8d%ae%e9%87%8f%e4%b8%8e%e6%89%a9%e5%b1%95%e6%80%a7postgresql-vs-mysql">#</a>
+</h2>
+<h3 id="-1-postgresql面向大规模数据更具优势">
+  🔹 1. PostgreSQL：面向大规模数据更具优势
+  <a class="anchor" href="#-1-postgresql%e9%9d%a2%e5%90%91%e5%a4%a7%e8%a7%84%e6%a8%a1%e6%95%b0%e6%8d%ae%e6%9b%b4%e5%85%b7%e4%bc%98%e5%8a%bf">#</a>
+</h3>
+<h4 id="-表分区partitioning能力更强">
+  ✅ 表分区（Partitioning）能力更强
+  <a class="anchor" href="#-%e8%a1%a8%e5%88%86%e5%8c%bapartitioning%e8%83%bd%e5%8a%9b%e6%9b%b4%e5%bc%ba">#</a>
+</h4>
+<ul>
+<li>支持声明式分区（PostgreSQL 10+）；</li>
+<li>支持范围、列表、哈希分区；</li>
+<li>查询优化器可以自动<strong>分区裁剪（Partition Pruning）</strong>，大数据量时性能更稳定；</li>
+<li>非常适合<strong>日志库、时间序列库、大表数据归档</strong>场景。</li>
+</ul>
+<h4 id="-并行查询能力">
+  ✅ 并行查询能力
+  <a class="anchor" href="#-%e5%b9%b6%e8%a1%8c%e6%9f%a5%e8%af%a2%e8%83%bd%e5%8a%9b">#</a>
+</h4>
+<ul>
+<li>支持并行 Seq Scan、并行聚合（Aggregate）、并行索引扫描；</li>
+<li>对 OLAP 友好（虽然不是专门为 OLAP 设计）；</li>
+<li>大数据集查询性能明显优于 MySQL。</li>
+</ul>
+<h4 id="-扩展性强可以外挂插件如-timescaledb做时间序列分布式处理">
+  ✅ 扩展性强：可以外挂插件（如 TimescaleDB）做时间序列、分布式处理。
+  <a class="anchor" href="#-%e6%89%a9%e5%b1%95%e6%80%a7%e5%bc%ba%e5%8f%af%e4%bb%a5%e5%a4%96%e6%8c%82%e6%8f%92%e4%bb%b6%e5%a6%82-timescaledb%e5%81%9a%e6%97%b6%e9%97%b4%e5%ba%8f%e5%88%97%e5%88%86%e5%b8%83%e5%bc%8f%e5%a4%84%e7%90%86">#</a>
+</h4>
+<hr>
+<h3 id="-2-mysql轻量快速但扩展能力有限">
+  🔹 2. MySQL：轻量快速但扩展能力有限
+  <a class="anchor" href="#-2-mysql%e8%bd%bb%e9%87%8f%e5%bf%ab%e9%80%9f%e4%bd%86%e6%89%a9%e5%b1%95%e8%83%bd%e5%8a%9b%e6%9c%89%e9%99%90">#</a>
+</h3>
+<h4 id="-分区支持较弱">
+  ⚠️ 分区支持较弱：
+  <a class="anchor" href="#-%e5%88%86%e5%8c%ba%e6%94%af%e6%8c%81%e8%be%83%e5%bc%b1">#</a>
+</h4>
+<ul>
+<li>支持分区表，但功能受限，不支持外键、全文索引等；</li>
+<li>分区优化器能力较弱，很多查询无法自动命中合适分区；</li>
+<li>实际应用中，<strong>大部分公司会选择手动做“分库分表”</strong> 而非使用原生分区。</li>
+</ul>
+<h4 id="-扩展能力靠中间件实现">
+  ⚠️ 扩展能力靠中间件实现：
+  <a class="anchor" href="#-%e6%89%a9%e5%b1%95%e8%83%bd%e5%8a%9b%e9%9d%a0%e4%b8%ad%e9%97%b4%e4%bb%b6%e5%ae%9e%e7%8e%b0">#</a>
+</h4>
+<ul>
+<li>遇到 TB 级别或热点大表，常依赖 Sharding 中间件（如 ShardingSphere、Vitess）；</li>
+<li>架构更复杂，维护成本更高；</li>
+<li>很难做到 PostgreSQL 那种“开箱即用”的分区和扩展能力。</li>
+</ul>
+<hr>
+<h2 id="-总结对比深度场景推荐">
+  📌 总结对比（深度场景推荐）：
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e5%af%b9%e6%af%94%e6%b7%b1%e5%ba%a6%e5%9c%ba%e6%99%af%e6%8e%a8%e8%8d%90">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>维度</th>
+          <th>PostgreSQL</th>
+          <th>MySQL</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>事务隔离能力</td>
+          <td>强：支持可串行化隔离，MVCC 机制严谨</td>
+          <td>弱：SERIALIZABLE 实现粗糙，容易死锁</td>
+      </tr>
+      <tr>
+          <td>写入一致性保障</td>
+          <td>强：WAL + MVCC + 快照机制</td>
+          <td>一般：InnoDB MVCC 有局限，复制异步</td>
+      </tr>
+      <tr>
+          <td>并发性能</td>
+          <td>高并发下更稳健</td>
+          <td>并发高时容易死锁或锁等待</td>
+      </tr>
+      <tr>
+          <td>大数据分区</td>
+          <td>支持多种分区方式，自动优化</td>
+          <td>分区功能弱，需手动实现或依赖中间件</td>
+      </tr>
+      <tr>
+          <td>并行查询</td>
+          <td>支持，OLAP 友好</td>
+          <td>不支持并行查询</td>
+      </tr>
+      <tr>
+          <td>插件扩展</td>
+          <td>丰富，如时序库、地理空间等</td>
+          <td>少，功能主要靠核心功能或外部方案</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-最终建议事务大数据场景">
+  ✅ 最终建议（事务+大数据场景）：
+  <a class="anchor" href="#-%e6%9c%80%e7%bb%88%e5%bb%ba%e8%ae%ae%e4%ba%8b%e5%8a%a1%e5%a4%a7%e6%95%b0%e6%8d%ae%e5%9c%ba%e6%99%af">#</a>
+</h2>
+<ul>
+<li>✅ 如果你要构建 <strong>金融系统</strong>、<strong>审计系统</strong>、<strong>复杂账本系统</strong>，或处理 <strong>TB 级大表、复杂报表分析</strong> → <strong>优选 PostgreSQL</strong></li>
+<li>⚠️ 如果你是<strong>以读写性能优先的中小型系统</strong>、<strong>偏 CRUD 操作、单表不大</strong>，或者已有大量 MySQL 资产 → <strong>MySQL 依然可行</strong></li>
+</ul>
+<hr>
+<p>你的这些问题都非常关键，涉及数据库内核、事务模型以及数据库在不同场景下的表现。以下是针对每个问题的详细解析，配合类比和示意，便于理解。</p>
+<hr>
+<h2 id="1-什么是间隙锁gap-lock">
+  1️⃣ <strong>什么是间隙锁（Gap Lock）？</strong>
+  <a class="anchor" href="#1-%e4%bb%80%e4%b9%88%e6%98%af%e9%97%b4%e9%9a%99%e9%94%81gap-lock">#</a>
+</h2>
+<h3 id="-定义">
+  🔹 定义：
+  <a class="anchor" href="#-%e5%ae%9a%e4%b9%89">#</a>
+</h3>
+<p><strong>间隙锁（Gap Lock）<strong>是 MySQL InnoDB 引擎的一种锁机制，用于防止“幻读”（phantom read）发生。在某些隔离级别（如 REPEATABLE READ）下，当你查找数据时，MySQL 不仅锁住已有数据行，还会锁住</strong>数据之间的“间隙”</strong>，防止其他事务在间隙中插入新数据。</p>
+<h3 id="-举例说明">
+  🔍 举例说明：
+  <a class="anchor" href="#-%e4%b8%be%e4%be%8b%e8%af%b4%e6%98%8e">#</a>
+</h3>
+<p>假设有如下数据表（有序）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>id: <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">5</span>
+</span></span></code></pre></div><p>你执行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> users <span style="color:#66d9ef">WHERE</span> id <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span> <span style="color:#66d9ef">FOR</span> <span style="color:#66d9ef">UPDATE</span>;
+</span></span></code></pre></div><p>InnoDB 会：</p>
+<ul>
+<li>锁住 id=3；</li>
+<li>同时锁住 <strong>(1, 3)</strong> 和 <strong>(3, 5)</strong> 的“间隙” → 这就是 Gap Lock。</li>
+</ul>
+<h3 id="-作用">
+  ✅ 作用：
+  <a class="anchor" href="#-%e4%bd%9c%e7%94%a8">#</a>
+</h3>
+<ul>
+<li>防止其他事务在这些间隙中插入新的记录；</li>
+<li>保障当前事务的数据快照不被“篡改”。</li>
+</ul>
+<h3 id="-副作用">
+  ⚠️ 副作用：
+  <a class="anchor" href="#-%e5%89%af%e4%bd%9c%e7%94%a8">#</a>
+</h3>
+<ul>
+<li><strong>锁粒度粗</strong>：间隙锁可能锁住比需要的范围更大的数据区间；</li>
+<li><strong>容易造成死锁</strong>，尤其在高并发场景。</li>
+</ul>
+<hr>
+<h2 id="2-什么是-serializable-snapshot-isolationssi">
+  2️⃣ <strong>什么是 Serializable Snapshot Isolation（SSI）？</strong>
+  <a class="anchor" href="#2-%e4%bb%80%e4%b9%88%e6%98%af-serializable-snapshot-isolationssi">#</a>
+</h2>
+<h3 id="-背景">
+  🔹 背景：
+  <a class="anchor" href="#-%e8%83%8c%e6%99%af">#</a>
+</h3>
+<p><strong>Serializable</strong> 是最强的事务隔离级别。但传统实现（如 MySQL）通过加锁实现，性能差。而 <strong>PostgreSQL</strong> 实现了一个更优雅、<strong>无锁的串行化机制</strong>：<strong>Serializable Snapshot Isolation（SSI）</strong>。</p>
+<h3 id="-工作原理">
+  🔍 工作原理：
+  <a class="anchor" href="#-%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86">#</a>
+</h3>
+<ul>
+<li>每个事务基于自己的<strong>快照</strong>读取数据；</li>
+<li>PostgreSQL 记录事务之间的<strong>依赖冲突图</strong>；</li>
+<li>在检测到“可能破坏串行化顺序”的冲突时，<strong>主动回滚</strong>冲突事务，确保最终结果与串行执行一致。</li>
+</ul>
+<h3 id="-优势">
+  ✅ 优势：
+  <a class="anchor" href="#-%e4%bc%98%e5%8a%bf">#</a>
+</h3>
+<ul>
+<li>性能好于传统串行化（因为避免大量加锁）；</li>
+<li>实现了真正的“可串行化”；</li>
+<li>非常适合 <strong>金融、资金系统、强一致性要求场景</strong>。</li>
+</ul>
+<hr>
+<h2 id="3-olap-和-oltp-的区别">
+  3️⃣ <strong>OLAP 和 OLTP 的区别？</strong>
+  <a class="anchor" href="#3-olap-%e5%92%8c-oltp-%e7%9a%84%e5%8c%ba%e5%88%ab">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>维度</th>
+          <th>OLTP（联机事务处理）</th>
+          <th>OLAP（联机分析处理）</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>场景</td>
+          <td>电商下单、银行转账、CRM 系统等</td>
+          <td>报表分析、BI 查询、数据仓库</td>
+      </tr>
+      <tr>
+          <td>操作类型</td>
+          <td>高频读写、单条记录、事务强</td>
+          <td>少量写入、大量聚合、分析型查询</td>
+      </tr>
+      <tr>
+          <td>数据量</td>
+          <td>一般表较小、数据实时变化</td>
+          <td>海量数据（GB~TB 级），追求查询性能</td>
+      </tr>
+      <tr>
+          <td>查询结构</td>
+          <td>简单、条件明确</td>
+          <td>多维聚合、连接复杂、统计类</td>
+      </tr>
+      <tr>
+          <td>数据结构</td>
+          <td>正规化设计（3NF）</td>
+          <td>去正规化、星型/雪花模型</td>
+      </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>🎯 简单理解：</p>
+<ul>
+<li><strong>OLTP</strong> 是“干活的系统”（比如下单、支付）；</li>
+<li><strong>OLAP</strong> 是“看报表的系统”（比如老板看销售统计）。</li>
+</ul></blockquote>
+<hr>
+<h2 id="4-postgresql-的分区方式有哪些">
+  4️⃣ <strong>PostgreSQL 的分区方式有哪些？</strong>
+  <a class="anchor" href="#4-postgresql-%e7%9a%84%e5%88%86%e5%8c%ba%e6%96%b9%e5%bc%8f%e6%9c%89%e5%93%aa%e4%ba%9b">#</a>
+</h2>
+<p>PostgreSQL 从 10 开始引入 <strong>原生分区表（Declarative Partitioning）</strong>，支持以下几种：</p>
+<h3 id="-1-范围分区range-partitioning">
+  🔹 1. 范围分区（Range Partitioning）：
+  <a class="anchor" href="#-1-%e8%8c%83%e5%9b%b4%e5%88%86%e5%8c%barange-partitioning">#</a>
+</h3>
+<p>按某个值区间分区，比如时间：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> logs (
+</span></span><span style="display:flex;"><span>  log_time date,
+</span></span><span style="display:flex;"><span>  message text
+</span></span><span style="display:flex;"><span>) PARTITION <span style="color:#66d9ef">BY</span> RANGE (log_time);
+</span></span></code></pre></div><h3 id="-2-列表分区list-partitioning">
+  🔹 2. 列表分区（List Partitioning）：
+  <a class="anchor" href="#-2-%e5%88%97%e8%a1%a8%e5%88%86%e5%8c%balist-partitioning">#</a>
+</h3>
+<p>按枚举值划分，例如国家或地区：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> users (
+</span></span><span style="display:flex;"><span>  country text,
+</span></span><span style="display:flex;"><span>  name text
+</span></span><span style="display:flex;"><span>) PARTITION <span style="color:#66d9ef">BY</span> LIST (country);
+</span></span></code></pre></div><h3 id="-3-哈希分区hash-partitioning">
+  🔹 3. 哈希分区（Hash Partitioning）：
+  <a class="anchor" href="#-3-%e5%93%88%e5%b8%8c%e5%88%86%e5%8c%bahash-partitioning">#</a>
+</h3>
+<p>按哈希值分区，适合负载均衡：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">TABLE</span> events (
+</span></span><span style="display:flex;"><span>  id int,
+</span></span><span style="display:flex;"><span>  payload text
+</span></span><span style="display:flex;"><span>) PARTITION <span style="color:#66d9ef">BY</span> HASH (id);
+</span></span></code></pre></div><h3 id="-分区优势">
+  ✅ 分区优势：
+  <a class="anchor" href="#-%e5%88%86%e5%8c%ba%e4%bc%98%e5%8a%bf">#</a>
+</h3>
+<ul>
+<li>大表可以分片存储，<strong>提升查询和管理效率</strong>；</li>
+<li>支持 <strong>自动分区裁剪</strong>，只扫描相关分区；</li>
+<li>分区可独立存储、索引、维护。</li>
+</ul>
+<hr>
+<h2 id="5-并行查询parallel-query是什么">
+  5️⃣ <strong>并行查询（Parallel Query）是什么？</strong>
+  <a class="anchor" href="#5-%e5%b9%b6%e8%a1%8c%e6%9f%a5%e8%af%a2parallel-query%e6%98%af%e4%bb%80%e4%b9%88">#</a>
+</h2>
+<h3 id="-定义-1">
+  🔹 定义：
+  <a class="anchor" href="#-%e5%ae%9a%e4%b9%89-1">#</a>
+</h3>
+<p>并行查询是指数据库引擎<strong>利用多个 CPU 核心</strong>同时执行一个 SQL 查询的多个阶段，以加速查询过程。</p>
+<p>在 PostgreSQL 中，并行主要发生在：</p>
+<ul>
+<li>并行顺序扫描（Parallel Seq Scan）</li>
+<li>并行聚合（Parallel Aggregation）</li>
+<li>并行哈希连接（Parallel Hash Join）</li>
+</ul>
+<h3 id="-示例场景">
+  🔍 示例场景：
+  <a class="anchor" href="#-%e7%a4%ba%e4%be%8b%e5%9c%ba%e6%99%af">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">FROM</span> orders <span style="color:#66d9ef">WHERE</span> order_date <span style="color:#f92672">&gt;</span> <span style="color:#e6db74">&#39;2023-01-01&#39;</span>;
+</span></span></code></pre></div><ul>
+<li>如果 <code>orders</code> 表有 1 亿行，PostgreSQL 会<strong>自动切分数据块</strong>，多个进程同时扫描各自负责的部分并聚合结果。</li>
+</ul>
+<h3 id="-效果">
+  ✅ 效果：
+  <a class="anchor" href="#-%e6%95%88%e6%9e%9c">#</a>
+</h3>
+<ul>
+<li>查询速度显著提升（4 核 CPU 可提速 3~4 倍）；</li>
+<li>对大表、统计分析型查询尤其有效。</li>
+</ul>
+<hr>
+<h2 id="-总结速览">
+  ✅ 总结速览：
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e9%80%9f%e8%a7%88">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>概念</th>
+          <th>核心价值</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>间隙锁</strong></td>
+          <td>MySQL 中防止幻读的机制，但容易引发锁冲突</td>
+      </tr>
+      <tr>
+          <td><strong>Serializable Snapshot Isolation</strong></td>
+          <td>PostgreSQL 实现串行化的无锁机制，高一致性，性能好</td>
+      </tr>
+      <tr>
+          <td><strong>OLAP vs OLTP</strong></td>
+          <td>一个做业务写入（OLTP），一个做分析查询（OLAP）</td>
+      </tr>
+      <tr>
+          <td><strong>PostgreSQL 分区</strong></td>
+          <td>支持范围、列表、哈希三种分区，查询自动优化</td>
+      </tr>
+      <tr>
+          <td><strong>并行查询</strong></td>
+          <td>PostgreSQL 自动使用多核提升大查询性能</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#-决定-postgresql-vs-mysql-的关键几点如下">✅ 决定 PostgreSQL vs MySQL 的关键几点如下：</a></li>
+            <li><a href="#-结论建议实际选型建议">🏁 结论建议（实际选型建议）：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-一致性与事务支持postgresql-vs-mysql">✅ 一致性与事务支持：PostgreSQL vs MySQL</a>
+          <ul>
+            <li><a href="#-1-postgresql事务一致性更强">🔹 1. PostgreSQL：事务一致性更强</a></li>
+            <li><a href="#-2-mysql一致性不如-postgresql-稳健">🔹 2. MySQL：一致性不如 PostgreSQL 稳健</a></li>
+          </ul>
+        </li>
+        <li><a href="#-数据量与扩展性postgresql-vs-mysql">✅ 数据量与扩展性：PostgreSQL vs MySQL</a>
+          <ul>
+            <li><a href="#-1-postgresql面向大规模数据更具优势">🔹 1. PostgreSQL：面向大规模数据更具优势</a></li>
+            <li><a href="#-2-mysql轻量快速但扩展能力有限">🔹 2. MySQL：轻量快速但扩展能力有限</a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结对比深度场景推荐">📌 总结对比（深度场景推荐）：</a></li>
+        <li><a href="#-最终建议事务大数据场景">✅ 最终建议（事务+大数据场景）：</a></li>
+        <li><a href="#1-什么是间隙锁gap-lock">1️⃣ <strong>什么是间隙锁（Gap Lock）？</strong></a>
+          <ul>
+            <li><a href="#-定义">🔹 定义：</a></li>
+            <li><a href="#-举例说明">🔍 举例说明：</a></li>
+            <li><a href="#-作用">✅ 作用：</a></li>
+            <li><a href="#-副作用">⚠️ 副作用：</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-什么是-serializable-snapshot-isolationssi">2️⃣ <strong>什么是 Serializable Snapshot Isolation（SSI）？</strong></a>
+          <ul>
+            <li><a href="#-背景">🔹 背景：</a></li>
+            <li><a href="#-工作原理">🔍 工作原理：</a></li>
+            <li><a href="#-优势">✅ 优势：</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-olap-和-oltp-的区别">3️⃣ <strong>OLAP 和 OLTP 的区别？</strong></a></li>
+        <li><a href="#4-postgresql-的分区方式有哪些">4️⃣ <strong>PostgreSQL 的分区方式有哪些？</strong></a>
+          <ul>
+            <li><a href="#-1-范围分区range-partitioning">🔹 1. 范围分区（Range Partitioning）：</a></li>
+            <li><a href="#-2-列表分区list-partitioning">🔹 2. 列表分区（List Partitioning）：</a></li>
+            <li><a href="#-3-哈希分区hash-partitioning">🔹 3. 哈希分区（Hash Partitioning）：</a></li>
+            <li><a href="#-分区优势">✅ 分区优势：</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-并行查询parallel-query是什么">5️⃣ <strong>并行查询（Parallel Query）是什么？</strong></a>
+          <ul>
+            <li><a href="#-定义-1">🔹 定义：</a></li>
+            <li><a href="#-示例场景">🔍 示例场景：</a></li>
+            <li><a href="#-效果">✅ 效果：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结速览">✅ 总结速览：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  ✅ 一、常见缓存方案对比
+  #
+
+
+  
+      
+          缓存策略
+          特点
+          适合场景
+          优缺点
+      
+  
+  
+      
+          Redis 集群
+          分布式内存数据库，支持多数据结构、持久化、分片
+          高频访问、分布式系统、跨服务缓存
+          ✅ 功能强，支持过期策略、发布订阅、Lua 脚本❌ 成本较高、复杂度较大
+      
+      
+          Memcached
+          高性能 key-value 内存缓存，无持久化
+          简单 kv 缓存、大量读、无数据结构需求
+          ✅ 速度快，轻量级❌ 不支持复杂数据结构、数据易丢失
+      
+      
+          本地缓存（如 Guava Cache）
+          服务进程内存缓存
+          热点数据、本地配置、小规模缓存
+          ✅ 极快访问、无网络延迟❌ 不共享、易过期不一致
+      
+      
+          CDN 缓存（如 Cloudflare、AWS CloudFront）
+          基于 HTTP 静态文件缓存
+          图片、视频、前端静态资源
+          ✅ 全球加速，用户端就近获取❌ 不适用于动态数据
+      
+  
+
+
+
+  ✅ 二、如何选择最终方案？
+  #
+
+选择缓存方案的依据，通常围绕 一致性需求 &#43; 热点程度 &#43; 成本 &#43; 技术复杂度 这几方面展开。
+
+  示例：某 SaaS 平台接口缓存选择路径
+  #
+
+
+  
+      
+          选项
+          原因
+      
+  
+  
+      
+          ❌ 本地缓存
+          数据在多服务实例间不共享，不适用于高一致性
+      
+      
+          ❌ Memcached
+          不支持持久化、集群化不方便，数据结构能力弱
+      
+      
+          ✅ Redis 集群
+          支持 key 过期、LRU 淘汰策略、支持分布式部署，可支撑高并发
+      
+      
+          ✅ CDN（搭配使用）
+          用于前端静态资源、公共 API GET 缓存，减轻后端压力
+      
+  
+
+最终方案：">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/cache/solution/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="方案">
+  <meta property="og:description" content="✅ 一、常见缓存方案对比#缓存策略 特点 适合场景 优缺点 Redis 集群 分布式内存数据库，支持多数据结构、持久化、分片 高频访问、分布式系统、跨服务缓存 ✅ 功能强，支持过期策略、发布订阅、Lua 脚本
+❌ 成本较高、复杂度较大 Memcached 高性能 key-value 内存缓存，无持久化 简单 kv 缓存、大量读、无数据结构需求 ✅ 速度快，轻量级
+❌ 不支持复杂数据结构、数据易丢失 本地缓存（如 Guava Cache） 服务进程内存缓存 热点数据、本地配置、小规模缓存 ✅ 极快访问、无网络延迟
+❌ 不共享、易过期不一致 CDN 缓存（如 Cloudflare、AWS CloudFront） 基于 HTTP 静态文件缓存 图片、视频、前端静态资源 ✅ 全球加速，用户端就近获取
+❌ 不适用于动态数据 ✅ 二、如何选择最终方案？#选择缓存方案的依据，通常围绕 一致性需求 &#43; 热点程度 &#43; 成本 &#43; 技术复杂度 这几方面展开。
+示例：某 SaaS 平台接口缓存选择路径#选项 原因 ❌ 本地缓存 数据在多服务实例间不共享，不适用于高一致性 ❌ Memcached 不支持持久化、集群化不方便，数据结构能力弱 ✅ Redis 集群 支持 key 过期、LRU 淘汰策略、支持分布式部署，可支撑高并发 ✅ CDN（搭配使用） 用于前端静态资源、公共 API GET 缓存，减轻后端压力 最终方案：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>方案 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/cache/solution/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.aed2e596e43e250839764ea6a5e722a63665fd860c6f1a749396aad8dc8cdf67.js" integrity="sha256-rtLlluQ&#43;JQg5dk6mpecipjZl/YYMbxp0k5aq2NyM32c=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>安全</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>缓存</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="active">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>网络</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>方案</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一常见缓存方案对比">✅ 一、常见缓存方案对比</a></li>
+        <li><a href="#-二如何选择最终方案">✅ 二、如何选择最终方案？</a>
+          <ul>
+            <li><a href="#示例某-saas-平台接口缓存选择路径">示例：某 SaaS 平台接口缓存选择路径</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三如果业务增长-10-倍缓存层如何扩展">✅ 三、如果业务增长 10 倍，缓存层如何扩展？</a>
+          <ul>
+            <li><a href="#-1-redis-缓存层扩展策略">🔹 1. <strong>Redis 缓存层扩展策略</strong></a></li>
+            <li><a href="#-2-cdn-层扩展策略">🔹 2. <strong>CDN 层扩展策略</strong></a></li>
+            <li><a href="#-3-缓存失效与穿透防护">🔹 3. <strong>缓存失效与穿透防护</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#-四总结选型与扩展思路">✅ 四、总结选型与扩展思路</a>
+          <ul>
+            <li><a href="#选择方案理由以-redis-为例">选择方案理由（以 Redis 为例）：</a></li>
+            <li><a href="#扩展策略">扩展策略：</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="%E6%96%B9%E6%A1%88">
+    方案
+    <a class="anchor" href="#%25E6%2596%25B9%25E6%25A1%2588">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h2 id="-一常见缓存方案对比">
+  ✅ 一、常见缓存方案对比
+  <a class="anchor" href="#-%e4%b8%80%e5%b8%b8%e8%a7%81%e7%bc%93%e5%ad%98%e6%96%b9%e6%a1%88%e5%af%b9%e6%af%94">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>缓存策略</th>
+          <th>特点</th>
+          <th>适合场景</th>
+          <th>优缺点</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Redis 集群</strong></td>
+          <td>分布式内存数据库，支持多数据结构、持久化、分片</td>
+          <td>高频访问、分布式系统、跨服务缓存</td>
+          <td>✅ 功能强，支持过期策略、发布订阅、Lua 脚本<br>❌ 成本较高、复杂度较大</td>
+      </tr>
+      <tr>
+          <td><strong>Memcached</strong></td>
+          <td>高性能 key-value 内存缓存，无持久化</td>
+          <td>简单 kv 缓存、大量读、无数据结构需求</td>
+          <td>✅ 速度快，轻量级<br>❌ 不支持复杂数据结构、数据易丢失</td>
+      </tr>
+      <tr>
+          <td><strong>本地缓存（如 Guava Cache）</strong></td>
+          <td>服务进程内存缓存</td>
+          <td>热点数据、本地配置、小规模缓存</td>
+          <td>✅ 极快访问、无网络延迟<br>❌ 不共享、易过期不一致</td>
+      </tr>
+      <tr>
+          <td><strong>CDN 缓存（如 Cloudflare、AWS CloudFront）</strong></td>
+          <td>基于 HTTP 静态文件缓存</td>
+          <td>图片、视频、前端静态资源</td>
+          <td>✅ 全球加速，用户端就近获取<br>❌ 不适用于动态数据</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-二如何选择最终方案">
+  ✅ 二、如何选择最终方案？
+  <a class="anchor" href="#-%e4%ba%8c%e5%a6%82%e4%bd%95%e9%80%89%e6%8b%a9%e6%9c%80%e7%bb%88%e6%96%b9%e6%a1%88">#</a>
+</h2>
+<p>选择缓存方案的依据，通常围绕 <strong>一致性需求 + 热点程度 + 成本 + 技术复杂度</strong> 这几方面展开。</p>
+<h3 id="示例某-saas-平台接口缓存选择路径">
+  示例：某 SaaS 平台接口缓存选择路径
+  <a class="anchor" href="#%e7%a4%ba%e4%be%8b%e6%9f%90-saas-%e5%b9%b3%e5%8f%b0%e6%8e%a5%e5%8f%a3%e7%bc%93%e5%ad%98%e9%80%89%e6%8b%a9%e8%b7%af%e5%be%84">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>选项</th>
+          <th>原因</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>❌ 本地缓存</td>
+          <td>数据在多服务实例间不共享，不适用于高一致性</td>
+      </tr>
+      <tr>
+          <td>❌ Memcached</td>
+          <td>不支持持久化、集群化不方便，数据结构能力弱</td>
+      </tr>
+      <tr>
+          <td>✅ Redis 集群</td>
+          <td>支持 key 过期、LRU 淘汰策略、支持分布式部署，可支撑高并发</td>
+      </tr>
+      <tr>
+          <td>✅ CDN（搭配使用）</td>
+          <td>用于前端静态资源、公共 API GET 缓存，减轻后端压力</td>
+      </tr>
+  </tbody>
+</table>
+<p>最终方案：</p>
+<blockquote>
+<p><strong>Redis Cluster + CDN + 本地热点缓存（组合策略）</strong></p></blockquote>
+<hr>
+<h2 id="-三如果业务增长-10-倍缓存层如何扩展">
+  ✅ 三、如果业务增长 10 倍，缓存层如何扩展？
+  <a class="anchor" href="#-%e4%b8%89%e5%a6%82%e6%9e%9c%e4%b8%9a%e5%8a%a1%e5%a2%9e%e9%95%bf-10-%e5%80%8d%e7%bc%93%e5%ad%98%e5%b1%82%e5%a6%82%e4%bd%95%e6%89%a9%e5%b1%95">#</a>
+</h2>
+<blockquote>
+<p>假设你当前 QPS 为 1,000，目标是支撑 QPS 10,000 甚至更高。</p></blockquote>
+<h3 id="-1-redis-缓存层扩展策略">
+  🔹 1. <strong>Redis 缓存层扩展策略</strong>
+  <a class="anchor" href="#-1-redis-%e7%bc%93%e5%ad%98%e5%b1%82%e6%89%a9%e5%b1%95%e7%ad%96%e7%95%a5">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>措施</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>水平扩展 Redis Cluster</strong></td>
+          <td>增加分片节点，Redis 自动做 key 的 slot 分配</td>
+      </tr>
+      <tr>
+          <td><strong>主从复制 + 哨兵</strong></td>
+          <td>提高读能力，故障自动切换（Sentinel）</td>
+      </tr>
+      <tr>
+          <td><strong>冷热分离缓存策略</strong></td>
+          <td>高频数据放 Redis，低频数据考虑读取 DB 或预热缓存</td>
+      </tr>
+      <tr>
+          <td><strong>调整 TTL + 设置淘汰策略</strong></td>
+          <td>避免缓存撑爆内存，采用 LRU 或 LFU</td>
+      </tr>
+      <tr>
+          <td><strong>引入二级缓存</strong></td>
+          <td>如本地缓存 + Redis，减少热点 key 的访问压力</td>
+      </tr>
+      <tr>
+          <td><strong>加压测试 + 预热机制</strong></td>
+          <td>服务启动时加载热点数据，避免缓存穿透</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="-2-cdn-层扩展策略">
+  🔹 2. <strong>CDN 层扩展策略</strong>
+  <a class="anchor" href="#-2-cdn-%e5%b1%82%e6%89%a9%e5%b1%95%e7%ad%96%e7%95%a5">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>策略</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Cache-Control 优化</strong></td>
+          <td>控制缓存时长、更新策略，减少请求回源频率</td>
+      </tr>
+      <tr>
+          <td><strong>内容版本化</strong></td>
+          <td>静态资源增加 hash 避免 CDN 缓存不一致</td>
+      </tr>
+      <tr>
+          <td><strong>边缘函数（Edge Function）</strong></td>
+          <td>如 Cloudflare Workers，在边缘节点处理请求逻辑，进一步降低延迟</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h3 id="-3-缓存失效与穿透防护">
+  🔹 3. <strong>缓存失效与穿透防护</strong>
+  <a class="anchor" href="#-3-%e7%bc%93%e5%ad%98%e5%a4%b1%e6%95%88%e4%b8%8e%e7%a9%bf%e9%80%8f%e9%98%b2%e6%8a%a4">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>问题</th>
+          <th>解决策略</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>缓存击穿</td>
+          <td>热点 key 设置较长 TTL + 加锁更新</td>
+      </tr>
+      <tr>
+          <td>缓存雪崩</td>
+          <td>设置 TTL 时加入随机波动，避免大规模同时失效</td>
+      </tr>
+      <tr>
+          <td>缓存穿透</td>
+          <td>查询前判断参数合法性 + 对空结果也缓存（短期 TTL）</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-四总结选型与扩展思路">
+  ✅ 四、总结选型与扩展思路
+  <a class="anchor" href="#-%e5%9b%9b%e6%80%bb%e7%bb%93%e9%80%89%e5%9e%8b%e4%b8%8e%e6%89%a9%e5%b1%95%e6%80%9d%e8%b7%af">#</a>
+</h2>
+<h3 id="选择方案理由以-redis-为例">
+  选择方案理由（以 Redis 为例）：
+  <a class="anchor" href="#%e9%80%89%e6%8b%a9%e6%96%b9%e6%a1%88%e7%90%86%e7%94%b1%e4%bb%a5-redis-%e4%b8%ba%e4%be%8b">#</a>
+</h3>
+<ul>
+<li>分布式能力强，支持集群横向扩展；</li>
+<li>数据结构丰富，支持排行榜、布隆过滤器、队列等；</li>
+<li>支持 key 过期、持久化、备份、监控；</li>
+<li>开发生态广，语言 SDK 成熟。</li>
+</ul>
+<h3 id="扩展策略">
+  扩展策略：
+  <a class="anchor" href="#%e6%89%a9%e5%b1%95%e7%ad%96%e7%95%a5">#</a>
+</h3>
+<ol>
+<li>预估峰值流量 → 合理分片；</li>
+<li>读多写少：主从 + 读写分离；</li>
+<li>热点处理：分布式锁 + 本地缓存；</li>
+<li>接入监控报警系统（Redis 监控、命中率、内存使用等）；</li>
+<li>增加异地多活与容灾策略（高级场景）。</li>
+</ol>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一常见缓存方案对比">✅ 一、常见缓存方案对比</a></li>
+        <li><a href="#-二如何选择最终方案">✅ 二、如何选择最终方案？</a>
+          <ul>
+            <li><a href="#示例某-saas-平台接口缓存选择路径">示例：某 SaaS 平台接口缓存选择路径</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三如果业务增长-10-倍缓存层如何扩展">✅ 三、如果业务增长 10 倍，缓存层如何扩展？</a>
+          <ul>
+            <li><a href="#-1-redis-缓存层扩展策略">🔹 1. <strong>Redis 缓存层扩展策略</strong></a></li>
+            <li><a href="#-2-cdn-层扩展策略">🔹 2. <strong>CDN 层扩展策略</strong></a></li>
+            <li><a href="#-3-缓存失效与穿透防护">🔹 3. <strong>缓存失效与穿透防护</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#-四总结选型与扩展思路">✅ 四、总结选型与扩展思路</a>
+          <ul>
+            <li><a href="#选择方案理由以-redis-为例">选择方案理由（以 Redis 为例）：</a></li>
+            <li><a href="#扩展策略">扩展策略：</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

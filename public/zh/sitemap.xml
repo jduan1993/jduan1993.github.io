@@ -16,9 +16,12 @@
                 />
   </url><url>
     <loc>http://localhost:1313/docs/study/system-design/system-design/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/</loc>
-    <lastmod>2025-05-25T17:34:06+08:00</lastmod>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/system-design/doctolib-tips/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/example/table-of-contents/without-toc/</loc>
     <lastmod>2025-04-30T18:24:58+08:00</lastmod>
@@ -32,8 +35,6 @@
                 hreflang="zh"
                 href="http://localhost:1313/docs/example/table-of-contents/without-toc/"
                 />
-  </url><url>
-    <loc>http://localhost:1313/docs/study/base/tips/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/example/table-of-contents/</loc>
     <lastmod>2025-04-30T18:24:58+08:00</lastmod>
@@ -267,7 +268,7 @@
                 />
   </url><url>
     <loc>http://localhost:1313/docs/</loc>
-    <lastmod>2025-06-18T18:16:28+08:00</lastmod>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -280,10 +281,15 @@
                 />
   </url><url>
     <loc>http://localhost:1313/docs/study/system-design/doctolib-system-design/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/network/http-comparison/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/study/middleware/kafka/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/middleware/kafka/exactly-once/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/shortcodes/katex/</loc>
     <lastmod>2025-04-30T18:24:58+08:00</lastmod>
@@ -298,9 +304,19 @@
                 href="http://localhost:1313/docs/shortcodes/katex/"
                 />
   </url><url>
+    <loc>http://localhost:1313/docs/study/middleware/netty/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/middleware/oauth2/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/database/postgresql-mysql/</loc>
+  </url><url>
     <loc>http://localhost:1313/docs/study/frontend/react-knowledge/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/system-design/rpc/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/base/saga-best-practices/</loc>
   </url><url>
     <loc>http://localhost:1313/tags/</loc>
     <xhtml:link
@@ -314,9 +330,19 @@
                 href="http://localhost:1313/tags/"
                 />
   </url><url>
+    <loc>http://localhost:1313/docs/study/security/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/cache/solution/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/system-design/high-availability/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/cache/</loc>
+  </url><url>
     <loc>http://localhost:1313/docs/study/system-design/cache-consistency/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/base/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/</loc>
     <lastmod>2025-05-25T17:34:06+08:00</lastmod>
@@ -341,18 +367,32 @@
     <lastmod>2025-06-18T18:16:28+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/frontend/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/middleware/oauth2/auth-code/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/study/database/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/network/</loc>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/network/rtt/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/study/middleware/kafka/microservices-comm/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/system-design/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/hidden/</loc>
     <lastmod>2025-06-05T14:37:18+08:00</lastmod>
   </url><url>
     <loc>http://localhost:1313/docs/study/middleware/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/docs/study/security/replay-attack/</loc>
   </url><url>
     <loc>http://localhost:1313/docs/study/base/license-comparison/</loc>
+    <lastmod>2025-06-24T15:30:39+08:00</lastmod>
   </url>
 </urlset>

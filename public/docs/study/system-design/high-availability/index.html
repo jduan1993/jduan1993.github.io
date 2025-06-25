@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  服务宕机与网络分区时保证系统可用性 &amp; CAP 原则解析
+  #
+
+
+
+  一、服务宕机或网络分区时如何保证系统整体可用？
+  #
+
+
+  1. 多副本冗余部署
+  #
+
+
+对关键服务部署多实例，分布在不同节点或可用区，防止单点故障导致服务不可用。
+通过负载均衡自动切换到健康实例。
+
+
+  2. 健康检查与自动故障转移
+  #
+
+
+利用健康探针（Liveness/Readiness Probe）检测服务状态，异常自动剔除。
+K8s、服务网格等支持自动流量路由调整。
+
+
+  3. 限流、熔断和降级
+  #
+
+
+防止故障传播，减少故障扩散范围，保障核心服务可用。
+在部分依赖不可用时，提供降级功能维持核心体验。
+
+
+  4. 数据副本与异步复制
+  #
+
+
+保证数据多副本存储，避免单点数据丢失。
+异步复制减少同步阻塞，提高可用性，但存在一定数据一致性风险。
+
+
+  5. 设计幂等和重试机制
+  #
+
+
+保障请求安全重试，避免因网络抖动导致的数据错误。
+
+
+
+  二、CAP 原则简介
+  #
+
+CAP 定理指出，分布式系统不能同时完美满足：
+
+C（一致性 Consistency）：所有节点读到的数据是一致的，最新的写入立即可见。
+A（可用性 Availability）：每个请求都能得到响应（成功或失败），系统对所有节点持续可用。
+P（分区容忍性 Partition Tolerance）：系统能在网络分区（节点间消息丢失或延迟）时继续运行。
+
+由于网络分区不可避免，系统设计时需在一致性和可用性之间权衡。
+
+
+  三、实际系统中的 CAP 取舍
+  #
+
+
+  
+      
+          取舍方向
+          说明
+          典型场景或技术
+      
+  
+  
+      
+          CP（优先一致性）
+          保证数据强一致性，分区时牺牲可用性（部分请求可能失败）
+          传统关系型数据库、分布式事务系统
+      
+      
+          AP（优先可用性）
+          保证系统持续响应，允许短暂数据不一致，后续进行数据同步修正
+          大规模互联网应用、缓存系统、部分 NoSQL
+      
+      
+          CA（理论上的理想）
+          不考虑网络分区，只在单节点或强同步场景下能实现
+          单机系统或网络稳定环境
+      
+  
+
+
+
+  四、结合场景的实践建议
+  #
+
+
+核心业务（如支付、订单）：更倾向于CP，确保数据准确，允许部分请求失败或延迟。
+用户体验相关（如浏览、推荐）：可偏向AP，保证响应速度和可用性，允许短暂的数据不一致。
+采用异步补偿和最终一致性设计：用 Saga 模式等实现业务流程的补偿，提升系统可用性。
+
+
+
+  五、总结
+  #
+
+
+  
+      
+          关注点
+          设计策略
+      
+  
+  
+      
+          宕机/分区容忍
+          多副本冗余、健康检查、自动故障转移、降级限流
+      
+      
+          CAP权衡
+          根据业务优先级选CP或AP，设计幂等与补偿机制
+      
+      
+          系统弹性
+          利用异步机制与最终一致性，提升可用性同时保证数据正确性
+      
+  
+
+">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/system-design/high-availability/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="高可用性">
+  <meta property="og:description" content="服务宕机与网络分区时保证系统可用性 &amp; CAP 原则解析#一、服务宕机或网络分区时如何保证系统整体可用？#1. 多副本冗余部署#对关键服务部署多实例，分布在不同节点或可用区，防止单点故障导致服务不可用。 通过负载均衡自动切换到健康实例。 2. 健康检查与自动故障转移#利用健康探针（Liveness/Readiness Probe）检测服务状态，异常自动剔除。 K8s、服务网格等支持自动流量路由调整。 3. 限流、熔断和降级#防止故障传播，减少故障扩散范围，保障核心服务可用。 在部分依赖不可用时，提供降级功能维持核心体验。 4. 数据副本与异步复制#保证数据多副本存储，避免单点数据丢失。 异步复制减少同步阻塞，提高可用性，但存在一定数据一致性风险。 5. 设计幂等和重试机制#保障请求安全重试，避免因网络抖动导致的数据错误。 二、CAP 原则简介#CAP 定理指出，分布式系统不能同时完美满足：
+C（一致性 Consistency）：所有节点读到的数据是一致的，最新的写入立即可见。 A（可用性 Availability）：每个请求都能得到响应（成功或失败），系统对所有节点持续可用。 P（分区容忍性 Partition Tolerance）：系统能在网络分区（节点间消息丢失或延迟）时继续运行。 由于网络分区不可避免，系统设计时需在一致性和可用性之间权衡。
+三、实际系统中的 CAP 取舍#取舍方向 说明 典型场景或技术 CP（优先一致性） 保证数据强一致性，分区时牺牲可用性（部分请求可能失败） 传统关系型数据库、分布式事务系统 AP（优先可用性） 保证系统持续响应，允许短暂数据不一致，后续进行数据同步修正 大规模互联网应用、缓存系统、部分 NoSQL CA（理论上的理想） 不考虑网络分区，只在单节点或强同步场景下能实现 单机系统或网络稳定环境 四、结合场景的实践建议#核心业务（如支付、订单）：更倾向于CP，确保数据准确，允许部分请求失败或延迟。 用户体验相关（如浏览、推荐）：可偏向AP，保证响应速度和可用性，允许短暂的数据不一致。 采用异步补偿和最终一致性设计：用 Saga 模式等实现业务流程的补偿，提升系统可用性。 五、总结#关注点 设计策略 宕机/分区容忍 多副本冗余、健康检查、自动故障转移、降级限流 CAP权衡 根据业务优先级选CP或AP，设计幂等与补偿机制 系统弹性 利用异步机制与最终一致性，提升可用性同时保证数据正确性">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>高可用性 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/system-design/high-availability/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.aed2e596e43e250839764ea6a5e722a63665fd860c6f1a749396aad8dc8cdf67.js" integrity="sha256-rtLlluQ&#43;JQg5dk6mpecipjZl/YYMbxp0k5aq2NyM32c=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>安全</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>缓存</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>网络</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle" checked />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="active">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>高可用性</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#服务宕机与网络分区时保证系统可用性--cap-原则解析">服务宕机与网络分区时保证系统可用性 &amp; CAP 原则解析</a>
+      <ul>
+        <li><a href="#一服务宕机或网络分区时如何保证系统整体可用">一、服务宕机或网络分区时如何保证系统整体可用？</a>
+          <ul>
+            <li><a href="#1-多副本冗余部署">1. 多副本冗余部署</a></li>
+            <li><a href="#2-健康检查与自动故障转移">2. 健康检查与自动故障转移</a></li>
+            <li><a href="#3-限流熔断和降级">3. 限流、熔断和降级</a></li>
+            <li><a href="#4-数据副本与异步复制">4. 数据副本与异步复制</a></li>
+            <li><a href="#5-设计幂等和重试机制">5. 设计幂等和重试机制</a></li>
+          </ul>
+        </li>
+        <li><a href="#二cap-原则简介">二、CAP 原则简介</a></li>
+        <li><a href="#三实际系统中的-cap-取舍">三、实际系统中的 CAP 取舍</a></li>
+        <li><a href="#四结合场景的实践建议">四、结合场景的实践建议</a></li>
+        <li><a href="#五总结">五、总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1>
+    高可用性
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h1 id="服务宕机与网络分区时保证系统可用性--cap-原则解析">
+  服务宕机与网络分区时保证系统可用性 &amp; CAP 原则解析
+  <a class="anchor" href="#%e6%9c%8d%e5%8a%a1%e5%ae%95%e6%9c%ba%e4%b8%8e%e7%bd%91%e7%bb%9c%e5%88%86%e5%8c%ba%e6%97%b6%e4%bf%9d%e8%af%81%e7%b3%bb%e7%bb%9f%e5%8f%af%e7%94%a8%e6%80%a7--cap-%e5%8e%9f%e5%88%99%e8%a7%a3%e6%9e%90">#</a>
+</h1>
+<hr>
+<h2 id="一服务宕机或网络分区时如何保证系统整体可用">
+  一、服务宕机或网络分区时如何保证系统整体可用？
+  <a class="anchor" href="#%e4%b8%80%e6%9c%8d%e5%8a%a1%e5%ae%95%e6%9c%ba%e6%88%96%e7%bd%91%e7%bb%9c%e5%88%86%e5%8c%ba%e6%97%b6%e5%a6%82%e4%bd%95%e4%bf%9d%e8%af%81%e7%b3%bb%e7%bb%9f%e6%95%b4%e4%bd%93%e5%8f%af%e7%94%a8">#</a>
+</h2>
+<h3 id="1-多副本冗余部署">
+  1. 多副本冗余部署
+  <a class="anchor" href="#1-%e5%a4%9a%e5%89%af%e6%9c%ac%e5%86%97%e4%bd%99%e9%83%a8%e7%bd%b2">#</a>
+</h3>
+<ul>
+<li>对关键服务部署多实例，分布在不同节点或可用区，防止单点故障导致服务不可用。</li>
+<li>通过负载均衡自动切换到健康实例。</li>
+</ul>
+<h3 id="2-健康检查与自动故障转移">
+  2. 健康检查与自动故障转移
+  <a class="anchor" href="#2-%e5%81%a5%e5%ba%b7%e6%a3%80%e6%9f%a5%e4%b8%8e%e8%87%aa%e5%8a%a8%e6%95%85%e9%9a%9c%e8%bd%ac%e7%a7%bb">#</a>
+</h3>
+<ul>
+<li>利用健康探针（Liveness/Readiness Probe）检测服务状态，异常自动剔除。</li>
+<li>K8s、服务网格等支持自动流量路由调整。</li>
+</ul>
+<h3 id="3-限流熔断和降级">
+  3. 限流、熔断和降级
+  <a class="anchor" href="#3-%e9%99%90%e6%b5%81%e7%86%94%e6%96%ad%e5%92%8c%e9%99%8d%e7%ba%a7">#</a>
+</h3>
+<ul>
+<li>防止故障传播，减少故障扩散范围，保障核心服务可用。</li>
+<li>在部分依赖不可用时，提供降级功能维持核心体验。</li>
+</ul>
+<h3 id="4-数据副本与异步复制">
+  4. 数据副本与异步复制
+  <a class="anchor" href="#4-%e6%95%b0%e6%8d%ae%e5%89%af%e6%9c%ac%e4%b8%8e%e5%bc%82%e6%ad%a5%e5%a4%8d%e5%88%b6">#</a>
+</h3>
+<ul>
+<li>保证数据多副本存储，避免单点数据丢失。</li>
+<li>异步复制减少同步阻塞，提高可用性，但存在一定数据一致性风险。</li>
+</ul>
+<h3 id="5-设计幂等和重试机制">
+  5. 设计幂等和重试机制
+  <a class="anchor" href="#5-%e8%ae%be%e8%ae%a1%e5%b9%82%e7%ad%89%e5%92%8c%e9%87%8d%e8%af%95%e6%9c%ba%e5%88%b6">#</a>
+</h3>
+<ul>
+<li>保障请求安全重试，避免因网络抖动导致的数据错误。</li>
+</ul>
+<hr>
+<h2 id="二cap-原则简介">
+  二、CAP 原则简介
+  <a class="anchor" href="#%e4%ba%8ccap-%e5%8e%9f%e5%88%99%e7%ae%80%e4%bb%8b">#</a>
+</h2>
+<p>CAP 定理指出，分布式系统不能同时完美满足：</p>
+<ul>
+<li><strong>C（一致性 Consistency）</strong>：所有节点读到的数据是一致的，最新的写入立即可见。</li>
+<li><strong>A（可用性 Availability）</strong>：每个请求都能得到响应（成功或失败），系统对所有节点持续可用。</li>
+<li><strong>P（分区容忍性 Partition Tolerance）</strong>：系统能在网络分区（节点间消息丢失或延迟）时继续运行。</li>
+</ul>
+<p>由于网络分区不可避免，系统设计时需在<strong>一致性</strong>和<strong>可用性</strong>之间权衡。</p>
+<hr>
+<h2 id="三实际系统中的-cap-取舍">
+  三、实际系统中的 CAP 取舍
+  <a class="anchor" href="#%e4%b8%89%e5%ae%9e%e9%99%85%e7%b3%bb%e7%bb%9f%e4%b8%ad%e7%9a%84-cap-%e5%8f%96%e8%88%8d">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>取舍方向</th>
+          <th>说明</th>
+          <th>典型场景或技术</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>CP（优先一致性）</strong></td>
+          <td>保证数据强一致性，分区时牺牲可用性（部分请求可能失败）</td>
+          <td>传统关系型数据库、分布式事务系统</td>
+      </tr>
+      <tr>
+          <td><strong>AP（优先可用性）</strong></td>
+          <td>保证系统持续响应，允许短暂数据不一致，后续进行数据同步修正</td>
+          <td>大规模互联网应用、缓存系统、部分 NoSQL</td>
+      </tr>
+      <tr>
+          <td><strong>CA（理论上的理想）</strong></td>
+          <td>不考虑网络分区，只在单节点或强同步场景下能实现</td>
+          <td>单机系统或网络稳定环境</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="四结合场景的实践建议">
+  四、结合场景的实践建议
+  <a class="anchor" href="#%e5%9b%9b%e7%bb%93%e5%90%88%e5%9c%ba%e6%99%af%e7%9a%84%e5%ae%9e%e8%b7%b5%e5%bb%ba%e8%ae%ae">#</a>
+</h2>
+<ul>
+<li><strong>核心业务（如支付、订单）</strong>：更倾向于<strong>CP</strong>，确保数据准确，允许部分请求失败或延迟。</li>
+<li><strong>用户体验相关（如浏览、推荐）</strong>：可偏向<strong>AP</strong>，保证响应速度和可用性，允许短暂的数据不一致。</li>
+<li><strong>采用异步补偿和最终一致性设计</strong>：用 Saga 模式等实现业务流程的补偿，提升系统可用性。</li>
+</ul>
+<hr>
+<h2 id="五总结">
+  五、总结
+  <a class="anchor" href="#%e4%ba%94%e6%80%bb%e7%bb%93">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>关注点</th>
+          <th>设计策略</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>宕机/分区容忍</td>
+          <td>多副本冗余、健康检查、自动故障转移、降级限流</td>
+      </tr>
+      <tr>
+          <td>CAP权衡</td>
+          <td>根据业务优先级选CP或AP，设计幂等与补偿机制</td>
+      </tr>
+      <tr>
+          <td>系统弹性</td>
+          <td>利用异步机制与最终一致性，提升可用性同时保证数据正确性</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#服务宕机与网络分区时保证系统可用性--cap-原则解析">服务宕机与网络分区时保证系统可用性 &amp; CAP 原则解析</a>
+      <ul>
+        <li><a href="#一服务宕机或网络分区时如何保证系统整体可用">一、服务宕机或网络分区时如何保证系统整体可用？</a>
+          <ul>
+            <li><a href="#1-多副本冗余部署">1. 多副本冗余部署</a></li>
+            <li><a href="#2-健康检查与自动故障转移">2. 健康检查与自动故障转移</a></li>
+            <li><a href="#3-限流熔断和降级">3. 限流、熔断和降级</a></li>
+            <li><a href="#4-数据副本与异步复制">4. 数据副本与异步复制</a></li>
+            <li><a href="#5-设计幂等和重试机制">5. 设计幂等和重试机制</a></li>
+          </ul>
+        </li>
+        <li><a href="#二cap-原则简介">二、CAP 原则简介</a></li>
+        <li><a href="#三实际系统中的-cap-取舍">三、实际系统中的 CAP 取舍</a></li>
+        <li><a href="#四结合场景的实践建议">四、结合场景的实践建议</a></li>
+        <li><a href="#五总结">五、总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
