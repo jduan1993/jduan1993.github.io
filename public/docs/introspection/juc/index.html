@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Java 中的 JUC（java.util.concurrent） 是并发编程的核心包，提供了大量强大、高性能的工具类来简化线程操作和并发控制。
+下面是对 JUC 中最常用类和接口的详细分类与解析，帮助你构建对 Java 并发编程的完整认识。
+
+
+  🌳 一、JUC 核心模块总览
+  #
+
+java.util.concurrent.*
+├── Executor 框架（线程池）
+├── 同步器（Locks、CountDownLatch、Semaphore、CyclicBarrier）
+├── 并发集合（ConcurrentHashMap、CopyOnWriteArrayList 等）
+├── 原子变量（AtomicXXX）
+├── Fork/Join 框架
+├── CompletableFuture、Future
+├── ScheduledExecutor、BlockingQueue 等
+
+
+  🚀 二、Executor 框架（线程池相关）
+  #
+
+
+  
+      
+          类/接口
+          说明
+      
+  
+  
+      
+          Executor
+          最基础的接口，只有一个方法 execute(Runnable)
+      
+      
+          ExecutorService
+          提供 submit()、shutdown() 等高级控制
+      
+      
+          ThreadPoolExecutor
+          可自定义线程池参数的核心实现类
+      
+      
+          ScheduledExecutorService
+          支持定时或周期任务执行
+      
+      
+          Executors
+          工厂类，提供常用线程池的创建方法（如 newFixedThreadPool()）
+      
+  
+
+
+  ☑️ 推荐使用方式
+  #
+
+避免 Executors.newXxx() 静态方法，建议自己构造 ThreadPoolExecutor：
+ExecutorService pool = new ThreadPoolExecutor(
+    4, 8, 60, TimeUnit.SECONDS,
+    new LinkedBlockingQueue&lt;&gt;(100)
+);
+
+
+  🧱 三、同步器（Lock、信号量、栅栏等）
+  #
+
+
+  1. Lock/Condition
+  #
+
+
+  
+      
+          类/接口
+          说明
+      
+  
+  
+      
+          Lock
+          比 synchronized 更灵活，支持中断、非阻塞获取
+      
+      
+          ReentrantLock
+          可重入锁，支持公平/非公平锁
+      
+      
+          ReadWriteLock
+          读写分离，提高并发性
+      
+      
+          Condition
+          类似 Object.wait/notify，配合 Lock 使用
+      
+  
+
+示例：">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/introspection/juc/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="Java.util.concurrent 包">
+  <meta property="og:description" content="Java 中的 JUC（java.util.concurrent） 是并发编程的核心包，提供了大量强大、高性能的工具类来简化线程操作和并发控制。
+下面是对 JUC 中最常用类和接口的详细分类与解析，帮助你构建对 Java 并发编程的完整认识。
+🌳 一、JUC 核心模块总览#java.util.concurrent.* ├── Executor 框架（线程池） ├── 同步器（Locks、CountDownLatch、Semaphore、CyclicBarrier） ├── 并发集合（ConcurrentHashMap、CopyOnWriteArrayList 等） ├── 原子变量（AtomicXXX） ├── Fork/Join 框架 ├── CompletableFuture、Future ├── ScheduledExecutor、BlockingQueue 等 🚀 二、Executor 框架（线程池相关）#类/接口 说明 Executor 最基础的接口，只有一个方法 execute(Runnable) ExecutorService 提供 submit()、shutdown() 等高级控制 ThreadPoolExecutor 可自定义线程池参数的核心实现类 ScheduledExecutorService 支持定时或周期任务执行 Executors 工厂类，提供常用线程池的创建方法（如 newFixedThreadPool()） ☑️ 推荐使用方式#避免 Executors.newXxx() 静态方法，建议自己构造 ThreadPoolExecutor：
+ExecutorService pool = new ThreadPoolExecutor( 4, 8, 60, TimeUnit.SECONDS, new LinkedBlockingQueue&lt;&gt;(100) ); 🧱 三、同步器（Lock、信号量、栅栏等）#1. Lock/Condition#类/接口 说明 Lock 比 synchronized 更灵活，支持中断、非阻塞获取 ReentrantLock 可重入锁，支持公平/非公平锁 ReadWriteLock 读写分离，提高并发性 Condition 类似 Object.wait/notify，配合 Lock 使用 示例：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>Java.util.concurrent 包 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/introspection/juc/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.3ce0be7c81ef4776bfb2a552a4c5319a8bc833beeb59e10787e3f76f3a620ee3.js" integrity="sha256-POC&#43;fIHvR3a/sqVSpMUxmovIM77rWeEHh&#43;P3bzpiDuM=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle"  />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-f24aaea3accf88abc877401f4ea14426" class="toggle"  />
+    <label for="section-f24aaea3accf88abc877401f4ea14426" class="flex justify-between">
+      <a role="button" class="">Python</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/python/base/" class="">Python 基础</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-582da456f48414d663a4153b7d734ed6" class="toggle"  />
+    <label for="section-582da456f48414d663a4153b7d734ed6" class="flex justify-between">
+      <a role="button" class="">安全</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-407d2f8dd9410e8eef358914dd8c0dc2" class="toggle"  />
+    <label for="section-407d2f8dd9410e8eef358914dd8c0dc2" class="flex justify-between">
+      <a role="button" class="">缓存</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3ba9e8b376ea48d5beb815b520fdce5d" class="toggle"  />
+    <label for="section-3ba9e8b376ea48d5beb815b520fdce5d" class="flex justify-between">
+      <a role="button" class="">网络</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle" checked />
+    <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
+      <a role="button" class="">自省</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/juc/" class="active">Java.util.concurrent 包</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Java.util.concurrent 包</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#Java.util.concurrent%20%e5%8c%85">Java.util.concurrent 包</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一juc-核心模块总览">🌳 一、JUC 核心模块总览</a></li>
+        <li><a href="#-二executor-框架线程池相关">🚀 二、Executor 框架（线程池相关）</a>
+          <ul>
+            <li><a href="#-推荐使用方式">☑️ 推荐使用方式</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三同步器lock信号量栅栏等">🧱 三、同步器（Lock、信号量、栅栏等）</a>
+          <ul>
+            <li><a href="#1-lockcondition">1. Lock/Condition</a></li>
+            <li><a href="#2-线程协作工具类">2. 线程协作工具类</a></li>
+          </ul>
+        </li>
+        <li><a href="#-四原子类atomicxxx">💥 四、原子类（AtomicXXX）</a></li>
+        <li><a href="#-五并发集合类">🔄 五、并发集合类</a></li>
+        <li><a href="#-六阻塞队列用于生产者-消费者">⚙️ 六、阻塞队列（用于生产者-消费者）</a></li>
+        <li><a href="#-七futurecompletablefutureforkjoin">🧠 七、Future、CompletableFuture、ForkJoin</a>
+          <ul>
+            <li><a href="#future--callable"><code>Future</code> &amp; <code>Callable</code></a></li>
+            <li><a href="#completablefuture"><code>CompletableFuture</code></a></li>
+            <li><a href="#forkjoinpool"><code>ForkJoinPool</code></a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结结构图经典分类">📌 总结结构图（经典分类）</a></li>
+        <li><a href="#-推荐学习顺序">📘 推荐学习顺序</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="Java.util.concurrent 包">
+    Java.util.concurrent 包
+    <a class="anchor" href="#Java.util.concurrent%20%e5%8c%85">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>Java 中的 <strong>JUC（java.util.concurrent）</strong> 是并发编程的核心包，提供了大量强大、高性能的工具类来简化线程操作和并发控制。</p>
+<p>下面是对 JUC 中<strong>最常用类和接口的详细分类与解析</strong>，帮助你构建对 Java 并发编程的完整认识。</p>
+<hr>
+<h2 id="-一juc-核心模块总览">
+  🌳 一、JUC 核心模块总览
+  <a class="anchor" href="#-%e4%b8%80juc-%e6%a0%b8%e5%bf%83%e6%a8%a1%e5%9d%97%e6%80%bb%e8%a7%88">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>java.util.concurrent.*
+</span></span><span style="display:flex;"><span>├── Executor 框架（线程池）
+</span></span><span style="display:flex;"><span>├── 同步器（Locks、CountDownLatch、Semaphore、CyclicBarrier）
+</span></span><span style="display:flex;"><span>├── 并发集合（ConcurrentHashMap、CopyOnWriteArrayList 等）
+</span></span><span style="display:flex;"><span>├── 原子变量（AtomicXXX）
+</span></span><span style="display:flex;"><span>├── Fork/Join 框架
+</span></span><span style="display:flex;"><span>├── CompletableFuture、Future
+</span></span><span style="display:flex;"><span>├── ScheduledExecutor、BlockingQueue 等
+</span></span></code></pre></div><hr>
+<h2 id="-二executor-框架线程池相关">
+  🚀 二、Executor 框架（线程池相关）
+  <a class="anchor" href="#-%e4%ba%8cexecutor-%e6%a1%86%e6%9e%b6%e7%ba%bf%e7%a8%8b%e6%b1%a0%e7%9b%b8%e5%85%b3">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>类/接口</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>Executor</code></td>
+          <td>最基础的接口，只有一个方法 <code>execute(Runnable)</code></td>
+      </tr>
+      <tr>
+          <td><code>ExecutorService</code></td>
+          <td>提供 <code>submit()</code>、<code>shutdown()</code> 等高级控制</td>
+      </tr>
+      <tr>
+          <td><code>ThreadPoolExecutor</code></td>
+          <td>可自定义线程池参数的核心实现类</td>
+      </tr>
+      <tr>
+          <td><code>ScheduledExecutorService</code></td>
+          <td>支持定时或周期任务执行</td>
+      </tr>
+      <tr>
+          <td><code>Executors</code></td>
+          <td>工厂类，提供常用线程池的创建方法（如 <code>newFixedThreadPool()</code>）</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="-推荐使用方式">
+  ☑️ 推荐使用方式
+  <a class="anchor" href="#-%e6%8e%a8%e8%8d%90%e4%bd%bf%e7%94%a8%e6%96%b9%e5%bc%8f">#</a>
+</h3>
+<p>避免 <code>Executors.newXxx()</code> 静态方法，建议自己构造 <code>ThreadPoolExecutor</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ExecutorService pool <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadPoolExecutor(
+</span></span><span style="display:flex;"><span>    4, 8, 60, TimeUnit.<span style="color:#a6e22e">SECONDS</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> LinkedBlockingQueue<span style="color:#f92672">&lt;&gt;</span>(100)
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><hr>
+<h2 id="-三同步器lock信号量栅栏等">
+  🧱 三、同步器（Lock、信号量、栅栏等）
+  <a class="anchor" href="#-%e4%b8%89%e5%90%8c%e6%ad%a5%e5%99%a8lock%e4%bf%a1%e5%8f%b7%e9%87%8f%e6%a0%85%e6%a0%8f%e7%ad%89">#</a>
+</h2>
+<h3 id="1-lockcondition">
+  1. Lock/Condition
+  <a class="anchor" href="#1-lockcondition">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>类/接口</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>Lock</code></td>
+          <td>比 <code>synchronized</code> 更灵活，支持中断、非阻塞获取</td>
+      </tr>
+      <tr>
+          <td><code>ReentrantLock</code></td>
+          <td>可重入锁，支持公平/非公平锁</td>
+      </tr>
+      <tr>
+          <td><code>ReadWriteLock</code></td>
+          <td>读写分离，提高并发性</td>
+      </tr>
+      <tr>
+          <td><code>Condition</code></td>
+          <td>类似 <code>Object.wait/notify</code>，配合 Lock 使用</td>
+      </tr>
+  </tbody>
+</table>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Lock lock <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ReentrantLock();
+</span></span><span style="display:flex;"><span>lock.<span style="color:#a6e22e">lock</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 临界区</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">finally</span> {
+</span></span><span style="display:flex;"><span>    lock.<span style="color:#a6e22e">unlock</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h3 id="2-线程协作工具类">
+  2. 线程协作工具类
+  <a class="anchor" href="#2-%e7%ba%bf%e7%a8%8b%e5%8d%8f%e4%bd%9c%e5%b7%a5%e5%85%b7%e7%b1%bb">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>类</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>CountDownLatch</code></td>
+          <td>一个或多个线程等待其他线程完成</td>
+      </tr>
+      <tr>
+          <td><code>CyclicBarrier</code></td>
+          <td>多个线程互相等待，到达屏障点后继续</td>
+      </tr>
+      <tr>
+          <td><code>Semaphore</code></td>
+          <td>控制并发访问的许可证（限流）</td>
+      </tr>
+      <tr>
+          <td><code>Exchanger</code></td>
+          <td>两个线程数据交换</td>
+      </tr>
+  </tbody>
+</table>
+<p>示例：<code>CountDownLatch</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>CountDownLatch latch <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> CountDownLatch(3);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> 3; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> Thread(() <span style="color:#f92672">-&gt;</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// do work</span>
+</span></span><span style="display:flex;"><span>        latch.<span style="color:#a6e22e">countDown</span>();
+</span></span><span style="display:flex;"><span>    }).<span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>latch.<span style="color:#a6e22e">await</span>(); <span style="color:#75715e">// 主线程等待子线程完成</span>
+</span></span></code></pre></div><hr>
+<h2 id="-四原子类atomicxxx">
+  💥 四、原子类（AtomicXXX）
+  <a class="anchor" href="#-%e5%9b%9b%e5%8e%9f%e5%ad%90%e7%b1%bbatomicxxx">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>类</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>AtomicInteger/AtomicLong</code></td>
+          <td>原子整型操作（如递增）</td>
+      </tr>
+      <tr>
+          <td><code>AtomicReference</code></td>
+          <td>原子更新对象引用</td>
+      </tr>
+      <tr>
+          <td><code>AtomicStampedReference</code></td>
+          <td>防止 ABA 问题的引用类</td>
+      </tr>
+      <tr>
+          <td><code>LongAdder</code> / <code>LongAccumulator</code></td>
+          <td>高并发下比 <code>AtomicLong</code> 更高效</td>
+      </tr>
+  </tbody>
+</table>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>AtomicInteger count <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> AtomicInteger();
+</span></span><span style="display:flex;"><span>count.<span style="color:#a6e22e">incrementAndGet</span>();  <span style="color:#75715e">// 原子 +1</span>
+</span></span></code></pre></div><hr>
+<h2 id="-五并发集合类">
+  🔄 五、并发集合类
+  <a class="anchor" href="#-%e4%ba%94%e5%b9%b6%e5%8f%91%e9%9b%86%e5%90%88%e7%b1%bb">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>类</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>ConcurrentHashMap</code></td>
+          <td>支持高并发读写的 Map（JDK8 以后性能大幅提升）</td>
+      </tr>
+      <tr>
+          <td><code>CopyOnWriteArrayList</code></td>
+          <td>写时复制，读多写少场景</td>
+      </tr>
+      <tr>
+          <td><code>ConcurrentLinkedQueue</code></td>
+          <td>无锁队列</td>
+      </tr>
+      <tr>
+          <td><code>BlockingQueue</code>（接口）</td>
+          <td>支持阻塞的队列，如 <code>ArrayBlockingQueue</code>、<code>LinkedBlockingQueue</code></td>
+      </tr>
+  </tbody>
+</table>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ConcurrentHashMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ConcurrentHashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 1);
+</span></span></code></pre></div><hr>
+<h2 id="-六阻塞队列用于生产者-消费者">
+  ⚙️ 六、阻塞队列（用于生产者-消费者）
+  <a class="anchor" href="#-%e5%85%ad%e9%98%bb%e5%a1%9e%e9%98%9f%e5%88%97%e7%94%a8%e4%ba%8e%e7%94%9f%e4%ba%a7%e8%80%85-%e6%b6%88%e8%b4%b9%e8%80%85">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>类</th>
+          <th>特性</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>ArrayBlockingQueue</code></td>
+          <td>有界，数组结构，适合固定容量</td>
+      </tr>
+      <tr>
+          <td><code>LinkedBlockingQueue</code></td>
+          <td>无界或有界，链表结构</td>
+      </tr>
+      <tr>
+          <td><code>DelayQueue</code></td>
+          <td>带延迟元素的队列</td>
+      </tr>
+      <tr>
+          <td><code>SynchronousQueue</code></td>
+          <td>不存储元素的队列（用于线程交接）</td>
+      </tr>
+  </tbody>
+</table>
+<p>常用于线程池或生产者消费者模型中。</p>
+<hr>
+<h2 id="-七futurecompletablefutureforkjoin">
+  🧠 七、Future、CompletableFuture、ForkJoin
+  <a class="anchor" href="#-%e4%b8%83futurecompletablefutureforkjoin">#</a>
+</h2>
+<h3 id="future--callable">
+  <code>Future</code> &amp; <code>Callable</code>
+  <a class="anchor" href="#future--callable">#</a>
+</h3>
+<ul>
+<li>提交任务后返回 Future，可通过 <code>get()</code> 阻塞获取结果。</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Future<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> f <span style="color:#f92672">=</span> pool.<span style="color:#a6e22e">submit</span>(() <span style="color:#f92672">-&gt;</span> 1 <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(f.<span style="color:#a6e22e">get</span>());
+</span></span></code></pre></div><h3 id="completablefuture">
+  <code>CompletableFuture</code>
+  <a class="anchor" href="#completablefuture">#</a>
+</h3>
+<ul>
+<li>支持链式异步任务、异常处理、组合计算（JDK 8+）</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>CompletableFuture.<span style="color:#a6e22e">supplyAsync</span>(() <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;Hello&#34;</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">thenApply</span>(s <span style="color:#f92672">-&gt;</span> s <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; World&#34;</span>)
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">thenAccept</span>(System.<span style="color:#a6e22e">out</span>::println);
+</span></span></code></pre></div><h3 id="forkjoinpool">
+  <code>ForkJoinPool</code>
+  <a class="anchor" href="#forkjoinpool">#</a>
+</h3>
+<ul>
+<li>分而治之的并行计算框架，适合大规模数据递归处理</li>
+</ul>
+<hr>
+<h2 id="-总结结构图经典分类">
+  📌 总结结构图（经典分类）
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e7%bb%93%e6%9e%84%e5%9b%be%e7%bb%8f%e5%85%b8%e5%88%86%e7%b1%bb">#</a>
+</h2>
+<pre tabindex="0"><code>java.util.concurrent
+├── Executors / ThreadPoolExecutor         ← 线程池
+├── Locks (Lock, ReadWriteLock)           ← 手动加锁
+├── Synchronizers (CountDownLatch, ...)   ← 协作
+├── Atomic variables (AtomicXXX)          ← 原子类
+├── Concurrent collections                ← 高并发容器
+├── BlockingQueue / DelayQueue            ← 阻塞队列
+├── Future / CompletableFuture            ← 异步结果
+├── ForkJoinPool                          ← 并行计算框架
+</code></pre><hr>
+<h2 id="-推荐学习顺序">
+  📘 推荐学习顺序
+  <a class="anchor" href="#-%e6%8e%a8%e8%8d%90%e5%ad%a6%e4%b9%a0%e9%a1%ba%e5%ba%8f">#</a>
+</h2>
+<ol>
+<li><code>ExecutorService</code> / <code>ThreadPoolExecutor</code> ← 打基础</li>
+<li><code>ReentrantLock</code> / <code>CountDownLatch</code> / <code>Semaphore</code> ← 并发控制工具</li>
+<li><code>ConcurrentHashMap</code> / <code>CopyOnWriteArrayList</code> ← 集合并发化</li>
+<li><code>AtomicInteger</code> / <code>LongAdder</code> ← 原子类</li>
+<li><code>CompletableFuture</code> ← 现代异步方式</li>
+<li><code>ForkJoinPool</code> ← 进阶任务分治模型</li>
+</ol>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#Java.util.concurrent%20%e5%8c%85">Java.util.concurrent 包</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一juc-核心模块总览">🌳 一、JUC 核心模块总览</a></li>
+        <li><a href="#-二executor-框架线程池相关">🚀 二、Executor 框架（线程池相关）</a>
+          <ul>
+            <li><a href="#-推荐使用方式">☑️ 推荐使用方式</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三同步器lock信号量栅栏等">🧱 三、同步器（Lock、信号量、栅栏等）</a>
+          <ul>
+            <li><a href="#1-lockcondition">1. Lock/Condition</a></li>
+            <li><a href="#2-线程协作工具类">2. 线程协作工具类</a></li>
+          </ul>
+        </li>
+        <li><a href="#-四原子类atomicxxx">💥 四、原子类（AtomicXXX）</a></li>
+        <li><a href="#-五并发集合类">🔄 五、并发集合类</a></li>
+        <li><a href="#-六阻塞队列用于生产者-消费者">⚙️ 六、阻塞队列（用于生产者-消费者）</a></li>
+        <li><a href="#-七futurecompletablefutureforkjoin">🧠 七、Future、CompletableFuture、ForkJoin</a>
+          <ul>
+            <li><a href="#future--callable"><code>Future</code> &amp; <code>Callable</code></a></li>
+            <li><a href="#completablefuture"><code>CompletableFuture</code></a></li>
+            <li><a href="#forkjoinpool"><code>ForkJoinPool</code></a></li>
+          </ul>
+        </li>
+        <li><a href="#-总结结构图经典分类">📌 总结结构图（经典分类）</a></li>
+        <li><a href="#-推荐学习顺序">📘 推荐学习顺序</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
