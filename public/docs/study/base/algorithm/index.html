@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  ✅ 20 个最常见算法题型 &#43; 解题思路 &amp; 模板（Java版）
+  #
+
+
+适合力扣 0-200 题重点训练，也适用于面试快速准备
+
+
+  🧩 1. 两数之和（哈希表）
+  #
+
+题型：数组 &#43; 查找
+// LC 1. Two Sum
+public int[] twoSum(int[] nums, int target) {
+    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+    for (int i = 0; i &lt; nums.length; i&#43;&#43;) {
+        int complement = target - nums[i];
+        if (map.containsKey(complement))
+            return new int[]{map.get(complement), i};
+        map.put(nums[i], i);
+    }
+    return new int[0];
+}
+
+
+  🧩 2. 三数之和（排序 &#43; 双指针）
+  #
+
+
+  ✅ 解题思路（最佳解）
+  #
+
+
+  1. 先排序（排序 &#43; 双指针的前提）
+  #
+
+排序是为了：">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/base/algorithm/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="算法">
+  <meta property="og:description" content="✅ 20 个最常见算法题型 &#43; 解题思路 &amp; 模板（Java版）#适合力扣 0-200 题重点训练，也适用于面试快速准备
+🧩 1. 两数之和（哈希表）#题型：数组 &#43; 查找
+// LC 1. Two Sum public int[] twoSum(int[] nums, int target) { Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;(); for (int i = 0; i &lt; nums.length; i&#43;&#43;) { int complement = target - nums[i]; if (map.containsKey(complement)) return new int[]{map.get(complement), i}; map.put(nums[i], i); } return new int[0]; } 🧩 2. 三数之和（排序 &#43; 双指针）#✅ 解题思路（最佳解）#1. 先排序（排序 &#43; 双指针的前提）#排序是为了：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>算法 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/base/algorithm/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.171e36c9135ee2dc743e33f6120c37950006bb1001237e1b56e0cb5f412607fc.js" integrity="sha256-Fx42yRNe4tx0PjP2Egw3lQAGuxABI34bVuDLX0EmB/w=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-582da456f48414d663a4153b7d734ed6" class="toggle"  />
+    <label for="section-582da456f48414d663a4153b7d734ed6" class="flex justify-between">
+      <a role="button" class="">安全</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-407d2f8dd9410e8eef358914dd8c0dc2" class="toggle"  />
+    <label for="section-407d2f8dd9410e8eef358914dd8c0dc2" class="flex justify-between">
+      <a role="button" class="">缓存</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle" checked />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/python/" class="">Python 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/algorithm/" class="active">算法</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3ba9e8b376ea48d5beb815b520fdce5d" class="toggle"  />
+    <label for="section-3ba9e8b376ea48d5beb815b520fdce5d" class="flex justify-between">
+      <a role="button" class="">网络</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle"  />
+    <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
+      <a role="button" class="">自省</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/juc/" class="">Java.util.concurrent 包</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>算法</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#%e7%ae%97%e6%b3%95">算法</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#-20-个最常见算法题型--解题思路--模板java版">✅ 20 个最常见算法题型 + 解题思路 &amp; 模板（Java版）</a>
+      <ul>
+        <li><a href="#-1-两数之和哈希表">🧩 1. 两数之和（哈希表）</a></li>
+        <li><a href="#-2-三数之和排序--双指针">🧩 2. 三数之和（排序 + 双指针）</a></li>
+        <li><a href="#-解题思路最佳解">✅ 解题思路（最佳解）</a>
+          <ul>
+            <li><a href="#1-先排序排序--双指针的前提">1. <strong>先排序（排序 + 双指针的前提）</strong></a></li>
+            <li><a href="#2-固定一个元素用双指针扫另外两个">2. <strong>固定一个元素，用双指针扫另外两个</strong></a></li>
+            <li><a href="#3-去重逻辑关键">3. <strong>去重逻辑（关键！）</strong></a></li>
+            <li><a href="#-代码模板java">✅ 代码模板（Java）：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-这题用到的套路组合是">🧠 这题用到的“套路”组合是：</a></li>
+        <li><a href="#-总结套路式解题的重点">✅ 总结套路式解题的重点：</a></li>
+        <li><a href="#-3-四数之和套用三数之和思路">🧩 3. 四数之和（套用三数之和思路）</a></li>
+        <li><a href="#-4-合并区间排序--扫描">🧩 4. 合并区间（排序 + 扫描）</a></li>
+        <li><a href="#-5-移动零双指针">🧩 5. 移动零（双指针）</a></li>
+        <li><a href="#-6-滑动窗口最大值">🧩 6. 滑动窗口最大值</a></li>
+        <li><a href="#-7-最长无重复子串滑动窗口--哈希">🧩 7. 最长无重复子串（滑动窗口 + 哈希）</a></li>
+        <li><a href="#-8-二分查找模板">🧩 8. 二分查找模板</a></li>
+        <li><a href="#-9-反转链表迭代">🧩 9. 反转链表（迭代）</a></li>
+        <li><a href="#-10-合并两个有序链表">🧩 10. 合并两个有序链表</a></li>
+        <li><a href="#-11-lru-缓存linkedhashmap-或-手写双向链表--哈希表">🧩 11. LRU 缓存（LinkedHashMap 或 手写双向链表 + 哈希表）</a></li>
+        <li><a href="#-12-最长回文子串中心扩展法">🧩 12. 最长回文子串（中心扩展法）</a></li>
+        <li><a href="#-13-爬楼梯斐波那契">🧩 13. 爬楼梯（斐波那契）</a></li>
+        <li><a href="#-14-最小路径和动态规划">🧩 14. 最小路径和（动态规划）</a></li>
+        <li><a href="#-15-单词拆分动态规划--hashset">🧩 15. 单词拆分（动态规划 + HashSet）</a></li>
+        <li><a href="#-16-岛屿数量dfs-or-bfs">🧩 16. 岛屿数量（DFS or BFS）</a></li>
+        <li><a href="#-17-括号匹配栈">🧩 17. 括号匹配（栈）</a></li>
+        <li><a href="#-18-k-个一组反转链表递归">🧩 18. K 个一组反转链表（递归）</a></li>
+        <li><a href="#-19-二叉树层序遍历bfs">🧩 19. 二叉树层序遍历（BFS）</a></li>
+        <li><a href="#-20-判断回文链表快慢指针--链表反转">🧩 20. 判断回文链表（快慢指针 + 链表反转）</a></li>
+      </ul>
+    </li>
+    <li><a href="#-你可以怎么用这份资料">✅ 你可以怎么用这份资料？</a></li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="算法">
+    算法
+    <a class="anchor" href="#%e7%ae%97%e6%b3%95">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h1 id="-20-个最常见算法题型--解题思路--模板java版">
+  ✅ 20 个最常见算法题型 + 解题思路 &amp; 模板（Java版）
+  <a class="anchor" href="#-20-%e4%b8%aa%e6%9c%80%e5%b8%b8%e8%a7%81%e7%ae%97%e6%b3%95%e9%a2%98%e5%9e%8b--%e8%a7%a3%e9%a2%98%e6%80%9d%e8%b7%af--%e6%a8%a1%e6%9d%bfjava%e7%89%88">#</a>
+</h1>
+<blockquote>
+<p><strong>适合力扣 0-200 题重点训练，也适用于面试快速准备</strong></p></blockquote>
+<hr>
+<h2 id="-1-两数之和哈希表">
+  🧩 1. 两数之和（哈希表）
+  <a class="anchor" href="#-1-%e4%b8%a4%e6%95%b0%e4%b9%8b%e5%92%8c%e5%93%88%e5%b8%8c%e8%a1%a8">#</a>
+</h2>
+<p><strong>题型</strong>：数组 + 查找</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 1. Two Sum</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">twoSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> target) {
+</span></span><span style="display:flex;"><span>    Map<span style="color:#f92672">&lt;</span>Integer, Integer<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> complement <span style="color:#f92672">=</span> target <span style="color:#f92672">-</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (map.<span style="color:#a6e22e">containsKey</span>(complement))
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span>{map.<span style="color:#a6e22e">get</span>(complement), i};
+</span></span><span style="display:flex;"><span>        map.<span style="color:#a6e22e">put</span>(nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>, i);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-2-三数之和排序--双指针">
+  🧩 2. 三数之和（排序 + 双指针）
+  <a class="anchor" href="#-2-%e4%b8%89%e6%95%b0%e4%b9%8b%e5%92%8c%e6%8e%92%e5%ba%8f--%e5%8f%8c%e6%8c%87%e9%92%88">#</a>
+</h2>
+<h2 id="-解题思路最佳解">
+  ✅ 解题思路（最佳解）
+  <a class="anchor" href="#-%e8%a7%a3%e9%a2%98%e6%80%9d%e8%b7%af%e6%9c%80%e4%bd%b3%e8%a7%a3">#</a>
+</h2>
+<h3 id="1-先排序排序--双指针的前提">
+  1. <strong>先排序（排序 + 双指针的前提）</strong>
+  <a class="anchor" href="#1-%e5%85%88%e6%8e%92%e5%ba%8f%e6%8e%92%e5%ba%8f--%e5%8f%8c%e6%8c%87%e9%92%88%e7%9a%84%e5%89%8d%e6%8f%90">#</a>
+</h3>
+<p>排序是为了：</p>
+<ul>
+<li>方便跳过重复元素</li>
+<li>使得双指针能正确移动（从两端收缩）</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">sort</span>(nums);
+</span></span></code></pre></div><hr>
+<h3 id="2-固定一个元素用双指针扫另外两个">
+  2. <strong>固定一个元素，用双指针扫另外两个</strong>
+  <a class="anchor" href="#2-%e5%9b%ba%e5%ae%9a%e4%b8%80%e4%b8%aa%e5%85%83%e7%b4%a0%e7%94%a8%e5%8f%8c%e6%8c%87%e9%92%88%e6%89%ab%e5%8f%a6%e5%a4%96%e4%b8%a4%e4%b8%aa">#</a>
+</h3>
+<p>核心思想：</p>
+<ul>
+<li>外层固定一个数 <code>a = nums[i]</code></li>
+<li>内层用两个指针 <code>left</code> 和 <code>right</code> 找出 <code>b + c = -a</code></li>
+</ul>
+<h3 id="3-去重逻辑关键">
+  3. <strong>去重逻辑（关键！）</strong>
+  <a class="anchor" href="#3-%e5%8e%bb%e9%87%8d%e9%80%bb%e8%be%91%e5%85%b3%e9%94%ae">#</a>
+</h3>
+<ul>
+<li>如果当前 <code>nums[i] == nums[i - 1]</code>，跳过</li>
+<li>如果 <code>nums[left] == nums[left - 1]</code>，跳过（避免重复组合）</li>
+</ul>
+<hr>
+<h3 id="-代码模板java">
+  ✅ 代码模板（Java）：
+  <a class="anchor" href="#-%e4%bb%a3%e7%a0%81%e6%a8%a1%e6%9d%bfjava">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">threeSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums) {
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> res <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    Arrays.<span style="color:#a6e22e">sort</span>(nums);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 2; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) <span style="color:#66d9ef">continue</span>; <span style="color:#75715e">// 跳过重复</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> i <span style="color:#f92672">+</span> 1;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">==</span> 0) {
+</span></span><span style="display:flex;"><span>                res.<span style="color:#a6e22e">add</span>(Arrays.<span style="color:#a6e22e">asList</span>(nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e">// 去重</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>left <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>) left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>right <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">&lt;</span> 0) {
+</span></span><span style="display:flex;"><span>                left<span style="color:#f92672">++</span>;  <span style="color:#75715e">// 需要更大的数</span>
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                right<span style="color:#f92672">--</span>; <span style="color:#75715e">// 需要更小的数</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-这题用到的套路组合是">
+  🧠 这题用到的“套路”组合是：
+  <a class="anchor" href="#-%e8%bf%99%e9%a2%98%e7%94%a8%e5%88%b0%e7%9a%84%e5%a5%97%e8%b7%af%e7%bb%84%e5%90%88%e6%98%af">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>思路</th>
+          <th>原因或作用</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>排序</td>
+          <td>为了去重 &amp; 双指针策略成立</td>
+      </tr>
+      <tr>
+          <td>固定 + 双指针</td>
+          <td>枚举 a，找 b+c</td>
+      </tr>
+      <tr>
+          <td>去重逻辑</td>
+          <td>避免重复结果项</td>
+      </tr>
+      <tr>
+          <td>时间复杂度</td>
+          <td><code>O(n^2)</code>，比暴力 <code>O(n^3)</code> 优</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-总结套路式解题的重点">
+  ✅ 总结套路式解题的重点：
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e5%a5%97%e8%b7%af%e5%bc%8f%e8%a7%a3%e9%a2%98%e7%9a%84%e9%87%8d%e7%82%b9">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>题型识别</th>
+          <th>常用技巧</th>
+          <th>模板</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>3数求和</td>
+          <td>排序 + 双指针 + 去重</td>
+          <td>Leetcode 15</td>
+      </tr>
+      <tr>
+          <td>两数之和</td>
+          <td>哈希表</td>
+          <td>Leetcode 1</td>
+      </tr>
+      <tr>
+          <td>4数求和</td>
+          <td>双层循环 + 双指针</td>
+          <td>Leetcode 18</td>
+      </tr>
+      <tr>
+          <td>有序数组找对</td>
+          <td>双指针</td>
+          <td>经典指针移动模式</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-3-四数之和套用三数之和思路">
+  🧩 3. 四数之和（套用三数之和思路）
+  <a class="anchor" href="#-3-%e5%9b%9b%e6%95%b0%e4%b9%8b%e5%92%8c%e5%a5%97%e7%94%a8%e4%b8%89%e6%95%b0%e4%b9%8b%e5%92%8c%e6%80%9d%e8%b7%af">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 18. Four Sum</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">fourSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> target) {
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> res <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    Arrays.<span style="color:#a6e22e">sort</span>(nums);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> n <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> n <span style="color:#f92672">-</span> 3; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&gt;</span> 0 <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) <span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> i <span style="color:#f92672">+</span> 1; j <span style="color:#f92672">&lt;</span> n <span style="color:#f92672">-</span> 2; j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (j <span style="color:#f92672">&gt;</span> i <span style="color:#f92672">+</span> 1 <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>j <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) <span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> j <span style="color:#f92672">+</span> 1, right <span style="color:#f92672">=</span> n <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">long</span> sum <span style="color:#f92672">=</span> (<span style="color:#66d9ef">long</span>) nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">==</span> target) {
+</span></span><span style="display:flex;"><span>                    res.<span style="color:#a6e22e">add</span>(Arrays.<span style="color:#a6e22e">asList</span>(nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>, nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>));
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>left <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>) left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> nums<span style="color:#f92672">[</span>right <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>) right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>                    left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                    right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>                } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (sum <span style="color:#f92672">&lt;</span> target) left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">else</span> right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-4-合并区间排序--扫描">
+  🧩 4. 合并区间（排序 + 扫描）
+  <a class="anchor" href="#-4-%e5%90%88%e5%b9%b6%e5%8c%ba%e9%97%b4%e6%8e%92%e5%ba%8f--%e6%89%ab%e6%8f%8f">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 56. Merge Intervals</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> <span style="color:#a6e22e">merge</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> intervals) {
+</span></span><span style="display:flex;"><span>    Arrays.<span style="color:#a6e22e">sort</span>(intervals, (a, b) <span style="color:#f92672">-&gt;</span> a<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">-</span> b<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>);
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]&gt;</span> res <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> interval : intervals) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (res.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">||</span> res.<span style="color:#a6e22e">get</span>(res.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;</span> interval<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>)
+</span></span><span style="display:flex;"><span>            res.<span style="color:#a6e22e">add</span>(interval);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>            res.<span style="color:#a6e22e">get</span>(res.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">max</span>(res.<span style="color:#a6e22e">get</span>(res.<span style="color:#a6e22e">size</span>() <span style="color:#f92672">-</span> 1)<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>, interval<span style="color:#f92672">[</span>1<span style="color:#f92672">]</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res.<span style="color:#a6e22e">toArray</span>(<span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>res.<span style="color:#a6e22e">size</span>()<span style="color:#f92672">][]</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-5-移动零双指针">
+  🧩 5. 移动零（双指针）
+  <a class="anchor" href="#-5-%e7%a7%bb%e5%8a%a8%e9%9b%b6%e5%8f%8c%e6%8c%87%e9%92%88">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 283. Move Zeroes</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">moveZeroes</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> num : nums)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (num <span style="color:#f92672">!=</span> 0)
+</span></span><span style="display:flex;"><span>            nums<span style="color:#f92672">[</span>index<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> num;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (index <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>)
+</span></span><span style="display:flex;"><span>        nums<span style="color:#f92672">[</span>index<span style="color:#f92672">++]</span> <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-6-滑动窗口最大值">
+  🧩 6. 滑动窗口最大值
+  <a class="anchor" href="#-6-%e6%bb%91%e5%8a%a8%e7%aa%97%e5%8f%a3%e6%9c%80%e5%a4%a7%e5%80%bc">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 239. Sliding Window Maximum</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> <span style="color:#a6e22e">maxSlidingWindow</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>    Deque<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> deque <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> res <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> k <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>deque.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">&amp;&amp;</span> deque.<span style="color:#a6e22e">peekFirst</span>() <span style="color:#f92672">&lt;</span> i <span style="color:#f92672">-</span> k <span style="color:#f92672">+</span> 1)
+</span></span><span style="display:flex;"><span>            deque.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>deque.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">&amp;&amp;</span> nums<span style="color:#f92672">[</span>deque.<span style="color:#a6e22e">peekLast</span>()<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>)
+</span></span><span style="display:flex;"><span>            deque.<span style="color:#a6e22e">pollLast</span>();
+</span></span><span style="display:flex;"><span>        deque.<span style="color:#a6e22e">offerLast</span>(i);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&gt;=</span> k <span style="color:#f92672">-</span> 1) res<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> k <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> nums<span style="color:#f92672">[</span>deque.<span style="color:#a6e22e">peekFirst</span>()<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-7-最长无重复子串滑动窗口--哈希">
+  🧩 7. 最长无重复子串（滑动窗口 + 哈希）
+  <a class="anchor" href="#-7-%e6%9c%80%e9%95%bf%e6%97%a0%e9%87%8d%e5%a4%8d%e5%ad%90%e4%b8%b2%e6%bb%91%e5%8a%a8%e7%aa%97%e5%8f%a3--%e5%93%88%e5%b8%8c">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 3. Longest Substring Without Repeating Characters</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">lengthOfLongestSubstring</span>(String s) {
+</span></span><span style="display:flex;"><span>    Set<span style="color:#f92672">&lt;</span>Character<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, maxLen <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> right <span style="color:#f92672">=</span> 0; right <span style="color:#f92672">&lt;</span> s.<span style="color:#a6e22e">length</span>(); right<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> (set.<span style="color:#a6e22e">contains</span>(s.<span style="color:#a6e22e">charAt</span>(right)))
+</span></span><span style="display:flex;"><span>            set.<span style="color:#a6e22e">remove</span>(s.<span style="color:#a6e22e">charAt</span>(left<span style="color:#f92672">++</span>));
+</span></span><span style="display:flex;"><span>        set.<span style="color:#a6e22e">add</span>(s.<span style="color:#a6e22e">charAt</span>(right));
+</span></span><span style="display:flex;"><span>        maxLen <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">max</span>(maxLen, right <span style="color:#f92672">-</span> left <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> maxLen;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-8-二分查找模板">
+  🧩 8. 二分查找模板
+  <a class="anchor" href="#-8-%e4%ba%8c%e5%88%86%e6%9f%a5%e6%89%be%e6%a8%a1%e6%9d%bf">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">binarySearch</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> nums, <span style="color:#66d9ef">int</span> target) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;=</span> right) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> mid <span style="color:#f92672">=</span> left <span style="color:#f92672">+</span> (right <span style="color:#f92672">-</span> left) <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (nums<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> target) <span style="color:#66d9ef">return</span> mid;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (nums<span style="color:#f92672">[</span>mid<span style="color:#f92672">]</span> <span style="color:#f92672">&lt;</span> target) left <span style="color:#f92672">=</span> mid <span style="color:#f92672">+</span> 1;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> right <span style="color:#f92672">=</span> mid <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span>1;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-9-反转链表迭代">
+  🧩 9. 反转链表（迭代）
+  <a class="anchor" href="#-9-%e5%8f%8d%e8%bd%ac%e9%93%be%e8%a1%a8%e8%bf%ad%e4%bb%a3">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ListNode <span style="color:#a6e22e">reverseList</span>(ListNode head) {
+</span></span><span style="display:flex;"><span>    ListNode prev <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (head <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        ListNode next <span style="color:#f92672">=</span> head.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        head.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> prev;
+</span></span><span style="display:flex;"><span>        prev <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>        head <span style="color:#f92672">=</span> next;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> prev;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-10-合并两个有序链表">
+  🧩 10. 合并两个有序链表
+  <a class="anchor" href="#-10-%e5%90%88%e5%b9%b6%e4%b8%a4%e4%b8%aa%e6%9c%89%e5%ba%8f%e9%93%be%e8%a1%a8">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ListNode <span style="color:#a6e22e">mergeTwoLists</span>(ListNode l1, ListNode l2) {
+</span></span><span style="display:flex;"><span>    ListNode dummy <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ListNode(<span style="color:#f92672">-</span>1), cur <span style="color:#f92672">=</span> dummy;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (l1 <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> l2 <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (l1.<span style="color:#a6e22e">val</span> <span style="color:#f92672">&lt;</span> l2.<span style="color:#a6e22e">val</span>) {
+</span></span><span style="display:flex;"><span>            cur.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> l1;
+</span></span><span style="display:flex;"><span>            l1 <span style="color:#f92672">=</span> l1.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            cur.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> l2;
+</span></span><span style="display:flex;"><span>            l2 <span style="color:#f92672">=</span> l2.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        cur <span style="color:#f92672">=</span> cur.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    cur.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> (l1 <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) <span style="color:#f92672">?</span> l1 : l2;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> dummy.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-11-lru-缓存linkedhashmap-或-手写双向链表--哈希表">
+  🧩 11. LRU 缓存（LinkedHashMap 或 手写双向链表 + 哈希表）
+  <a class="anchor" href="#-11-lru-%e7%bc%93%e5%ad%98linkedhashmap-%e6%88%96-%e6%89%8b%e5%86%99%e5%8f%8c%e5%90%91%e9%93%be%e8%a1%a8--%e5%93%88%e5%b8%8c%e8%a1%a8">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 146. LRU Cache</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">LRUCache</span> <span style="color:#66d9ef">extends</span> LinkedHashMap<span style="color:#f92672">&lt;</span>Integer, Integer<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> capacity;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">LRUCache</span>(<span style="color:#66d9ef">int</span> capacity) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>(capacity, 0.<span style="color:#a6e22e">75f</span>, <span style="color:#66d9ef">true</span>); <span style="color:#75715e">// accessOrder=true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">capacity</span> <span style="color:#f92672">=</span> capacity;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">get</span>(<span style="color:#66d9ef">int</span> key) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">getOrDefault</span>(key, <span style="color:#f92672">-</span>1);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">put</span>(<span style="color:#66d9ef">int</span> key, <span style="color:#66d9ef">int</span> value) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>.<span style="color:#a6e22e">put</span>(key, value);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">removeEldestEntry</span>(Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>Integer, Integer<span style="color:#f92672">&gt;</span> eldest) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> size() <span style="color:#f92672">&gt;</span> capacity;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-12-最长回文子串中心扩展法">
+  🧩 12. 最长回文子串（中心扩展法）
+  <a class="anchor" href="#-12-%e6%9c%80%e9%95%bf%e5%9b%9e%e6%96%87%e5%ad%90%e4%b8%b2%e4%b8%ad%e5%bf%83%e6%89%a9%e5%b1%95%e6%b3%95">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 5. Longest Palindromic Substring</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">longestPalindrome</span>(String s) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> start <span style="color:#f92672">=</span> 0, maxLen <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> s.<span style="color:#a6e22e">length</span>(); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> len1 <span style="color:#f92672">=</span> expand(s, i, i);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> len2 <span style="color:#f92672">=</span> expand(s, i, i <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> len <span style="color:#f92672">=</span> Math.<span style="color:#a6e22e">max</span>(len1, len2);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (len <span style="color:#f92672">&gt;</span> maxLen) {
+</span></span><span style="display:flex;"><span>            start <span style="color:#f92672">=</span> i <span style="color:#f92672">-</span> (len <span style="color:#f92672">-</span> 1) <span style="color:#f92672">/</span> 2;
+</span></span><span style="display:flex;"><span>            maxLen <span style="color:#f92672">=</span> len;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> s.<span style="color:#a6e22e">substring</span>(start, start <span style="color:#f92672">+</span> maxLen);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">expand</span>(String s, <span style="color:#66d9ef">int</span> l, <span style="color:#66d9ef">int</span> r) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (l <span style="color:#f92672">&gt;=</span> 0 <span style="color:#f92672">&amp;&amp;</span> r <span style="color:#f92672">&lt;</span> s.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">&amp;&amp;</span> s.<span style="color:#a6e22e">charAt</span>(l) <span style="color:#f92672">==</span> s.<span style="color:#a6e22e">charAt</span>(r)) {
+</span></span><span style="display:flex;"><span>        l<span style="color:#f92672">--</span>; r<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> r <span style="color:#f92672">-</span> l <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-13-爬楼梯斐波那契">
+  🧩 13. 爬楼梯（斐波那契）
+  <a class="anchor" href="#-13-%e7%88%ac%e6%a5%bc%e6%a2%af%e6%96%90%e6%b3%a2%e9%82%a3%e5%a5%91">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 70. Climbing Stairs</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">climbStairs</span>(<span style="color:#66d9ef">int</span> n) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (n <span style="color:#f92672">&lt;=</span> 2) <span style="color:#66d9ef">return</span> n;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> a <span style="color:#f92672">=</span> 1, b <span style="color:#f92672">=</span> 2;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 3; i <span style="color:#f92672">&lt;=</span> n; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> tmp <span style="color:#f92672">=</span> a <span style="color:#f92672">+</span> b;
+</span></span><span style="display:flex;"><span>        a <span style="color:#f92672">=</span> b;
+</span></span><span style="display:flex;"><span>        b <span style="color:#f92672">=</span> tmp;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> b;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-14-最小路径和动态规划">
+  🧩 14. 最小路径和（动态规划）
+  <a class="anchor" href="#-14-%e6%9c%80%e5%b0%8f%e8%b7%af%e5%be%84%e5%92%8c%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 64. Minimum Path Sum</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">minPathSum</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">[][]</span> grid) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> m <span style="color:#f92672">=</span> grid.<span style="color:#a6e22e">length</span>, n <span style="color:#f92672">=</span> grid<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1; i <span style="color:#f92672">&lt;</span> m; i<span style="color:#f92672">++</span>) grid<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">+=</span> grid<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> 1<span style="color:#f92672">][</span>0<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> 1; j <span style="color:#f92672">&lt;</span> n; j<span style="color:#f92672">++</span>) grid<span style="color:#f92672">[</span>0<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">+=</span> grid<span style="color:#f92672">[</span>0<span style="color:#f92672">][</span>j <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1; i <span style="color:#f92672">&lt;</span> m; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> 1; j <span style="color:#f92672">&lt;</span> n; j<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>            grid<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">+=</span> Math.<span style="color:#a6e22e">min</span>(grid<span style="color:#f92672">[</span>i <span style="color:#f92672">-</span> 1<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span>, grid<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> grid<span style="color:#f92672">[</span>m <span style="color:#f92672">-</span> 1<span style="color:#f92672">][</span>n <span style="color:#f92672">-</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-15-单词拆分动态规划--hashset">
+  🧩 15. 单词拆分（动态规划 + HashSet）
+  <a class="anchor" href="#-15-%e5%8d%95%e8%af%8d%e6%8b%86%e5%88%86%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92--hashset">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 139. Word Break</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">wordBreak</span>(String s, List<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> wordDict) {
+</span></span><span style="display:flex;"><span>    Set<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;</span> wordSet <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>(wordDict);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">boolean</span><span style="color:#f92672">[]</span> dp <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">boolean</span><span style="color:#f92672">[</span>s.<span style="color:#a6e22e">length</span>() <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    dp<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 1; i <span style="color:#f92672">&lt;=</span> s.<span style="color:#a6e22e">length</span>(); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> 0; j <span style="color:#f92672">&lt;</span> i; j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (dp<span style="color:#f92672">[</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> wordSet.<span style="color:#a6e22e">contains</span>(s.<span style="color:#a6e22e">substring</span>(j, i))) {
+</span></span><span style="display:flex;"><span>                dp<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> dp<span style="color:#f92672">[</span>s.<span style="color:#a6e22e">length</span>()<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-16-岛屿数量dfs-or-bfs">
+  🧩 16. 岛屿数量（DFS or BFS）
+  <a class="anchor" href="#-16-%e5%b2%9b%e5%b1%bf%e6%95%b0%e9%87%8fdfs-or-bfs">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 200. Number of Islands</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">numIslands</span>(<span style="color:#66d9ef">char</span><span style="color:#f92672">[][]</span> grid) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> count <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> grid.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> j <span style="color:#f92672">=</span> 0; j <span style="color:#f92672">&lt;</span> grid<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>.<span style="color:#a6e22e">length</span>; j<span style="color:#f92672">++</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (grid<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span>) {
+</span></span><span style="display:flex;"><span>                dfs(grid, i, j);
+</span></span><span style="display:flex;"><span>                count<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> count;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">dfs</span>(<span style="color:#66d9ef">char</span><span style="color:#f92672">[][]</span> g, <span style="color:#66d9ef">int</span> i, <span style="color:#66d9ef">int</span> j) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&lt;</span> 0 <span style="color:#f92672">||</span> j <span style="color:#f92672">&lt;</span> 0 <span style="color:#f92672">||</span> i <span style="color:#f92672">&gt;=</span> g.<span style="color:#a6e22e">length</span> <span style="color:#f92672">||</span> j <span style="color:#f92672">&gt;=</span> g<span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">||</span> g<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>) <span style="color:#66d9ef">return</span>;
+</span></span><span style="display:flex;"><span>    g<span style="color:#f92672">[</span>i<span style="color:#f92672">][</span>j<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0&#39;</span>;
+</span></span><span style="display:flex;"><span>    dfs(g, i <span style="color:#f92672">-</span> 1, j); dfs(g, i <span style="color:#f92672">+</span> 1, j);
+</span></span><span style="display:flex;"><span>    dfs(g, i, j <span style="color:#f92672">-</span> 1); dfs(g, i, j <span style="color:#f92672">+</span> 1);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-17-括号匹配栈">
+  🧩 17. 括号匹配（栈）
+  <a class="anchor" href="#-17-%e6%8b%ac%e5%8f%b7%e5%8c%b9%e9%85%8d%e6%a0%88">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 20. Valid Parentheses</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isValid</span>(String s) {
+</span></span><span style="display:flex;"><span>    Stack<span style="color:#f92672">&lt;</span>Character<span style="color:#f92672">&gt;</span> stack <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Stack<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">char</span> c : s.<span style="color:#a6e22e">toCharArray</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;(&#39;</span>) stack.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">&#39;)&#39;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;[&#39;</span>) stack.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">&#39;]&#39;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (c <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;{&#39;</span>) stack.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">&#39;}&#39;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (stack.<span style="color:#a6e22e">isEmpty</span>() <span style="color:#f92672">||</span> stack.<span style="color:#a6e22e">pop</span>() <span style="color:#f92672">!=</span> c)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> stack.<span style="color:#a6e22e">isEmpty</span>();
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-18-k-个一组反转链表递归">
+  🧩 18. K 个一组反转链表（递归）
+  <a class="anchor" href="#-18-k-%e4%b8%aa%e4%b8%80%e7%bb%84%e5%8f%8d%e8%bd%ac%e9%93%be%e8%a1%a8%e9%80%92%e5%bd%92">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 25. Reverse Nodes in k-Group</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> ListNode <span style="color:#a6e22e">reverseKGroup</span>(ListNode head, <span style="color:#66d9ef">int</span> k) {
+</span></span><span style="display:flex;"><span>    ListNode node <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> k; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (node <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) <span style="color:#66d9ef">return</span> head;
+</span></span><span style="display:flex;"><span>        node <span style="color:#f92672">=</span> node.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    ListNode newHead <span style="color:#f92672">=</span> reverse(head, node);
+</span></span><span style="display:flex;"><span>    head.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> reverseKGroup(node, k);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> newHead;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> ListNode <span style="color:#a6e22e">reverse</span>(ListNode a, ListNode b) {
+</span></span><span style="display:flex;"><span>    ListNode prev <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>, curr <span style="color:#f92672">=</span> a;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (curr <span style="color:#f92672">!=</span> b) {
+</span></span><span style="display:flex;"><span>        ListNode next <span style="color:#f92672">=</span> curr.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        curr.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> prev;
+</span></span><span style="display:flex;"><span>        prev <span style="color:#f92672">=</span> curr;
+</span></span><span style="display:flex;"><span>        curr <span style="color:#f92672">=</span> next;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> prev;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-19-二叉树层序遍历bfs">
+  🧩 19. 二叉树层序遍历（BFS）
+  <a class="anchor" href="#-19-%e4%ba%8c%e5%8f%89%e6%a0%91%e5%b1%82%e5%ba%8f%e9%81%8d%e5%8e%86bfs">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 102. Binary Tree Level Order Traversal</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> <span style="color:#a6e22e">levelOrder</span>(TreeNode root) {
+</span></span><span style="display:flex;"><span>    List<span style="color:#f92672">&lt;</span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;&gt;</span> res <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (root <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span>) <span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>    Queue<span style="color:#f92672">&lt;</span>TreeNode<span style="color:#f92672">&gt;</span> q <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    q.<span style="color:#a6e22e">offer</span>(root);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>q.<span style="color:#a6e22e">isEmpty</span>()) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> q.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span>        List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> level <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> size; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            TreeNode node <span style="color:#f92672">=</span> q.<span style="color:#a6e22e">poll</span>();
+</span></span><span style="display:flex;"><span>            level.<span style="color:#a6e22e">add</span>(node.<span style="color:#a6e22e">val</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (node.<span style="color:#a6e22e">left</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) q.<span style="color:#a6e22e">offer</span>(node.<span style="color:#a6e22e">left</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (node.<span style="color:#a6e22e">right</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) q.<span style="color:#a6e22e">offer</span>(node.<span style="color:#a6e22e">right</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        res.<span style="color:#a6e22e">add</span>(level);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="-20-判断回文链表快慢指针--链表反转">
+  🧩 20. 判断回文链表（快慢指针 + 链表反转）
+  <a class="anchor" href="#-20-%e5%88%a4%e6%96%ad%e5%9b%9e%e6%96%87%e9%93%be%e8%a1%a8%e5%bf%ab%e6%85%a2%e6%8c%87%e9%92%88--%e9%93%be%e8%a1%a8%e5%8f%8d%e8%bd%ac">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// LC 234. Palindrome Linked List</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">boolean</span> <span style="color:#a6e22e">isPalindrome</span>(ListNode head) {
+</span></span><span style="display:flex;"><span>    ListNode slow <span style="color:#f92672">=</span> head, fast <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (fast <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">&amp;&amp;</span> fast.<span style="color:#a6e22e">next</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        slow <span style="color:#f92672">=</span> slow.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        fast <span style="color:#f92672">=</span> fast.<span style="color:#a6e22e">next</span>.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    ListNode second <span style="color:#f92672">=</span> reverse(slow);
+</span></span><span style="display:flex;"><span>    ListNode first <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (second <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (first.<span style="color:#a6e22e">val</span> <span style="color:#f92672">!=</span> second.<span style="color:#a6e22e">val</span>) <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        first <span style="color:#f92672">=</span> first.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        second <span style="color:#f92672">=</span> second.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> ListNode <span style="color:#a6e22e">reverse</span>(ListNode head) {
+</span></span><span style="display:flex;"><span>    ListNode prev <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (head <span style="color:#f92672">!=</span> <span style="color:#66d9ef">null</span>) {
+</span></span><span style="display:flex;"><span>        ListNode next <span style="color:#f92672">=</span> head.<span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>        head.<span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> prev;
+</span></span><span style="display:flex;"><span>        prev <span style="color:#f92672">=</span> head;
+</span></span><span style="display:flex;"><span>        head <span style="color:#f92672">=</span> next;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> prev;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h1 id="-你可以怎么用这份资料">
+  ✅ 你可以怎么用这份资料？
+  <a class="anchor" href="#-%e4%bd%a0%e5%8f%af%e4%bb%a5%e6%80%8e%e4%b9%88%e7%94%a8%e8%bf%99%e4%bb%bd%e8%b5%84%e6%96%99">#</a>
+</h1>
+<ol>
+<li><strong>刷题时对照查阅</strong>（能套模板就套）</li>
+<li><strong>建立“题型 - 思路 - 模板”三位一体体系</strong></li>
+<li><strong>反复讲给自己听</strong>（越能解释，越会写）</li>
+<li>可用于面试前复习速览</li>
+</ol>
+<hr>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#%e7%ae%97%e6%b3%95">算法</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#-20-个最常见算法题型--解题思路--模板java版">✅ 20 个最常见算法题型 + 解题思路 &amp; 模板（Java版）</a>
+      <ul>
+        <li><a href="#-1-两数之和哈希表">🧩 1. 两数之和（哈希表）</a></li>
+        <li><a href="#-2-三数之和排序--双指针">🧩 2. 三数之和（排序 + 双指针）</a></li>
+        <li><a href="#-解题思路最佳解">✅ 解题思路（最佳解）</a>
+          <ul>
+            <li><a href="#1-先排序排序--双指针的前提">1. <strong>先排序（排序 + 双指针的前提）</strong></a></li>
+            <li><a href="#2-固定一个元素用双指针扫另外两个">2. <strong>固定一个元素，用双指针扫另外两个</strong></a></li>
+            <li><a href="#3-去重逻辑关键">3. <strong>去重逻辑（关键！）</strong></a></li>
+            <li><a href="#-代码模板java">✅ 代码模板（Java）：</a></li>
+          </ul>
+        </li>
+        <li><a href="#-这题用到的套路组合是">🧠 这题用到的“套路”组合是：</a></li>
+        <li><a href="#-总结套路式解题的重点">✅ 总结套路式解题的重点：</a></li>
+        <li><a href="#-3-四数之和套用三数之和思路">🧩 3. 四数之和（套用三数之和思路）</a></li>
+        <li><a href="#-4-合并区间排序--扫描">🧩 4. 合并区间（排序 + 扫描）</a></li>
+        <li><a href="#-5-移动零双指针">🧩 5. 移动零（双指针）</a></li>
+        <li><a href="#-6-滑动窗口最大值">🧩 6. 滑动窗口最大值</a></li>
+        <li><a href="#-7-最长无重复子串滑动窗口--哈希">🧩 7. 最长无重复子串（滑动窗口 + 哈希）</a></li>
+        <li><a href="#-8-二分查找模板">🧩 8. 二分查找模板</a></li>
+        <li><a href="#-9-反转链表迭代">🧩 9. 反转链表（迭代）</a></li>
+        <li><a href="#-10-合并两个有序链表">🧩 10. 合并两个有序链表</a></li>
+        <li><a href="#-11-lru-缓存linkedhashmap-或-手写双向链表--哈希表">🧩 11. LRU 缓存（LinkedHashMap 或 手写双向链表 + 哈希表）</a></li>
+        <li><a href="#-12-最长回文子串中心扩展法">🧩 12. 最长回文子串（中心扩展法）</a></li>
+        <li><a href="#-13-爬楼梯斐波那契">🧩 13. 爬楼梯（斐波那契）</a></li>
+        <li><a href="#-14-最小路径和动态规划">🧩 14. 最小路径和（动态规划）</a></li>
+        <li><a href="#-15-单词拆分动态规划--hashset">🧩 15. 单词拆分（动态规划 + HashSet）</a></li>
+        <li><a href="#-16-岛屿数量dfs-or-bfs">🧩 16. 岛屿数量（DFS or BFS）</a></li>
+        <li><a href="#-17-括号匹配栈">🧩 17. 括号匹配（栈）</a></li>
+        <li><a href="#-18-k-个一组反转链表递归">🧩 18. K 个一组反转链表（递归）</a></li>
+        <li><a href="#-19-二叉树层序遍历bfs">🧩 19. 二叉树层序遍历（BFS）</a></li>
+        <li><a href="#-20-判断回文链表快慢指针--链表反转">🧩 20. 判断回文链表（快慢指针 + 链表反转）</a></li>
+      </ul>
+    </li>
+    <li><a href="#-你可以怎么用这份资料">✅ 你可以怎么用这份资料？</a></li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
