@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="在微服务架构中使用 OpenTelemetry 实现全链路追踪是提升可 observability（可观测性）和系统可维护性的关键步骤。以下是一些最佳实践，涵盖从设计、实现到部署运维的完整视角。
+
+
+  🌐 一、OpenTelemetry 简介
+  #
+
+OpenTelemetry 是由 CNCF（Cloud Native Computing Foundation）托管的开放标准，支持 分布式追踪（Tracing）、指标（Metrics） 和 日志（Logs） 的采集与导出。它支持多语言，能够将数据导出至多种后端（如 Jaeger、Prometheus、Grafana Tempo、Datadog、Zipkin 等）。
+
+
+  📦 二、全链路追踪的核心概念
+  #
+
+
+Trace（追踪）：一次完整的调用链（如用户下单请求）。
+Span（跨度）：调用链中的单个操作（如订单服务调用库存服务）。
+Context（上下文）：跨服务传递 trace 的元信息（如 trace id）。
+
+
+
+  🔧 三、在微服务架构中使用 OpenTelemetry 的最佳实践
+  #
+
+
+  ✅ 1. 统一规范和自动化接入
+  #
+
+
+选择统一的 SDK 版本：所有服务使用相同版本的 OpenTelemetry SDK。
+使用自动注入的方式接入 HTTP / gRPC 框架：例如 Spring Boot &#43; Spring Cloud Sleuth，Python FastAPI &#43; OpenTelemetry middleware，Go &#43; OpenTelemetry HTTP 插件。
+尽量避免手动创建 span，使用封装的 middleware 或框架支持。
+
+
+
+  🔗 2. 统一上下文传递（Context Propagation）
+  #
+
+
+使用标准协议（如 W3C Trace Context）传递 trace 上下文。
+在所有服务间调用（REST/gRPC/Kafka/NATS）时，显式或自动传递 traceparent、baggage 等 headers。
+确保所有服务的网关、API 层、异步消息系统都能正确传递 trace context。
+
+
+
+  📤 3. 选择合适的后端（Exporter）
+  #
+
+常见导出目标：">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/introspection/trace/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="OpenTelemetry 全链路追踪">
+  <meta property="og:description" content="在微服务架构中使用 OpenTelemetry 实现全链路追踪是提升可 observability（可观测性）和系统可维护性的关键步骤。以下是一些最佳实践，涵盖从设计、实现到部署运维的完整视角。
+🌐 一、OpenTelemetry 简介#OpenTelemetry 是由 CNCF（Cloud Native Computing Foundation）托管的开放标准，支持 分布式追踪（Tracing）、指标（Metrics） 和 日志（Logs） 的采集与导出。它支持多语言，能够将数据导出至多种后端（如 Jaeger、Prometheus、Grafana Tempo、Datadog、Zipkin 等）。
+📦 二、全链路追踪的核心概念#Trace（追踪）：一次完整的调用链（如用户下单请求）。 Span（跨度）：调用链中的单个操作（如订单服务调用库存服务）。 Context（上下文）：跨服务传递 trace 的元信息（如 trace id）。 🔧 三、在微服务架构中使用 OpenTelemetry 的最佳实践#✅ 1. 统一规范和自动化接入#选择统一的 SDK 版本：所有服务使用相同版本的 OpenTelemetry SDK。 使用自动注入的方式接入 HTTP / gRPC 框架：例如 Spring Boot &#43; Spring Cloud Sleuth，Python FastAPI &#43; OpenTelemetry middleware，Go &#43; OpenTelemetry HTTP 插件。 尽量避免手动创建 span，使用封装的 middleware 或框架支持。 🔗 2. 统一上下文传递（Context Propagation）#使用标准协议（如 W3C Trace Context）传递 trace 上下文。 在所有服务间调用（REST/gRPC/Kafka/NATS）时，显式或自动传递 traceparent、baggage 等 headers。 确保所有服务的网关、API 层、异步消息系统都能正确传递 trace context。 📤 3. 选择合适的后端（Exporter）#常见导出目标：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>OpenTelemetry 全链路追踪 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/introspection/trace/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.5d34c42616136530b2985ae215a17bb08a512bd2e2201532595ed0ce2e5f0a2d.js" integrity="sha256-XTTEJhYTZTCymFriFaF7sIpRK9LiIBUyWV7Qzi5fCi0=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+  
+
+
+
+  
+    
+  
+
+
+
+<ul class="book-languages">
+  <li>
+    <input type="checkbox" id="languages" class="toggle" />
+    <label for="languages" class="flex justify-between">
+      <a role="button" class="flex align-center">
+        <img src="/svg/translate.svg" class="book-icon" alt="Languages" />
+        简体中文
+      </a>
+    </label>
+
+    <ul>
+      
+      <li>
+        <a href="/en/">
+          English
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle"  />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-582da456f48414d663a4153b7d734ed6" class="toggle"  />
+    <label for="section-582da456f48414d663a4153b7d734ed6" class="flex justify-between">
+      <a role="button" class="">安全</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-407d2f8dd9410e8eef358914dd8c0dc2" class="toggle"  />
+    <label for="section-407d2f8dd9410e8eef358914dd8c0dc2" class="flex justify-between">
+      <a role="button" class="">缓存</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/python/" class="">Python 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/algorithm/" class="">算法</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3ba9e8b376ea48d5beb815b520fdce5d" class="toggle"  />
+    <label for="section-3ba9e8b376ea48d5beb815b520fdce5d" class="flex justify-between">
+      <a role="button" class="">网络</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle" checked />
+    <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
+      <a role="button" class="">自省</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/juc/" class="">Java.util.concurrent 包</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/trace/" class="active">OpenTelemetry 全链路追踪</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>OpenTelemetry 全链路追踪</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#OpenTelemetry%20%e5%85%a8%e9%93%be%e8%b7%af%e8%bf%bd%e8%b8%aa">OpenTelemetry 全链路追踪</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一opentelemetry-简介">🌐 一、OpenTelemetry 简介</a></li>
+        <li><a href="#-二全链路追踪的核心概念">📦 二、全链路追踪的核心概念</a></li>
+        <li><a href="#-三在微服务架构中使用-opentelemetry-的最佳实践">🔧 三、在微服务架构中使用 OpenTelemetry 的最佳实践</a>
+          <ul>
+            <li><a href="#-1-统一规范和自动化接入">✅ 1. <strong>统一规范和自动化接入</strong></a></li>
+            <li><a href="#-2-统一上下文传递context-propagation">🔗 2. <strong>统一上下文传递（Context Propagation）</strong></a></li>
+            <li><a href="#-3-选择合适的后端exporter">📤 3. <strong>选择合适的后端（Exporter）</strong></a></li>
+            <li><a href="#-4-整合日志与指标logs--metrics">🧩 4. <strong>整合日志与指标（Logs &amp; Metrics）</strong></a></li>
+            <li><a href="#-5-采样策略sampling设计">📊 5. <strong>采样策略（Sampling）设计</strong></a></li>
+            <li><a href="#-6-异步调用与消息队列支持">🧪 6. <strong>异步调用与消息队列支持</strong></a></li>
+            <li><a href="#-7-部署与监控建议">🚀 7. <strong>部署与监控建议</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#-四工具链推荐">🧰 四、工具链推荐</a></li>
+        <li><a href="#-五总结">🧠 五、总结</a></li>
+        <li><a href="#-java-示例spring-boot--opentelemetry--jaeger">☕ Java 示例（Spring Boot + OpenTelemetry + Jaeger）</a>
+          <ul>
+            <li><a href="#1-maven-依赖spring-boot-3">1️⃣ Maven 依赖（Spring Boot 3+）</a></li>
+            <li><a href="#2-applicationyml-配置">2️⃣ application.yml 配置</a></li>
+            <li><a href="#3-控制器--调用外部服务示例">3️⃣ 控制器 + 调用外部服务示例</a></li>
+            <li><a href="#4-日志注入-traceid">4️⃣ 日志注入 TraceId</a></li>
+          </ul>
+        </li>
+        <li><a href="#-python-示例fastapi--opentelemetry">🐍 Python 示例（FastAPI + OpenTelemetry）</a>
+          <ul>
+            <li><a href="#1-安装依赖">1️⃣ 安装依赖</a></li>
+            <li><a href="#2-初始化-otelmainpy">2️⃣ 初始化 OTEL（main.py）</a></li>
+            <li><a href="#3-调用链上下游传播">3️⃣ 调用链上下游传播</a></li>
+          </ul>
+        </li>
+        <li><a href="#-最佳实践体现">🎯 最佳实践体现</a></li>
+        <li><a href="#-推荐部署组合">📦 推荐部署组合</a></li>
+        <li><a href="#-一什么是上下文自动传递">✅ 一、什么是上下文自动传递？</a></li>
+        <li><a href="#-二自动上下文传递的核心机制">🔧 二、自动上下文传递的核心机制</a>
+          <ul>
+            <li><a href="#-关键-header-示例w3c-trace-context">💡 关键 Header 示例（W3C Trace Context）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三如何启用自动传递分语言说明">⚙️ 三、如何启用自动传递（分语言说明）</a>
+          <ul>
+            <li><a href="#-javaspring-boot--opentelemetry">☕ Java（Spring Boot / OpenTelemetry）</a></li>
+            <li><a href="#-pythonfastapi--flask">🐍 Python（FastAPI / Flask）</a></li>
+            <li><a href="#-gohttp-或-grpc">🐹 Go（HTTP 或 gRPC）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-四在消息队列--kafka--grpc-中传递上下文">📥 四、在消息队列 / Kafka / gRPC 中传递上下文</a>
+          <ul>
+            <li><a href="#-kafkajava-示例">📨 Kafka（Java 示例）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-五部署环境要求">✅ 五、部署环境要求</a></li>
+        <li><a href="#-六验证自动上下文是否传递成功">🧪 六、验证自动上下文是否传递成功</a></li>
+        <li><a href="#-七小结">🧠 七、小结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="OpenTelemetry 全链路追踪">
+    OpenTelemetry 全链路追踪
+    <a class="anchor" href="#OpenTelemetry%20%e5%85%a8%e9%93%be%e8%b7%af%e8%bf%bd%e8%b8%aa">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><p>在微服务架构中使用 OpenTelemetry 实现全链路追踪是提升可 observability（可观测性）和系统可维护性的关键步骤。以下是一些最佳实践，涵盖从设计、实现到部署运维的完整视角。</p>
+<hr>
+<h2 id="-一opentelemetry-简介">
+  🌐 一、OpenTelemetry 简介
+  <a class="anchor" href="#-%e4%b8%80opentelemetry-%e7%ae%80%e4%bb%8b">#</a>
+</h2>
+<p>OpenTelemetry 是由 CNCF（Cloud Native Computing Foundation）托管的开放标准，支持 <strong>分布式追踪（Tracing）</strong>、<strong>指标（Metrics）</strong> 和 <strong>日志（Logs）</strong> 的采集与导出。它支持多语言，能够将数据导出至多种后端（如 Jaeger、Prometheus、Grafana Tempo、Datadog、Zipkin 等）。</p>
+<hr>
+<h2 id="-二全链路追踪的核心概念">
+  📦 二、全链路追踪的核心概念
+  <a class="anchor" href="#-%e4%ba%8c%e5%85%a8%e9%93%be%e8%b7%af%e8%bf%bd%e8%b8%aa%e7%9a%84%e6%a0%b8%e5%bf%83%e6%a6%82%e5%bf%b5">#</a>
+</h2>
+<ol>
+<li><strong>Trace（追踪）</strong>：一次完整的调用链（如用户下单请求）。</li>
+<li><strong>Span（跨度）</strong>：调用链中的单个操作（如订单服务调用库存服务）。</li>
+<li><strong>Context（上下文）</strong>：跨服务传递 trace 的元信息（如 trace id）。</li>
+</ol>
+<hr>
+<h2 id="-三在微服务架构中使用-opentelemetry-的最佳实践">
+  🔧 三、在微服务架构中使用 OpenTelemetry 的最佳实践
+  <a class="anchor" href="#-%e4%b8%89%e5%9c%a8%e5%be%ae%e6%9c%8d%e5%8a%a1%e6%9e%b6%e6%9e%84%e4%b8%ad%e4%bd%bf%e7%94%a8-opentelemetry-%e7%9a%84%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5">#</a>
+</h2>
+<h3 id="-1-统一规范和自动化接入">
+  ✅ 1. <strong>统一规范和自动化接入</strong>
+  <a class="anchor" href="#-1-%e7%bb%9f%e4%b8%80%e8%a7%84%e8%8c%83%e5%92%8c%e8%87%aa%e5%8a%a8%e5%8c%96%e6%8e%a5%e5%85%a5">#</a>
+</h3>
+<ul>
+<li><strong>选择统一的 SDK 版本</strong>：所有服务使用相同版本的 OpenTelemetry SDK。</li>
+<li><strong>使用自动注入的方式接入 HTTP / gRPC 框架</strong>：例如 Spring Boot + Spring Cloud Sleuth，Python FastAPI + OpenTelemetry middleware，Go + OpenTelemetry HTTP 插件。</li>
+<li><strong>尽量避免手动创建 span，使用封装的 middleware 或框架支持</strong>。</li>
+</ul>
+<hr>
+<h3 id="-2-统一上下文传递context-propagation">
+  🔗 2. <strong>统一上下文传递（Context Propagation）</strong>
+  <a class="anchor" href="#-2-%e7%bb%9f%e4%b8%80%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bc%a0%e9%80%92context-propagation">#</a>
+</h3>
+<ul>
+<li>使用标准协议（如 W3C Trace Context）传递 trace 上下文。</li>
+<li>在所有服务间调用（REST/gRPC/Kafka/NATS）时，显式或自动传递 <code>traceparent</code>、<code>baggage</code> 等 headers。</li>
+<li>确保所有服务的网关、API 层、异步消息系统都能正确传递 trace context。</li>
+</ul>
+<hr>
+<h3 id="-3-选择合适的后端exporter">
+  📤 3. <strong>选择合适的后端（Exporter）</strong>
+  <a class="anchor" href="#-3-%e9%80%89%e6%8b%a9%e5%90%88%e9%80%82%e7%9a%84%e5%90%8e%e7%ab%afexporter">#</a>
+</h3>
+<p>常见导出目标：</p>
+<ul>
+<li><strong>Jaeger / Zipkin</strong>（轻量部署）</li>
+<li><strong>Grafana Tempo</strong>（可与 Loki、Prometheus 集成）</li>
+<li><strong>Datadog / New Relic / AWS X-Ray / Google Cloud Trace</strong>（SaaS）</li>
+</ul>
+<p>建议：</p>
+<ul>
+<li>开发和测试使用 Jaeger，生产建议使用更具可扩展性和可集成性的后端。</li>
+<li>将 Trace 数据与 Metrics、Logs 汇聚到统一平台（如 Grafana Stack）。</li>
+</ul>
+<hr>
+<h3 id="-4-整合日志与指标logs--metrics">
+  🧩 4. <strong>整合日志与指标（Logs &amp; Metrics）</strong>
+  <a class="anchor" href="#-4-%e6%95%b4%e5%90%88%e6%97%a5%e5%bf%97%e4%b8%8e%e6%8c%87%e6%a0%87logs--metrics">#</a>
+</h3>
+<ul>
+<li>
+<p>将 TraceId 注入日志上下文（如 Logback / Log4j 的 MDC，Python 的 logging filter）。</p>
+</li>
+<li>
+<p>实现“从日志跳转到 Trace”，“从 Trace 跳转到 Metrics”的闭环观测。</p>
+</li>
+<li>
+<p>示例日志格式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;timestamp&#34;</span>: <span style="color:#e6db74">&#34;2025-07-07T10:10:00Z&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;level&#34;</span>: <span style="color:#e6db74">&#34;INFO&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;trace_id&#34;</span>: <span style="color:#e6db74">&#34;abc123&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;span_id&#34;</span>: <span style="color:#e6db74">&#34;def456&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;message&#34;</span>: <span style="color:#e6db74">&#34;Order created successfully&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+</ul>
+<hr>
+<h3 id="-5-采样策略sampling设计">
+  📊 5. <strong>采样策略（Sampling）设计</strong>
+  <a class="anchor" href="#-5-%e9%87%87%e6%a0%b7%e7%ad%96%e7%95%a5sampling%e8%ae%be%e8%ae%a1">#</a>
+</h3>
+<ul>
+<li><strong>Always on</strong>：开发调试时使用。</li>
+<li><strong>Probabilistic sampling</strong>：按概率采样，适合高流量生产环境。</li>
+<li><strong>Tail-based sampling</strong>：先收集，再判断是否保留，适用于链路分析。</li>
+<li><strong>自定义策略</strong>：对关键业务路径、异常链路提高采样率。</li>
+</ul>
+<hr>
+<h3 id="-6-异步调用与消息队列支持">
+  🧪 6. <strong>异步调用与消息队列支持</strong>
+  <a class="anchor" href="#-6-%e5%bc%82%e6%ad%a5%e8%b0%83%e7%94%a8%e4%b8%8e%e6%b6%88%e6%81%af%e9%98%9f%e5%88%97%e6%94%af%e6%8c%81">#</a>
+</h3>
+<ul>
+<li>
+<p>Kafka、RabbitMQ 等中间件也需要传递 TraceContext。</p>
+</li>
+<li>
+<p>使用消息头传递上下文，并在消费者手动创建新的 span，关联 parent span。</p>
+</li>
+<li>
+<p>建议使用官方或社区提供的 instrumentation，例如：</p>
+<ul>
+<li><code>opentelemetry-instrumentation-kafka</code></li>
+<li><code>opentelemetry-instrumentation-celery</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="-7-部署与监控建议">
+  🚀 7. <strong>部署与监控建议</strong>
+  <a class="anchor" href="#-7-%e9%83%a8%e7%bd%b2%e4%b8%8e%e7%9b%91%e6%8e%a7%e5%bb%ba%e8%ae%ae">#</a>
+</h3>
+<ul>
+<li>使用 sidecar 或 agent 模式部署 OTEL Collector（采集、过滤、导出）。</li>
+<li>启用资源检测（host name, container id, region 等）便于分析。</li>
+<li>配置熔断机制，防止追踪系统故障影响业务流。</li>
+</ul>
+<hr>
+<h2 id="-四工具链推荐">
+  🧰 四、工具链推荐
+  <a class="anchor" href="#-%e5%9b%9b%e5%b7%a5%e5%85%b7%e9%93%be%e6%8e%a8%e8%8d%90">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>工具/组件</th>
+          <th>功能</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>OpenTelemetry SDK</td>
+          <td>Trace、Metrics、Logs 采集</td>
+          <td>多语言支持</td>
+      </tr>
+      <tr>
+          <td>OTEL Collector</td>
+          <td>中转、转码、过滤</td>
+          <td>可部署为 sidecar / DaemonSet / Gateway</td>
+      </tr>
+      <tr>
+          <td>Jaeger / Zipkin</td>
+          <td>可视化追踪链路</td>
+          <td>开源、轻量、易部署</td>
+      </tr>
+      <tr>
+          <td>Grafana Tempo</td>
+          <td>可扩展 Trace 存储</td>
+          <td>可与 Loki、Prometheus 配合使用</td>
+      </tr>
+      <tr>
+          <td>Grafana / Kibana</td>
+          <td>可视化分析</td>
+          <td>多数据源支持</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-五总结">
+  🧠 五、总结
+  <a class="anchor" href="#-%e4%ba%94%e6%80%bb%e7%bb%93">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>关键点</th>
+          <th>建议做法</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>上下文传递</td>
+          <td>使用 W3C Trace Context / B3</td>
+      </tr>
+      <tr>
+          <td>SDK 接入</td>
+          <td>使用中间件或框架集成方式</td>
+      </tr>
+      <tr>
+          <td>Trace 数据存储</td>
+          <td>选择高可用、高压缩比存储方案</td>
+      </tr>
+      <tr>
+          <td>日志关联</td>
+          <td>trace_id 注入日志上下文</td>
+      </tr>
+      <tr>
+          <td>性能开销控制</td>
+          <td>配置采样策略、批量导出机制</td>
+      </tr>
+      <tr>
+          <td>异常链路监控</td>
+          <td>重点服务配置高采样或全采样</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-java-示例spring-boot--opentelemetry--jaeger">
+  ☕ Java 示例（Spring Boot + OpenTelemetry + Jaeger）
+  <a class="anchor" href="#-java-%e7%a4%ba%e4%be%8bspring-boot--opentelemetry--jaeger">#</a>
+</h2>
+<h3 id="1-maven-依赖spring-boot-3">
+  1️⃣ Maven 依赖（Spring Boot 3+）
+  <a class="anchor" href="#1-maven-%e4%be%9d%e8%b5%96spring-boot-3">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependency&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;groupId&gt;</span>io.opentelemetry.instrumentation<span style="color:#f92672">&lt;/groupId&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;artifactId&gt;</span>opentelemetry-spring-boot-starter<span style="color:#f92672">&lt;/artifactId&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;version&gt;</span>1.30.0<span style="color:#f92672">&lt;/version&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><h3 id="2-applicationyml-配置">
+  2️⃣ application.yml 配置
+  <a class="anchor" href="#2-applicationyml-%e9%85%8d%e7%bd%ae">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">otel</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">exporter</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">otlp</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">endpoint</span>: <span style="color:#ae81ff">http://localhost:4317</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">resource</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">attributes</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">service.name</span>: <span style="color:#ae81ff">order-service</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">tracing</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">sampling</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">probability</span>: <span style="color:#ae81ff">1.0</span>  <span style="color:#75715e"># 开发全采样，生产建议设置为 0.1 或配置 tail-based sampling</span>
+</span></span></code></pre></div><h3 id="3-控制器--调用外部服务示例">
+  3️⃣ 控制器 + 调用外部服务示例
+  <a class="anchor" href="#3-%e6%8e%a7%e5%88%b6%e5%99%a8--%e8%b0%83%e7%94%a8%e5%a4%96%e9%83%a8%e6%9c%8d%e5%8a%a1%e7%a4%ba%e4%be%8b">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#a6e22e">@RestController</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">OrderController</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">final</span> RestTemplate restTemplate;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">OrderController</span>(RestTemplateBuilder builder) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">restTemplate</span> <span style="color:#f92672">=</span> builder.<span style="color:#a6e22e">build</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@GetMapping</span>(<span style="color:#e6db74">&#34;/order&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">createOrder</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 自动创建 span 并关联 traceId</span>
+</span></span><span style="display:flex;"><span>        String response <span style="color:#f92672">=</span> restTemplate.<span style="color:#a6e22e">getForObject</span>(<span style="color:#e6db74">&#34;http://inventory-service/inventory&#34;</span>, String.<span style="color:#a6e22e">class</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Order placed. Inventory Response: &#34;</span> <span style="color:#f92672">+</span> response;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="4-日志注入-traceid">
+  4️⃣ 日志注入 TraceId
+  <a class="anchor" href="#4-%e6%97%a5%e5%bf%97%e6%b3%a8%e5%85%a5-traceid">#</a>
+</h3>
+<p>使用 Logback + MDC 自动注入：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;pattern&gt;</span>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - traceId=%X{trace_id} spanId=%X{span_id} %msg%n<span style="color:#f92672">&lt;/pattern&gt;</span>
+</span></span></code></pre></div><hr>
+<h2 id="-python-示例fastapi--opentelemetry">
+  🐍 Python 示例（FastAPI + OpenTelemetry）
+  <a class="anchor" href="#-python-%e7%a4%ba%e4%be%8bfastapi--opentelemetry">#</a>
+</h2>
+<h3 id="1-安装依赖">
+  1️⃣ 安装依赖
+  <a class="anchor" href="#1-%e5%ae%89%e8%a3%85%e4%be%9d%e8%b5%96">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install opentelemetry-sdk opentelemetry-instrumentation-fastapi <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>            opentelemetry-exporter-otlp opentelemetry-instrumentation-requests
+</span></span></code></pre></div><h3 id="2-初始化-otelmainpy">
+  2️⃣ 初始化 OTEL（main.py）
+  <a class="anchor" href="#2-%e5%88%9d%e5%a7%8b%e5%8c%96-otelmainpy">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> fastapi <span style="color:#f92672">import</span> FastAPI
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry <span style="color:#f92672">import</span> trace
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.instrumentation.fastapi <span style="color:#f92672">import</span> FastAPIInstrumentor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.instrumentation.requests <span style="color:#f92672">import</span> RequestsInstrumentor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.sdk.trace <span style="color:#f92672">import</span> TracerProvider
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.sdk.trace.export <span style="color:#f92672">import</span> BatchSpanProcessor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.exporter.otlp.proto.http.trace_exporter <span style="color:#f92672">import</span> OTLPSpanExporter
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.sdk.resources <span style="color:#f92672">import</span> SERVICE_NAME, Resource
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 设置 TracerProvider</span>
+</span></span><span style="display:flex;"><span>trace<span style="color:#f92672">.</span>set_tracer_provider(
+</span></span><span style="display:flex;"><span>    TracerProvider(
+</span></span><span style="display:flex;"><span>        resource<span style="color:#f92672">=</span>Resource<span style="color:#f92672">.</span>create({SERVICE_NAME: <span style="color:#e6db74">&#34;inventory-service&#34;</span>})
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置导出器</span>
+</span></span><span style="display:flex;"><span>trace<span style="color:#f92672">.</span>get_tracer_provider()<span style="color:#f92672">.</span>add_span_processor(
+</span></span><span style="display:flex;"><span>    BatchSpanProcessor(OTLPSpanExporter(endpoint<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;http://localhost:4318/v1/traces&#34;</span>))
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> FastAPI()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 自动注入中间件</span>
+</span></span><span style="display:flex;"><span>FastAPIInstrumentor<span style="color:#f92672">.</span>instrument_app(app)
+</span></span><span style="display:flex;"><span>RequestsInstrumentor()<span style="color:#f92672">.</span>instrument()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.get</span>(<span style="color:#e6db74">&#34;/inventory&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">check_inventory</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> {<span style="color:#e6db74">&#34;status&#34;</span>: <span style="color:#e6db74">&#34;in-stock&#34;</span>}
+</span></span></code></pre></div><h3 id="3-调用链上下游传播">
+  3️⃣ 调用链上下游传播
+  <a class="anchor" href="#3-%e8%b0%83%e7%94%a8%e9%93%be%e4%b8%8a%e4%b8%8b%e6%b8%b8%e4%bc%a0%e6%92%ad">#</a>
+</h3>
+<p>调用 <code>inventory-service</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.get</span>(<span style="color:#e6db74">&#34;/order&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">place_order</span>():
+</span></span><span style="display:flex;"><span>    r <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8001/inventory&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> {<span style="color:#e6db74">&#34;order_status&#34;</span>: <span style="color:#e6db74">&#34;created&#34;</span>, <span style="color:#e6db74">&#34;inventory&#34;</span>: r<span style="color:#f92672">.</span>json()}
+</span></span></code></pre></div><p>上下文将通过 <code>traceparent</code> header 自动传递。</p>
+<hr>
+<h2 id="-最佳实践体现">
+  🎯 最佳实践体现
+  <a class="anchor" href="#-%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5%e4%bd%93%e7%8e%b0">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>实践点</th>
+          <th>实现说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>自动 instrumentation</td>
+          <td>使用了 <code>FastAPIInstrumentor</code> / Spring Boot Starter</td>
+      </tr>
+      <tr>
+          <td>tracecontext 传递</td>
+          <td><code>requests</code> 和 <code>RestTemplate</code> 均通过自动集成传递 <code>traceparent</code></td>
+      </tr>
+      <tr>
+          <td>trace-id 注入日志</td>
+          <td>Java 通过 Logback 的 <code>%X{}</code> ；Python 可用 <code>structlog</code> + 自定义 processor</td>
+      </tr>
+      <tr>
+          <td>批量导出 + 性能优化</td>
+          <td>使用 <code>BatchSpanProcessor</code> 避免每次请求立即导出</td>
+      </tr>
+      <tr>
+          <td>可配置资源标签</td>
+          <td>使用 <code>service.name</code> 标识服务名，便于追踪分析</td>
+      </tr>
+      <tr>
+          <td>导出到集中平台</td>
+          <td>配置 OTLP 导出，可接入 Jaeger、Tempo、Datadog 等</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-推荐部署组合">
+  📦 推荐部署组合
+  <a class="anchor" href="#-%e6%8e%a8%e8%8d%90%e9%83%a8%e7%bd%b2%e7%bb%84%e5%90%88">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>组件</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>OpenTelemetry Collector</td>
+          <td>统一采集、转换、转发 trace 数据</td>
+      </tr>
+      <tr>
+          <td>Jaeger / Grafana Tempo</td>
+          <td>可视化链路追踪图</td>
+      </tr>
+      <tr>
+          <td>Prometheus + Grafana</td>
+          <td>指标观测</td>
+      </tr>
+      <tr>
+          <td>Loki / ELK</td>
+          <td>日志观测，traceId 关联分析</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-一什么是上下文自动传递">
+  ✅ 一、什么是上下文自动传递？
+  <a class="anchor" href="#-%e4%b8%80%e4%bb%80%e4%b9%88%e6%98%af%e4%b8%8a%e4%b8%8b%e6%96%87%e8%87%aa%e5%8a%a8%e4%bc%a0%e9%80%92">#</a>
+</h2>
+<p>在微服务架构中，一个请求通常会跨多个服务。例如：</p>
+<pre tabindex="0"><code>用户请求 → 网关 → 用户服务 → 订单服务 → 库存服务
+</code></pre><p>我们希望从用户开始的一次请求能贯穿整个链路，能在每个服务看到相同的 <code>trace_id</code>，这就需要：</p>
+<blockquote>
+<p><strong>将 trace 上下文（如 trace_id、span_id）自动传递到下一个服务，并被自动识别和继续追踪。</strong></p></blockquote>
+<hr>
+<h2 id="-二自动上下文传递的核心机制">
+  🔧 二、自动上下文传递的核心机制
+  <a class="anchor" href="#-%e4%ba%8c%e8%87%aa%e5%8a%a8%e4%b8%8a%e4%b8%8b%e6%96%87%e4%bc%a0%e9%80%92%e7%9a%84%e6%a0%b8%e5%bf%83%e6%9c%ba%e5%88%b6">#</a>
+</h2>
+<p>OpenTelemetry 使用标准协议（如 
+  <a href="https://www.w3.org/TR/trace-context/">W3C Trace Context</a>）来在不同服务之间传递 trace。</p>
+<h3 id="-关键-header-示例w3c-trace-context">
+  💡 关键 Header 示例（W3C Trace Context）
+  <a class="anchor" href="#-%e5%85%b3%e9%94%ae-header-%e7%a4%ba%e4%be%8bw3c-trace-context">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+</span></span></span></code></pre></div><ul>
+<li><code>trace-id</code>: 整个调用链的唯一 ID</li>
+<li><code>span-id</code>: 当前调用的唯一 ID</li>
+<li><code>trace-flags</code>: 采样标记</li>
+</ul>
+<hr>
+<h2 id="-三如何启用自动传递分语言说明">
+  ⚙️ 三、如何启用自动传递（分语言说明）
+  <a class="anchor" href="#-%e4%b8%89%e5%a6%82%e4%bd%95%e5%90%af%e7%94%a8%e8%87%aa%e5%8a%a8%e4%bc%a0%e9%80%92%e5%88%86%e8%af%ad%e8%a8%80%e8%af%b4%e6%98%8e">#</a>
+</h2>
+<hr>
+<h3 id="-javaspring-boot--opentelemetry">
+  ☕ Java（Spring Boot / OpenTelemetry）
+  <a class="anchor" href="#-javaspring-boot--opentelemetry">#</a>
+</h3>
+<h4 id="-使用-opentelemetry-starter推荐">
+  ✅ 使用 OpenTelemetry Starter（推荐）
+  <a class="anchor" href="#-%e4%bd%bf%e7%94%a8-opentelemetry-starter%e6%8e%a8%e8%8d%90">#</a>
+</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependency&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;groupId&gt;</span>io.opentelemetry.instrumentation<span style="color:#f92672">&lt;/groupId&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;artifactId&gt;</span>opentelemetry-spring-boot-starter<span style="color:#f92672">&lt;/artifactId&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&lt;version&gt;</span>1.30.0<span style="color:#f92672">&lt;/version&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependency&gt;</span>
+</span></span></code></pre></div><p>它会自动完成以下工作：</p>
+<ul>
+<li>通过拦截器自动读取 <code>traceparent</code> header</li>
+<li>自动在使用 <code>RestTemplate</code>, <code>WebClient</code>, <code>gRPC</code> 时注入上下文</li>
+<li>自动关联 <code>trace_id</code> 与 MDC 日志上下文</li>
+</ul>
+<p>📍你只需确保调用时使用框架标准组件（如 <code>RestTemplate</code>, <code>WebClient</code>），它就会自动附带 trace header。</p>
+<hr>
+<h3 id="-pythonfastapi--flask">
+  🐍 Python（FastAPI / Flask）
+  <a class="anchor" href="#-pythonfastapi--flask">#</a>
+</h3>
+<h4 id="-使用自动-instrumentation">
+  ✅ 使用自动 Instrumentation：
+  <a class="anchor" href="#-%e4%bd%bf%e7%94%a8%e8%87%aa%e5%8a%a8-instrumentation">#</a>
+</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install opentelemetry-instrumentation-fastapi opentelemetry-instrumentation-requests
+</span></span></code></pre></div><h4 id="初始化">
+  初始化：
+  <a class="anchor" href="#%e5%88%9d%e5%a7%8b%e5%8c%96">#</a>
+</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.instrumentation.fastapi <span style="color:#f92672">import</span> FastAPIInstrumentor
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> opentelemetry.instrumentation.requests <span style="color:#f92672">import</span> RequestsInstrumentor
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> FastAPI()
+</span></span><span style="display:flex;"><span>FastAPIInstrumentor<span style="color:#f92672">.</span>instrument_app(app)
+</span></span><span style="display:flex;"><span>RequestsInstrumentor()<span style="color:#f92672">.</span>instrument()
+</span></span></code></pre></div><ul>
+<li>自动为 FastAPI 路由创建 span，并提取 trace 上下文（<code>traceparent</code>）</li>
+<li>使用 <code>requests.get()</code> 时自动注入 trace header</li>
+</ul>
+<hr>
+<h3 id="-gohttp-或-grpc">
+  🐹 Go（HTTP 或 gRPC）
+  <a class="anchor" href="#-gohttp-%e6%88%96-grpc">#</a>
+</h3>
+<h4 id="-使用-otel-http-插件">
+  ✅ 使用 OTEL HTTP 插件：
+  <a class="anchor" href="#-%e4%bd%bf%e7%94%a8-otel-http-%e6%8f%92%e4%bb%b6">#</a>
+</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;net/http&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">handler</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">HandlerFunc</span>(<span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">w</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">ResponseWriter</span>, <span style="color:#a6e22e">r</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Request</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// handler 自动获取 trace 上下文</span>
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Handle</span>(<span style="color:#e6db74">&#34;/my-api&#34;</span>, <span style="color:#a6e22e">otelhttp</span>.<span style="color:#a6e22e">NewHandler</span>(<span style="color:#a6e22e">handler</span>, <span style="color:#e6db74">&#34;my-api-handler&#34;</span>))
+</span></span></code></pre></div><h4 id="调用下游服务">
+  调用下游服务：
+  <a class="anchor" href="#%e8%b0%83%e7%94%a8%e4%b8%8b%e6%b8%b8%e6%9c%8d%e5%8a%a1">#</a>
+</h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">client</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Client</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Transport</span>: <span style="color:#a6e22e">otelhttp</span>.<span style="color:#a6e22e">NewTransport</span>(<span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">DefaultTransport</span>),
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">NewRequest</span>(<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;http://other-service&#34;</span>, <span style="color:#66d9ef">nil</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">client</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#a6e22e">req</span>)
+</span></span></code></pre></div><p>这样会自动将 tracecontext 插入 HTTP 请求头。</p>
+<hr>
+<h2 id="-四在消息队列--kafka--grpc-中传递上下文">
+  📥 四、在消息队列 / Kafka / gRPC 中传递上下文
+  <a class="anchor" href="#-%e5%9b%9b%e5%9c%a8%e6%b6%88%e6%81%af%e9%98%9f%e5%88%97--kafka--grpc-%e4%b8%ad%e4%bc%a0%e9%80%92%e4%b8%8a%e4%b8%8b%e6%96%87">#</a>
+</h2>
+<h3 id="-kafkajava-示例">
+  📨 Kafka（Java 示例）
+  <a class="anchor" href="#-kafkajava-%e7%a4%ba%e4%be%8b">#</a>
+</h3>
+<ol>
+<li>
+<p>在 Producer 中添加 traceparent 到消息头：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ProducerRecord<span style="color:#f92672">&lt;</span>String, String<span style="color:#f92672">&gt;</span> record <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ProducerRecord<span style="color:#f92672">&lt;&gt;</span>(topic, key, value);
+</span></span><span style="display:flex;"><span>GlobalOpenTelemetry.<span style="color:#a6e22e">getPropagators</span>().<span style="color:#a6e22e">getTextMapPropagator</span>().<span style="color:#a6e22e">inject</span>(
+</span></span><span style="display:flex;"><span>    Context.<span style="color:#a6e22e">current</span>(), record.<span style="color:#a6e22e">headers</span>(), setter);
+</span></span></code></pre></div></li>
+<li>
+<p>在 Consumer 中提取并继续追踪：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Context extractedContext <span style="color:#f92672">=</span> propagators.<span style="color:#a6e22e">extract</span>(Context.<span style="color:#a6e22e">current</span>(), record.<span style="color:#a6e22e">headers</span>(), getter);
+</span></span><span style="display:flex;"><span>Span span <span style="color:#f92672">=</span> tracer.<span style="color:#a6e22e">spanBuilder</span>(<span style="color:#e6db74">&#34;kafka-consume&#34;</span>).<span style="color:#a6e22e">setParent</span>(extractedContext).<span style="color:#a6e22e">startSpan</span>();
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="-五部署环境要求">
+  ✅ 五、部署环境要求
+  <a class="anchor" href="#-%e4%ba%94%e9%83%a8%e7%bd%b2%e7%8e%af%e5%a2%83%e8%a6%81%e6%b1%82">#</a>
+</h2>
+<ul>
+<li>所有服务都要统一使用支持 OpenTelemetry 的 SDK 和传播机制</li>
+<li>建议通过 <strong>OpenTelemetry Collector</strong> 中转 trace 数据，简化配置</li>
+<li>在 Istio / Linkerd 等服务网格中使用时，也可以通过 mesh 自动处理 trace header</li>
+</ul>
+<hr>
+<h2 id="-六验证自动上下文是否传递成功">
+  🧪 六、验证自动上下文是否传递成功
+  <a class="anchor" href="#-%e5%85%ad%e9%aa%8c%e8%af%81%e8%87%aa%e5%8a%a8%e4%b8%8a%e4%b8%8b%e6%96%87%e6%98%af%e5%90%a6%e4%bc%a0%e9%80%92%e6%88%90%e5%8a%9f">#</a>
+</h2>
+<p>你可以在每个服务打印当前 trace_id 或在日志中观察 trace_id 是否一致：</p>
+<p>Java 示例（Logback）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span>%X{trace_id} %X{span_id} %msg%n
+</span></span></code></pre></div><p>Python 示例（structlog）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>log <span style="color:#f92672">=</span> structlog<span style="color:#f92672">.</span>get_logger()<span style="color:#f92672">.</span>bind(trace_id<span style="color:#f92672">=</span>trace<span style="color:#f92672">.</span>get_current_span()<span style="color:#f92672">.</span>get_span_context()<span style="color:#f92672">.</span>trace_id)
+</span></span></code></pre></div><hr>
+<h2 id="-七小结">
+  🧠 七、小结
+  <a class="anchor" href="#-%e4%b8%83%e5%b0%8f%e7%bb%93">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>项目</th>
+          <th>最佳实践</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>使用标准 Header</td>
+          <td>建议使用 <code>W3C Trace Context</code>（默认）</td>
+      </tr>
+      <tr>
+          <td>HTTP 调用</td>
+          <td>使用框架集成组件（如 RestTemplate、requests）</td>
+      </tr>
+      <tr>
+          <td>消息队列 / 异步</td>
+          <td>通过 headers 手动传递上下文</td>
+      </tr>
+      <tr>
+          <td>服务统一 SDK 配置</td>
+          <td>使用相同版本的 OTEL SDK 和 propagator</td>
+      </tr>
+      <tr>
+          <td>日志与追踪关联</td>
+          <td>将 trace_id 注入日志上下文</td>
+      </tr>
+  </tbody>
+</table>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#OpenTelemetry%20%e5%85%a8%e9%93%be%e8%b7%af%e8%bf%bd%e8%b8%aa">OpenTelemetry 全链路追踪</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-一opentelemetry-简介">🌐 一、OpenTelemetry 简介</a></li>
+        <li><a href="#-二全链路追踪的核心概念">📦 二、全链路追踪的核心概念</a></li>
+        <li><a href="#-三在微服务架构中使用-opentelemetry-的最佳实践">🔧 三、在微服务架构中使用 OpenTelemetry 的最佳实践</a>
+          <ul>
+            <li><a href="#-1-统一规范和自动化接入">✅ 1. <strong>统一规范和自动化接入</strong></a></li>
+            <li><a href="#-2-统一上下文传递context-propagation">🔗 2. <strong>统一上下文传递（Context Propagation）</strong></a></li>
+            <li><a href="#-3-选择合适的后端exporter">📤 3. <strong>选择合适的后端（Exporter）</strong></a></li>
+            <li><a href="#-4-整合日志与指标logs--metrics">🧩 4. <strong>整合日志与指标（Logs &amp; Metrics）</strong></a></li>
+            <li><a href="#-5-采样策略sampling设计">📊 5. <strong>采样策略（Sampling）设计</strong></a></li>
+            <li><a href="#-6-异步调用与消息队列支持">🧪 6. <strong>异步调用与消息队列支持</strong></a></li>
+            <li><a href="#-7-部署与监控建议">🚀 7. <strong>部署与监控建议</strong></a></li>
+          </ul>
+        </li>
+        <li><a href="#-四工具链推荐">🧰 四、工具链推荐</a></li>
+        <li><a href="#-五总结">🧠 五、总结</a></li>
+        <li><a href="#-java-示例spring-boot--opentelemetry--jaeger">☕ Java 示例（Spring Boot + OpenTelemetry + Jaeger）</a>
+          <ul>
+            <li><a href="#1-maven-依赖spring-boot-3">1️⃣ Maven 依赖（Spring Boot 3+）</a></li>
+            <li><a href="#2-applicationyml-配置">2️⃣ application.yml 配置</a></li>
+            <li><a href="#3-控制器--调用外部服务示例">3️⃣ 控制器 + 调用外部服务示例</a></li>
+            <li><a href="#4-日志注入-traceid">4️⃣ 日志注入 TraceId</a></li>
+          </ul>
+        </li>
+        <li><a href="#-python-示例fastapi--opentelemetry">🐍 Python 示例（FastAPI + OpenTelemetry）</a>
+          <ul>
+            <li><a href="#1-安装依赖">1️⃣ 安装依赖</a></li>
+            <li><a href="#2-初始化-otelmainpy">2️⃣ 初始化 OTEL（main.py）</a></li>
+            <li><a href="#3-调用链上下游传播">3️⃣ 调用链上下游传播</a></li>
+          </ul>
+        </li>
+        <li><a href="#-最佳实践体现">🎯 最佳实践体现</a></li>
+        <li><a href="#-推荐部署组合">📦 推荐部署组合</a></li>
+        <li><a href="#-一什么是上下文自动传递">✅ 一、什么是上下文自动传递？</a></li>
+        <li><a href="#-二自动上下文传递的核心机制">🔧 二、自动上下文传递的核心机制</a>
+          <ul>
+            <li><a href="#-关键-header-示例w3c-trace-context">💡 关键 Header 示例（W3C Trace Context）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-三如何启用自动传递分语言说明">⚙️ 三、如何启用自动传递（分语言说明）</a>
+          <ul>
+            <li><a href="#-javaspring-boot--opentelemetry">☕ Java（Spring Boot / OpenTelemetry）</a></li>
+            <li><a href="#-pythonfastapi--flask">🐍 Python（FastAPI / Flask）</a></li>
+            <li><a href="#-gohttp-或-grpc">🐹 Go（HTTP 或 gRPC）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-四在消息队列--kafka--grpc-中传递上下文">📥 四、在消息队列 / Kafka / gRPC 中传递上下文</a>
+          <ul>
+            <li><a href="#-kafkajava-示例">📨 Kafka（Java 示例）</a></li>
+          </ul>
+        </li>
+        <li><a href="#-五部署环境要求">✅ 五、部署环境要求</a></li>
+        <li><a href="#-六验证自动上下文是否传递成功">🧪 六、验证自动上下文是否传递成功</a></li>
+        <li><a href="#-七小结">🧠 七、小结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -303,5 +303,3 @@ SELECT COUNT(*) FROM orders WHERE order_date > '2023-01-01';
 | **OLAP vs OLTP**                    | 一个做业务写入（OLTP），一个做分析查询（OLAP）    |
 | **PostgreSQL 分区**                   | 支持范围、列表、哈希三种分区，查询自动优化          |
 | **并行查询**                            | PostgreSQL 自动使用多核提升大查询性能       |
-
----

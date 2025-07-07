@@ -194,5 +194,3 @@ title: 授权码模式
 | **HTTPS 传输**        | 确保所有通信加密，防止窃取 Session ID       |
 | **服务端 Session 校验**  | 拒绝无效或过期 Session                |
 | **异常行为检测**          | 绑定 IP/User-Agent，防止会话劫持和CSRF   |
-
----
