@@ -3,40 +3,92 @@
 <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="
-  At me ipso nepotibus nunc celebratior genus
+<meta name="description" content="在 Java 中使用线程池（如 ThreadPoolExecutor）时，理解其参数非常关键，这些参数直接影响线程的性能、可扩展性和稳定性。下面详细介绍 ThreadPoolExecutor 构造函数的各个参数及其作用：
+
+
+  🧱 构造函数定义
+  #
+
+public ThreadPoolExecutor(
+    int corePoolSize,
+    int maximumPoolSize,
+    long keepAliveTime,
+    TimeUnit unit,
+    BlockingQueue&lt;Runnable&gt; workQueue,
+    ThreadFactory threadFactory,
+    RejectedExecutionHandler handler
+)
+
+
+  📌 参数详细说明
   #
 
 
-  Tanto oblite
+  
+      
+          参数
+          类型
+          说明
+      
+  
+  
+      
+          corePoolSize
+          int
+          核心线程数，线程池中始终保留的线程数，即使它们空闲也不会被销毁（除非设置了 allowCoreThreadTimeOut(true)）
+      
+      
+          maximumPoolSize
+          int
+          线程池中允许的最大线程数，当任务过多并且队列满了时才会创建超过 core 数量的线程
+      
+      
+          keepAliveTime
+          long
+          非核心线程空闲多久会被销毁；如果设置了 allowCoreThreadTimeOut(true)，核心线程也会使用此超时
+      
+      
+          unit
+          TimeUnit
+          上述 keepAliveTime 的单位，例如 TimeUnit.SECONDS
+      
+      
+          workQueue
+          BlockingQueue&lt;Runnable&gt;
+          用来缓存等待执行的任务的队列，例如 ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue 等
+      
+      
+          threadFactory
+          ThreadFactory
+          自定义线程创建方式，例如设置线程名、是否为 daemon 等
+      
+      
+          handler
+          RejectedExecutionHandler
+          拒绝策略，当线程池和队列都满时用来处理新提交的任务
+      
+  
+
+
+
+  🎯 工作机制简述
   #
 
-Lorem markdownum pectora novis patenti igne sua opus aurae feras materiaque
-illic demersit imago et aristas questaque posset. Vomit quoque suo inhaesuro
-clara. Esse cumque, per referri triste. Ut exponit solisque communis in tendens
-vincetis agisque iamque huic bene ante vetat omina Thebae rates. Aeacus servat
-admonitu concidit, ad resimas vultus et rugas vultu dignamque Siphnon.
-Quam iugulum regia simulacra, plus meruit humo pecorumque haesit, ab discedunt
-dixit: ritu pharetramque. Exul Laurenti orantem modo, per densum missisque labor
-manibus non colla unum, obiectat. Tu pervia collo, fessus quae Cretenque Myconon
-crate! Tegumenque quae invisi sudore per vocari quaque plus ventis fluidos. Nodo
-perque, fugisse pectora sorores.">
+当一个任务提交到线程池时：">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
-<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/example/table-of-contents/without-toc/">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/introspection/thread-pool/">
   <meta property="og:site_name" content="君宝的笔记">
-  <meta property="og:title" content="Without ToC">
-  <meta property="og:description" content="At me ipso nepotibus nunc celebratior genus#Tanto oblite#Lorem markdownum pectora novis patenti igne sua opus aurae feras materiaque illic demersit imago et aristas questaque posset. Vomit quoque suo inhaesuro clara. Esse cumque, per referri triste. Ut exponit solisque communis in tendens vincetis agisque iamque huic bene ante vetat omina Thebae rates. Aeacus servat admonitu concidit, ad resimas vultus et rugas vultu dignamque Siphnon.
-Quam iugulum regia simulacra, plus meruit humo pecorumque haesit, ab discedunt dixit: ritu pharetramque. Exul Laurenti orantem modo, per densum missisque labor manibus non colla unum, obiectat. Tu pervia collo, fessus quae Cretenque Myconon crate! Tegumenque quae invisi sudore per vocari quaque plus ventis fluidos. Nodo perque, fugisse pectora sorores.">
+  <meta property="og:title" content="Java 线程池">
+  <meta property="og:description" content="在 Java 中使用线程池（如 ThreadPoolExecutor）时，理解其参数非常关键，这些参数直接影响线程的性能、可扩展性和稳定性。下面详细介绍 ThreadPoolExecutor 构造函数的各个参数及其作用：
+🧱 构造函数定义#public ThreadPoolExecutor( int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler ) 📌 参数详细说明#参数 类型 说明 corePoolSize int 核心线程数，线程池中始终保留的线程数，即使它们空闲也不会被销毁（除非设置了 allowCoreThreadTimeOut(true)） maximumPoolSize int 线程池中允许的最大线程数，当任务过多并且队列满了时才会创建超过 core 数量的线程 keepAliveTime long 非核心线程空闲多久会被销毁；如果设置了 allowCoreThreadTimeOut(true)，核心线程也会使用此超时 unit TimeUnit 上述 keepAliveTime 的单位，例如 TimeUnit.SECONDS workQueue BlockingQueue&lt;Runnable&gt; 用来缓存等待执行的任务的队列，例如 ArrayBlockingQueue, LinkedBlockingQueue, SynchronousQueue 等 threadFactory ThreadFactory 自定义线程创建方式，例如设置线程名、是否为 daemon 等 handler RejectedExecutionHandler 拒绝策略，当线程池和队列都满时用来处理新提交的任务 🎯 工作机制简述#当一个任务提交到线程池时：">
   <meta property="og:locale" content="zh">
   <meta property="og:type" content="article">
     <meta property="article:section" content="docs">
-    <meta property="article:modified_time" content="2025-04-30T18:24:58+08:00">
-<title>Without ToC | 君宝的笔记</title>
+<title>Java 线程池 | 君宝的笔记</title>
 <link rel="icon" href="/favicon.png" >
 <link rel="manifest" href="/manifest.json">
-<link rel="canonical" href="http://localhost:1313/docs/example/table-of-contents/without-toc/">
-  <link rel="alternate" hreflang="en" href="http://localhost:1313/en/docs/example/table-of-contents/without-toc/" title="Without ToC">
+<link rel="canonical" href="http://localhost:1313/docs/introspection/thread-pool/">
 <link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
   <script defer src="/fuse.min.js"></script>
   <script defer src="/zh.search.min.98d6c76cea8c5502ec7a8445029c9a9d96569cca23e2fea85075ca9276555d02.js" integrity="sha256-mNbHbOqMVQLseoRFApyanZZWnMoj4v6oUHXKknZVXQI=" crossorigin="anonymous"></script>
@@ -80,8 +132,6 @@ https://github.com/alex-shpak/hugo-book
   
 
 
-  
-
 
 <ul class="book-languages">
   <li>
@@ -96,7 +146,7 @@ https://github.com/alex-shpak/hugo-book
     <ul>
       
       <li>
-        <a href="/en/docs/example/table-of-contents/without-toc/">
+        <a href="/en/">
           English
         </a>
       </li>
@@ -613,7 +663,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle"  />
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle" checked />
     <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
       <a role="button" class="">自省</a>
     </label>
@@ -629,7 +679,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/introspection/thread-pool/" class="">Java 线程池</a>
+    <a href="/docs/introspection/thread-pool/" class="active">Java 线程池</a>
   
 
         </li>
@@ -673,7 +723,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle" checked />
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
     <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
       <a href="/docs/example/" class="">Example Site</a>
     </label>
@@ -715,7 +765,7 @@ https://github.com/alex-shpak/hugo-book
   
 
   
-    <a href="/docs/example/table-of-contents/without-toc/" class="active">Without ToC</a>
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
   
 
         </li>
@@ -955,9 +1005,11 @@ https://github.com/alex-shpak/hugo-book
     <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
   </label>
 
-  <h3>Without ToC</h3>
+  <h3>Java 线程池</h3>
 
   <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
     
   </label>
 </div>
@@ -966,23 +1018,46 @@ https://github.com/alex-shpak/hugo-book
   <meta name="referrer" content="no-referrer-when-downgrade">
 
   
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#Java%20%e7%ba%bf%e7%a8%8b%e6%b1%a0">Java 线程池</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-构造函数定义">🧱 构造函数定义</a></li>
+        <li><a href="#-参数详细说明">📌 参数详细说明</a></li>
+        <li><a href="#-工作机制简述">🎯 工作机制简述</a></li>
+        <li><a href="#-队列类型的区别workqueue">🧪 队列类型的区别（workQueue）</a></li>
+        <li><a href="#-拒绝策略rejectedexecutionhandler">🔁 拒绝策略（RejectedExecutionHandler）</a></li>
+        <li><a href="#-示例代码">🛠 示例代码</a></li>
+        <li><a href="#-总结建议">🧠 总结建议</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
  
       </header>
 
       
       
 <article class="markdown book-post">
-  <h1 id="Without ToC">
-    Without ToC
-    <a class="anchor" href="#Without%20ToC">#</a>
+  <h1 id="Java 线程池">
+    Java 线程池
+    <a class="anchor" href="#Java%20%e7%ba%bf%e7%a8%8b%e6%b1%a0">#</a>
   </h1>
   
-  <div><a class="flex align-center" href="https://github.com/jduan1993/jduan1993.github.io/commit/8b1cb4261b1f891dc02d125edaef68a300fb0549" title='最后修改者 jduan1993 | 四月 30, 2025' target="_blank" rel="noopener">
-    <img src="/svg/calendar.svg" class="book-icon" alt="" />
-    <span>四月 30, 2025</span>
-    </a>
-  </div>
-  
   
 
 
@@ -991,65 +1066,206 @@ https://github.com/alex-shpak/hugo-book
   
 
 
-  <div class="book-post-content"><h1 id="at-me-ipso-nepotibus-nunc-celebratior-genus">
-  At me ipso nepotibus nunc celebratior genus
-  <a class="anchor" href="#at-me-ipso-nepotibus-nunc-celebratior-genus">#</a>
-</h1>
-<h2 id="tanto-oblite">
-  Tanto oblite
-  <a class="anchor" href="#tanto-oblite">#</a>
+  <div class="book-post-content"><p>在 Java 中使用线程池（如 <code>ThreadPoolExecutor</code>）时，理解其参数非常关键，这些参数直接影响线程的<strong>性能</strong>、<strong>可扩展性</strong>和<strong>稳定性</strong>。下面详细介绍 <code>ThreadPoolExecutor</code> 构造函数的各个参数及其作用：</p>
+<hr>
+<h2 id="-构造函数定义">
+  🧱 构造函数定义
+  <a class="anchor" href="#-%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e5%ae%9a%e4%b9%89">#</a>
 </h2>
-<p>Lorem markdownum pectora novis patenti igne sua opus aurae feras materiaque
-illic demersit imago et aristas questaque posset. Vomit quoque suo inhaesuro
-clara. Esse cumque, per referri triste. Ut exponit solisque communis in tendens
-vincetis agisque iamque huic bene ante vetat omina Thebae rates. Aeacus servat
-admonitu concidit, ad resimas vultus et rugas vultu <strong>dignamque</strong> Siphnon.</p>
-<p>Quam iugulum regia simulacra, plus meruit humo pecorumque haesit, ab discedunt
-dixit: ritu pharetramque. Exul Laurenti orantem modo, per densum missisque labor
-manibus non colla unum, obiectat. Tu pervia collo, fessus quae Cretenque Myconon
-crate! Tegumenque quae invisi sudore per vocari quaque plus ventis fluidos. Nodo
-perque, fugisse pectora sorores.</p>
-<h2 id="summe-promissa-supple-vadit-lenius">
-  Summe promissa supple vadit lenius
-  <a class="anchor" href="#summe-promissa-supple-vadit-lenius">#</a>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#a6e22e">ThreadPoolExecutor</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> corePoolSize,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">int</span> maximumPoolSize,
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">long</span> keepAliveTime,
+</span></span><span style="display:flex;"><span>    TimeUnit unit,
+</span></span><span style="display:flex;"><span>    BlockingQueue<span style="color:#f92672">&lt;</span>Runnable<span style="color:#f92672">&gt;</span> workQueue,
+</span></span><span style="display:flex;"><span>    ThreadFactory threadFactory,
+</span></span><span style="display:flex;"><span>    RejectedExecutionHandler handler
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><hr>
+<h2 id="-参数详细说明">
+  📌 参数详细说明
+  <a class="anchor" href="#-%e5%8f%82%e6%95%b0%e8%af%a6%e7%bb%86%e8%af%b4%e6%98%8e">#</a>
 </h2>
-<p>Quibus largis latebris aethera versato est, ait sentiat faciemque. Aequata alis
-nec Caeneus exululat inclite corpus est, ire <strong>tibi</strong> ostendens et tibi. Rigent
-et vires dique possent lumina; <strong>eadem</strong> dixit poma funeribus paret et felix
-reddebant ventis utile lignum.</p>
+<table>
+  <thead>
+      <tr>
+          <th>参数</th>
+          <th>类型</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>corePoolSize</code></td>
+          <td><code>int</code></td>
+          <td>核心线程数，线程池中<strong>始终保留</strong>的线程数，即使它们空闲也不会被销毁（除非设置了 <code>allowCoreThreadTimeOut(true)</code>）</td>
+      </tr>
+      <tr>
+          <td><code>maximumPoolSize</code></td>
+          <td><code>int</code></td>
+          <td>线程池中<strong>允许的最大线程数</strong>，当任务过多并且队列满了时才会创建超过 core 数量的线程</td>
+      </tr>
+      <tr>
+          <td><code>keepAliveTime</code></td>
+          <td><code>long</code></td>
+          <td>非核心线程空闲多久会被销毁；如果设置了 <code>allowCoreThreadTimeOut(true)</code>，核心线程也会使用此超时</td>
+      </tr>
+      <tr>
+          <td><code>unit</code></td>
+          <td><code>TimeUnit</code></td>
+          <td>上述 keepAliveTime 的单位，例如 <code>TimeUnit.SECONDS</code></td>
+      </tr>
+      <tr>
+          <td><code>workQueue</code></td>
+          <td><code>BlockingQueue&lt;Runnable&gt;</code></td>
+          <td>用来缓存等待执行的任务的队列，例如 <code>ArrayBlockingQueue</code>, <code>LinkedBlockingQueue</code>, <code>SynchronousQueue</code> 等</td>
+      </tr>
+      <tr>
+          <td><code>threadFactory</code></td>
+          <td><code>ThreadFactory</code></td>
+          <td>自定义线程创建方式，例如设置线程名、是否为 daemon 等</td>
+      </tr>
+      <tr>
+          <td><code>handler</code></td>
+          <td><code>RejectedExecutionHandler</code></td>
+          <td>拒绝策略，当线程池和队列都满时用来处理新提交的任务</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-工作机制简述">
+  🎯 工作机制简述
+  <a class="anchor" href="#-%e5%b7%a5%e4%bd%9c%e6%9c%ba%e5%88%b6%e7%ae%80%e8%bf%b0">#</a>
+</h2>
+<p>当一个任务提交到线程池时：</p>
 <ol>
-<li>Remansit notam Stygia feroxque</li>
-<li>Et dabit materna</li>
-<li>Vipereas Phrygiaeque umbram sollicito cruore conlucere suus</li>
-<li>Quarum Elis corniger</li>
-<li>Nec ieiunia dixit</li>
+<li>当前线程数 &lt; <code>corePoolSize</code> → 创建新线程处理任务；</li>
+<li>否则 → 放入 <code>workQueue</code>；</li>
+<li>如果队列满了 &amp; 当前线程数 &lt; <code>maximumPoolSize</code> → 再创建线程；</li>
+<li>如果线程已达最大值且队列也满了 → 执行 <strong>拒绝策略 handler</strong>。</li>
 </ol>
-<p>Vertitur mos ortu ramosam contudit dumque; placabat ac lumen. Coniunx Amoris
-spatium poenamque cavernis Thebae Pleiadasque ponunt, rapiare cum quae parum
-nimium rima.</p>
-<h2 id="quidem-resupinus-inducto-solebat-una-facinus-quae">
-  Quidem resupinus inducto solebat una facinus quae
-  <a class="anchor" href="#quidem-resupinus-inducto-solebat-una-facinus-quae">#</a>
+<hr>
+<h2 id="-队列类型的区别workqueue">
+  🧪 队列类型的区别（workQueue）
+  <a class="anchor" href="#-%e9%98%9f%e5%88%97%e7%b1%bb%e5%9e%8b%e7%9a%84%e5%8c%ba%e5%88%abworkqueue">#</a>
 </h2>
-<p>Credulitas iniqua praepetibus paruit prospexit, voce poena, sub rupit sinuatur,
-quin suum ventorumque arcadiae priori. Soporiferam erat formamque, fecit,
-invergens, nymphae mutat fessas ait finge.</p>
-<ol>
-<li>Baculum mandataque ne addere capiti violentior</li>
-<li>Altera duas quam hoc ille tenues inquit</li>
-<li>Sicula sidereus latrantis domoque ratae polluit comites</li>
-<li>Possit oro clausura namque se nunc iuvenisque</li>
-<li>Faciem posuit</li>
-<li>Quodque cum ponunt novercae nata vestrae aratra</li>
-</ol>
-<p>Ite extrema Phrygiis, patre dentibus, tonso perculit, enim blanda, manibus fide
-quos caput armis, posse! Nocendo fas Alcyonae lacertis structa ferarum manus
-fulmen dubius, saxa caelum effuge extremis fixum tumor adfecit <strong>bella</strong>,
-potentes? Dum nec insidiosa tempora tegit
-
-  <a href="http://mihiferre.net/iuvenes-peto.html">spirarunt</a>. Per lupi pars foliis,
-porreximus humum negant sunt subposuere Sidone steterant auro. Memoraverit sine:
-ferrum idem Orion caelum heres gerebat fixis?</p>
+<table>
+  <thead>
+      <tr>
+          <th>类型</th>
+          <th>特点</th>
+          <th>适用场景</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>ArrayBlockingQueue</code></td>
+          <td>有界队列，先进先出</td>
+          <td>推荐，控制最大任务数</td>
+      </tr>
+      <tr>
+          <td><code>LinkedBlockingQueue</code></td>
+          <td>无界（或非常大）队列</td>
+          <td>容易导致线程数不增长，适合非突发流量</td>
+      </tr>
+      <tr>
+          <td><code>SynchronousQueue</code></td>
+          <td>不缓存任务，任务必须直接交给线程处理</td>
+          <td>适合高并发、低延迟场景，如 <code>Executors.newCachedThreadPool()</code></td>
+      </tr>
+      <tr>
+          <td><code>PriorityBlockingQueue</code></td>
+          <td>按优先级处理任务</td>
+          <td>需要排序执行任务的场景</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-拒绝策略rejectedexecutionhandler">
+  🔁 拒绝策略（RejectedExecutionHandler）
+  <a class="anchor" href="#-%e6%8b%92%e7%bb%9d%e7%ad%96%e7%95%a5rejectedexecutionhandler">#</a>
+</h2>
+<p>当任务无法被处理时执行的回调策略，常用的有：</p>
+<table>
+  <thead>
+      <tr>
+          <th>策略类</th>
+          <th>行为</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>AbortPolicy</code>（默认）</td>
+          <td>抛出 <code>RejectedExecutionException</code> 异常</td>
+          <td>最安全，防止任务丢失</td>
+      </tr>
+      <tr>
+          <td><code>CallerRunsPolicy</code></td>
+          <td>由提交任务的线程执行该任务</td>
+          <td>可回退，降低任务提交速度</td>
+      </tr>
+      <tr>
+          <td><code>DiscardPolicy</code></td>
+          <td>直接丢弃任务，无任何提示</td>
+          <td>有丢任务风险</td>
+      </tr>
+      <tr>
+          <td><code>DiscardOldestPolicy</code></td>
+          <td>丢弃队列头部最旧任务，再尝试执行当前任务</td>
+          <td>适合实时任务，牺牲旧任务保障新任务</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h2 id="-示例代码">
+  🛠 示例代码
+  <a class="anchor" href="#-%e7%a4%ba%e4%be%8b%e4%bb%a3%e7%a0%81">#</a>
+</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>ExecutorService executor <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ThreadPoolExecutor(
+</span></span><span style="display:flex;"><span>    4,                    <span style="color:#75715e">// corePoolSize</span>
+</span></span><span style="display:flex;"><span>    8,                    <span style="color:#75715e">// maximumPoolSize</span>
+</span></span><span style="display:flex;"><span>    60L,                  <span style="color:#75715e">// keepAliveTime</span>
+</span></span><span style="display:flex;"><span>    TimeUnit.<span style="color:#a6e22e">SECONDS</span>,     <span style="color:#75715e">// unit</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> ArrayBlockingQueue<span style="color:#f92672">&lt;&gt;</span>(100), <span style="color:#75715e">// workQueue</span>
+</span></span><span style="display:flex;"><span>    Executors.<span style="color:#a6e22e">defaultThreadFactory</span>(), <span style="color:#75715e">// threadFactory</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">new</span> ThreadPoolExecutor.<span style="color:#a6e22e">AbortPolicy</span>() <span style="color:#75715e">// handler</span>
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><hr>
+<h2 id="-总结建议">
+  🧠 总结建议
+  <a class="anchor" href="#-%e6%80%bb%e7%bb%93%e5%bb%ba%e8%ae%ae">#</a>
+</h2>
+<table>
+  <thead>
+      <tr>
+          <th>建议项</th>
+          <th>说明</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>明确设置核心和最大线程数</td>
+          <td>不要依赖默认线程池，避免 OOM 或任务堆积</td>
+      </tr>
+      <tr>
+          <td>使用有界队列</td>
+          <td>限制任务总数，防止内存溢出</td>
+      </tr>
+      <tr>
+          <td>合理选择拒绝策略</td>
+          <td>生产环境不要使用 <code>DiscardPolicy</code></td>
+      </tr>
+      <tr>
+          <td>自定义 ThreadFactory</td>
+          <td>可命名线程，方便排查问题</td>
+      </tr>
+      <tr>
+          <td>设置合理的 keepAliveTime</td>
+          <td>防止线程资源浪费或频繁销毁创建</td>
+      </tr>
+  </tbody>
+</table>
 </div>
 </article>
  
@@ -1094,6 +1310,37 @@ ferrum idem Orion caelum heres gerebat fixis?</p>
       <label for="menu-control" class="hidden book-menu-overlay"></label>
     </div>
 
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker::marker {
+        content: none;
+    }
+</style>
+<li class="no-marker"><a href="#Java%20%e7%ba%bf%e7%a8%8b%e6%b1%a0">Java 线程池</a></li>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#-构造函数定义">🧱 构造函数定义</a></li>
+        <li><a href="#-参数详细说明">📌 参数详细说明</a></li>
+        <li><a href="#-工作机制简述">🎯 工作机制简述</a></li>
+        <li><a href="#-队列类型的区别workqueue">🧪 队列类型的区别（workQueue）</a></li>
+        <li><a href="#-拒绝策略rejectedexecutionhandler">🔁 拒绝策略（RejectedExecutionHandler）</a></li>
+        <li><a href="#-示例代码">🛠 示例代码</a></li>
+        <li><a href="#-总结建议">🧠 总结建议</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
     
   </main>
 
