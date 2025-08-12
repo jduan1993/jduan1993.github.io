@@ -1,9 +1,17 @@
 {{ partial "docs/inject/toc-before" . }}
 <style>
-    .no-marker::marker {
-        content: none;
+    .no-marker {
+        list-style: none;      /* 移除默认的标记 */
+        margin-block-start: 1em; /* 上间距 */
+        margin-block-end: 1em;   /* 下间距 */
+        /* 或者简写：margin: 1em 0; */
+    }
+
+    .no-marker:hover {
+        opacity: 0.5; /* 鼠标悬停时透明度 50% */
     }
 </style>
 <li class="no-marker"><a href="#{{ .Title }}">{{ .Title }}</a></li>
+
 {{ .TableOfContents }}
 {{ partial "docs/inject/toc-after" . }}

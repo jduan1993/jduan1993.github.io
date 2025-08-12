@@ -8,6 +8,13 @@
     <language>zh</language>
     <atom:link href="http://localhost:1313/docs/study/base/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Java 基础</title>
+      <link>http://localhost:1313/docs/study/base/java/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/docs/study/base/java/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Python 基础</title>
       <link>http://localhost:1313/docs/study/base/python/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

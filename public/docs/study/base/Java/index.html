@@ -1,0 +1,2633 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  Java Coding面试常用数据结构与方法
+  #
+
+
+  1. Array（数组）
+  #
+
+
+  基本操作
+  #
+
+// 声明和初始化
+int[] arr = new int[10];
+int[] arr2 = {1, 2, 3, 4, 5};
+
+// 获取长度
+int length = arr.length;
+
+// 遍历
+for (int i = 0; i &lt; arr.length; i&#43;&#43;) {
+    System.out.println(arr[i]);
+}
+
+// 增强for循环
+for (int num : arr) {
+    System.out.println(num);
+}
+
+// 排序
+Arrays.sort(arr);  // 升序
+Arrays.sort(arr, Collections.reverseOrder());  // 降序（需要Integer[]）
+
+// 二分查找（必须先排序）
+int index = Arrays.binarySearch(arr, target);
+
+// 填充
+Arrays.fill(arr, 0);  // 全部填充为0
+
+// 深拷贝基本类型数组
+int[] deepCopy = Arrays.copyOf(arr, arr.length);
+int[] deepCopyRange = Arrays.copyOfRange(arr, 0, 3);
+
+// 或者使用System.arraycopy
+int[] deepCopy2 = new int[arr.length];
+System.arraycopy(arr, 0, deepCopy2, 0, arr.length);
+
+  常用技巧
+  #
+
+// 数组转List
+List&lt;Integer&gt; list = Arrays.asList(1, 2, 3, 4, 5);
+
+// 复制数组
+int[] copy = Arrays.copyOf(arr, arr.length);
+int[] copyRange = Arrays.copyOfRange(arr, 0, 3);
+
+// 比较数组
+boolean equals = Arrays.equals(arr1, arr2);
+
+  2. List（列表）
+  #
+
+
+  ArrayList
+  #
+
+// 声明和初始化
+List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3));
+
+// 基本操作
+list.add(1);                    // 添加元素
+list.add(0, 0);                // 在指定位置添加
+list.set(0, 10);               // 设置指定位置的元素
+int element = list.get(0);      // 获取元素
+list.remove(0);                 // 删除指定位置的元素
+list.remove(Integer.valueOf(1)); // 删除指定值的元素
+int size = list.size();         // 获取大小
+boolean isEmpty = list.isEmpty(); // 判断是否为空
+
+// 查找
+boolean contains = list.contains(1);
+int index = list.indexOf(1);
+int lastIndex = list.lastIndexOf(1);
+
+// 遍历
+for (int i = 0; i &lt; list.size(); i&#43;&#43;) {
+    System.out.println(list.get(i));
+}
+
+for (Integer num : list) {
+    System.out.println(num);
+}
+
+// 排序
+Collections.sort(list);  // 升序
+Collections.sort(list, Collections.reverseOrder());  // 降序
+list.sort(Comparator.naturalOrder());  // 升序
+list.sort(Comparator.reverseOrder());  // 降序
+
+// 反转
+Collections.reverse(list);
+
+  LinkedList
+  #
+
+LinkedList&lt;Integer&gt; linkedList = new LinkedList&lt;&gt;();
+linkedList.addFirst(1);        // 在开头添加
+linkedList.addLast(2);         // 在结尾添加
+linkedList.removeFirst();       // 删除第一个
+linkedList.removeLast();        // 删除最后一个
+int first = linkedList.getFirst();  // 获取第一个
+int last = linkedList.getLast();    // 获取最后一个
+
+  3. String（字符串）
+  #
+
+
+  基本操作
+  #
+
+String str = &#34;Hello World&#34;;
+
+// 长度
+int length = str.length();
+
+// 字符访问
+char ch = str.charAt(0);
+
+// 子串
+String sub = str.substring(0, 5);  // &#34;Hello&#34;
+String sub2 = str.substring(6);    // &#34;World&#34;
+
+// 查找
+int index = str.indexOf(&#34;o&#34;);      // 第一次出现的位置
+int lastIndex = str.lastIndexOf(&#34;o&#34;); // 最后一次出现的位置
+boolean contains = str.contains(&#34;Hello&#34;);
+
+// 替换
+String replaced = str.replace(&#34;World&#34;, &#34;Java&#34;);
+String replacedAll = str.replaceAll(&#34;o&#34;, &#34;0&#34;);
+
+// 分割
+String[] parts = str.split(&#34; &#34;);   // [&#34;Hello&#34;, &#34;World&#34;]
+
+// 连接
+String joined = String.join(&#34;-&#34;, &#34;Hello&#34;, &#34;World&#34;); // &#34;Hello-World&#34;
+
+// 转换
+String upper = str.toUpperCase();
+String lower = str.toLowerCase();
+String trimmed = str.trim();       // 去除首尾空格
+
+// 比较
+boolean equals = str.equals(&#34;Hello World&#34;);
+boolean equalsIgnoreCase = str.equalsIgnoreCase(&#34;hello world&#34;);
+int compare = str.compareTo(&#34;Hello Java&#34;);
+
+  常用技巧
+  #
+
+// 字符串转字符数组
+char[] chars = str.toCharArray();
+
+// 字符数组转字符串
+String fromChars = new String(chars);
+
+// 字符串构建器
+StringBuilder sb = new StringBuilder();
+sb.append(&#34;Hello&#34;);
+sb.append(&#34; &#34;);
+sb.append(&#34;World&#34;);
+String result = sb.toString();
+
+// 格式化
+String formatted = String.format(&#34;Hello %s&#34;, &#34;World&#34;);
+
+  4. char（字符）
+  #
+
+
+  基本操作
+  #
+
+char ch = &#39;A&#39;;
+
+// 字符转换
+int ascii = (int) ch;           // 转ASCII码
+char fromAscii = (char) 65;     // ASCII码转字符
+
+// 字符判断
+boolean isLetter = Character.isLetter(ch);
+boolean isDigit = Character.isDigit(ch);
+boolean isUpperCase = Character.isUpperCase(ch);
+boolean isLowerCase = Character.isLowerCase(ch);
+boolean isWhitespace = Character.isWhitespace(ch);
+
+// 字符转换
+char upper = Character.toUpperCase(ch);
+char lower = Character.toLowerCase(ch);
+
+// 数字字符转数字
+int digit = Character.getNumericValue(&#39;5&#39;);  // 5
+
+  5. Map（映射）
+  #
+
+
+  HashMap
+  #
+
+// 声明和初始化
+Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+Map&lt;String, Integer&gt; map2 = new HashMap&lt;&gt;(Map.of(&#34;a&#34;, 1, &#34;b&#34;, 2));
+
+// 基本操作
+map.put(&#34;key&#34;, 1);              // 添加或更新
+map.putIfAbsent(&#34;key&#34;, 2);      // 如果不存在则添加
+Integer value = map.get(&#34;key&#34;);  // 获取值
+Integer valueOrDefault = map.getOrDefault(&#34;key&#34;, 0); // 获取值，不存在返回默认值
+map.remove(&#34;key&#34;);               // 删除键值对
+map.clear();                     // 清空
+
+// 查找
+boolean containsKey = map.containsKey(&#34;key&#34;);
+boolean containsValue = map.containsValue(1);
+int size = map.size();
+boolean isEmpty = map.isEmpty();
+
+// 遍历
+for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) {
+    System.out.println(entry.getKey() &#43; &#34;: &#34; &#43; entry.getValue());
+}
+
+for (String key : map.keySet()) {
+    System.out.println(key &#43; &#34;: &#34; &#43; map.get(key));
+}
+
+for (Integer val : map.values()) {
+    System.out.println(val);
+}
+
+// 合并
+map.merge(&#34;key&#34;, 1, Integer::sum);  // 如果存在则累加，不存在则添加
+
+  TreeMap（有序）
+  #
+
+TreeMap&lt;String, Integer&gt; treeMap = new TreeMap&lt;&gt;();
+treeMap.put(&#34;c&#34;, 3);
+treeMap.put(&#34;a&#34;, 1);
+treeMap.put(&#34;b&#34;, 2);
+
+// 有序遍历
+for (String key : treeMap.keySet()) {
+    System.out.println(key &#43; &#34;: &#34; &#43; treeMap.get(key));
+}
+
+// 获取第一个和最后一个
+String firstKey = treeMap.firstKey();
+String lastKey = treeMap.lastKey();
+Map.Entry&lt;String, Integer&gt; firstEntry = treeMap.firstEntry();
+Map.Entry&lt;String, Integer&gt; lastEntry = treeMap.lastEntry();
+
+// 获取小于或大于某个键的视图
+SortedMap&lt;String, Integer&gt; headMap = treeMap.headMap(&#34;c&#34;);
+SortedMap&lt;String, Integer&gt; tailMap = treeMap.tailMap(&#34;a&#34;);
+
+  6. Deque（双端队列）
+  #
+
+
+  ArrayDeque
+  #
+
+Deque&lt;Integer&gt; deque = new ArrayDeque&lt;&gt;();
+
+// 在开头操作
+deque.addFirst(1);
+deque.offerFirst(2);
+deque.removeFirst();
+deque.pollFirst();
+Integer first = deque.getFirst();
+Integer peekFirst = deque.peekFirst();
+
+// 在结尾操作
+deque.addLast(3);
+deque.offerLast(4);
+deque.removeLast();
+deque.pollLast();
+Integer last = deque.getLast();
+Integer peekLast = deque.peekLast();
+
+// 栈操作（LIFO）
+deque.push(5);      // 压栈
+Integer pop = deque.pop();  // 弹栈
+Integer peek = deque.peek(); // 查看栈顶
+
+// 队列操作（FIFO）
+deque.offer(6);     // 入队
+Integer poll = deque.poll(); // 出队
+Integer element = deque.element(); // 查看队首
+
+// 遍历
+for (Integer num : deque) {
+    System.out.println(num);
+}
+
+  7. Set（集合）
+  #
+
+
+  HashSet
+  #
+
+Set&lt;Integer&gt; set = new HashSet&lt;&gt;();
+set.add(1);
+set.add(2);
+set.add(1);  // 重复元素不会添加
+
+boolean contains = set.contains(1);
+set.remove(1);
+int size = set.size();
+
+// 遍历
+for (Integer num : set) {
+    System.out.println(num);
+}
+
+// 集合操作
+Set&lt;Integer&gt; set2 = new HashSet&lt;&gt;(Arrays.asList(2, 3, 4));
+set.addAll(set2);           // 并集
+set.retainAll(set2);        // 交集
+set.removeAll(set2);        // 差集
+
+  TreeSet（有序）
+  #
+
+TreeSet&lt;Integer&gt; treeSet = new TreeSet&lt;&gt;();
+treeSet.add(3);
+treeSet.add(1);
+treeSet.add(2);
+
+// 有序遍历
+for (Integer num : treeSet) {
+    System.out.println(num);
+}
+
+// 获取第一个和最后一个
+Integer first = treeSet.first();
+Integer last = treeSet.last();
+
+// 获取小于或大于某个值的视图
+SortedSet&lt;Integer&gt; headSet = treeSet.headSet(3);
+SortedSet&lt;Integer&gt; tailSet = treeSet.tailSet(1);
+
+  8. 常用算法技巧
+  #
+
+
+  双指针
+  #
+
+// 快慢指针
+int slow = 0, fast = 0;
+while (fast &lt; nums.length) {
+    if (condition) {
+        slow&#43;&#43;;
+    }
+    fast&#43;&#43;;
+}
+
+// 左右指针
+int left = 0, right = nums.length - 1;
+while (left &lt; right) {
+    if (condition) {
+        left&#43;&#43;;
+    } else {
+        right--;
+    }
+}
+
+  滑动窗口
+  #
+
+int left = 0, right = 0;
+int sum = 0;
+while (right &lt; nums.length) {
+    sum &#43;= nums[right];
+    while (sum &gt;= target) {
+        // 更新结果
+        sum -= nums[left];
+        left&#43;&#43;;
+    }
+    right&#43;&#43;;
+}
+
+  前缀和
+  #
+
+int[] prefixSum = new int[nums.length &#43; 1];
+for (int i = 0; i &lt; nums.length; i&#43;&#43;) {
+    prefixSum[i &#43; 1] = prefixSum[i] &#43; nums[i];
+}
+
+// 计算区间和
+int rangeSum = prefixSum[right &#43; 1] - prefixSum[left];
+
+  9. 面试常见问题
+  #
+
+
+  时间复杂度
+  #
+
+
+数组访问：O(1)
+数组搜索：O(n)
+数组排序：O(n log n)
+HashMap操作：平均O(1)，最坏O(n)
+TreeMap操作：O(log n)
+ArrayList添加/删除：O(1)（末尾），O(n)（中间）
+LinkedList添加/删除：O(1)（头尾），O(n)（中间）
+
+
+  空间复杂度
+  #
+
+
+原地算法：O(1)
+递归：O(递归深度)
+动态规划：O(n) 或 O(n²)
+
+
+  常用技巧
+  #
+
+
+使用HashMap优化查找：将O(n)的查找优化为O(1)
+双指针技巧：解决数组中的查找、去重等问题
+滑动窗口：解决子数组、子串等问题
+单调栈/队列：解决下一个更大元素等问题
+前缀和：快速计算区间和
+差分数组：快速进行区间更新
+
+掌握这些数据结构和常用方法，能够解决大部分Java coding面试题目。关键是要理解每种数据结构的特点和适用场景，选择最合适的数据结构来解决问题。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/base/java/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="Java 基础">
+  <meta property="og:description" content="Java Coding面试常用数据结构与方法#1. Array（数组）#基本操作#// 声明和初始化 int[] arr = new int[10]; int[] arr2 = {1, 2, 3, 4, 5}; // 获取长度 int length = arr.length; // 遍历 for (int i = 0; i &lt; arr.length; i&#43;&#43;) { System.out.println(arr[i]); } // 增强for循环 for (int num : arr) { System.out.println(num); } // 排序 Arrays.sort(arr); // 升序 Arrays.sort(arr, Collections.reverseOrder()); // 降序（需要Integer[]） // 二分查找（必须先排序） int index = Arrays.binarySearch(arr, target); // 填充 Arrays.fill(arr, 0); // 全部填充为0 // 深拷贝基本类型数组 int[] deepCopy = Arrays.copyOf(arr, arr.length); int[] deepCopyRange = Arrays.copyOfRange(arr, 0, 3); // 或者使用System.arraycopy int[] deepCopy2 = new int[arr.length]; System.arraycopy(arr, 0, deepCopy2, 0, arr.length); 常用技巧#// 数组转List List&lt;Integer&gt; list = Arrays.asList(1, 2, 3, 4, 5); // 复制数组 int[] copy = Arrays.copyOf(arr, arr.length); int[] copyRange = Arrays.copyOfRange(arr, 0, 3); // 比较数组 boolean equals = Arrays.equals(arr1, arr2); 2. List（列表）#ArrayList#// 声明和初始化 List&lt;Integer&gt; list = new ArrayList&lt;&gt;(); List&lt;Integer&gt; list2 = new ArrayList&lt;&gt;(Arrays.asList(1, 2, 3)); // 基本操作 list.add(1); // 添加元素 list.add(0, 0); // 在指定位置添加 list.set(0, 10); // 设置指定位置的元素 int element = list.get(0); // 获取元素 list.remove(0); // 删除指定位置的元素 list.remove(Integer.valueOf(1)); // 删除指定值的元素 int size = list.size(); // 获取大小 boolean isEmpty = list.isEmpty(); // 判断是否为空 // 查找 boolean contains = list.contains(1); int index = list.indexOf(1); int lastIndex = list.lastIndexOf(1); // 遍历 for (int i = 0; i &lt; list.size(); i&#43;&#43;) { System.out.println(list.get(i)); } for (Integer num : list) { System.out.println(num); } // 排序 Collections.sort(list); // 升序 Collections.sort(list, Collections.reverseOrder()); // 降序 list.sort(Comparator.naturalOrder()); // 升序 list.sort(Comparator.reverseOrder()); // 降序 // 反转 Collections.reverse(list); LinkedList#LinkedList&lt;Integer&gt; linkedList = new LinkedList&lt;&gt;(); linkedList.addFirst(1); // 在开头添加 linkedList.addLast(2); // 在结尾添加 linkedList.removeFirst(); // 删除第一个 linkedList.removeLast(); // 删除最后一个 int first = linkedList.getFirst(); // 获取第一个 int last = linkedList.getLast(); // 获取最后一个 3. String（字符串）#基本操作#String str = &#34;Hello World&#34;; // 长度 int length = str.length(); // 字符访问 char ch = str.charAt(0); // 子串 String sub = str.substring(0, 5); // &#34;Hello&#34; String sub2 = str.substring(6); // &#34;World&#34; // 查找 int index = str.indexOf(&#34;o&#34;); // 第一次出现的位置 int lastIndex = str.lastIndexOf(&#34;o&#34;); // 最后一次出现的位置 boolean contains = str.contains(&#34;Hello&#34;); // 替换 String replaced = str.replace(&#34;World&#34;, &#34;Java&#34;); String replacedAll = str.replaceAll(&#34;o&#34;, &#34;0&#34;); // 分割 String[] parts = str.split(&#34; &#34;); // [&#34;Hello&#34;, &#34;World&#34;] // 连接 String joined = String.join(&#34;-&#34;, &#34;Hello&#34;, &#34;World&#34;); // &#34;Hello-World&#34; // 转换 String upper = str.toUpperCase(); String lower = str.toLowerCase(); String trimmed = str.trim(); // 去除首尾空格 // 比较 boolean equals = str.equals(&#34;Hello World&#34;); boolean equalsIgnoreCase = str.equalsIgnoreCase(&#34;hello world&#34;); int compare = str.compareTo(&#34;Hello Java&#34;); 常用技巧#// 字符串转字符数组 char[] chars = str.toCharArray(); // 字符数组转字符串 String fromChars = new String(chars); // 字符串构建器 StringBuilder sb = new StringBuilder(); sb.append(&#34;Hello&#34;); sb.append(&#34; &#34;); sb.append(&#34;World&#34;); String result = sb.toString(); // 格式化 String formatted = String.format(&#34;Hello %s&#34;, &#34;World&#34;); 4. char（字符）#基本操作#char ch = &#39;A&#39;; // 字符转换 int ascii = (int) ch; // 转ASCII码 char fromAscii = (char) 65; // ASCII码转字符 // 字符判断 boolean isLetter = Character.isLetter(ch); boolean isDigit = Character.isDigit(ch); boolean isUpperCase = Character.isUpperCase(ch); boolean isLowerCase = Character.isLowerCase(ch); boolean isWhitespace = Character.isWhitespace(ch); // 字符转换 char upper = Character.toUpperCase(ch); char lower = Character.toLowerCase(ch); // 数字字符转数字 int digit = Character.getNumericValue(&#39;5&#39;); // 5 5. Map（映射）#HashMap#// 声明和初始化 Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;(); Map&lt;String, Integer&gt; map2 = new HashMap&lt;&gt;(Map.of(&#34;a&#34;, 1, &#34;b&#34;, 2)); // 基本操作 map.put(&#34;key&#34;, 1); // 添加或更新 map.putIfAbsent(&#34;key&#34;, 2); // 如果不存在则添加 Integer value = map.get(&#34;key&#34;); // 获取值 Integer valueOrDefault = map.getOrDefault(&#34;key&#34;, 0); // 获取值，不存在返回默认值 map.remove(&#34;key&#34;); // 删除键值对 map.clear(); // 清空 // 查找 boolean containsKey = map.containsKey(&#34;key&#34;); boolean containsValue = map.containsValue(1); int size = map.size(); boolean isEmpty = map.isEmpty(); // 遍历 for (Map.Entry&lt;String, Integer&gt; entry : map.entrySet()) { System.out.println(entry.getKey() &#43; &#34;: &#34; &#43; entry.getValue()); } for (String key : map.keySet()) { System.out.println(key &#43; &#34;: &#34; &#43; map.get(key)); } for (Integer val : map.values()) { System.out.println(val); } // 合并 map.merge(&#34;key&#34;, 1, Integer::sum); // 如果存在则累加，不存在则添加 TreeMap（有序）#TreeMap&lt;String, Integer&gt; treeMap = new TreeMap&lt;&gt;(); treeMap.put(&#34;c&#34;, 3); treeMap.put(&#34;a&#34;, 1); treeMap.put(&#34;b&#34;, 2); // 有序遍历 for (String key : treeMap.keySet()) { System.out.println(key &#43; &#34;: &#34; &#43; treeMap.get(key)); } // 获取第一个和最后一个 String firstKey = treeMap.firstKey(); String lastKey = treeMap.lastKey(); Map.Entry&lt;String, Integer&gt; firstEntry = treeMap.firstEntry(); Map.Entry&lt;String, Integer&gt; lastEntry = treeMap.lastEntry(); // 获取小于或大于某个键的视图 SortedMap&lt;String, Integer&gt; headMap = treeMap.headMap(&#34;c&#34;); SortedMap&lt;String, Integer&gt; tailMap = treeMap.tailMap(&#34;a&#34;); 6. Deque（双端队列）#ArrayDeque#Deque&lt;Integer&gt; deque = new ArrayDeque&lt;&gt;(); // 在开头操作 deque.addFirst(1); deque.offerFirst(2); deque.removeFirst(); deque.pollFirst(); Integer first = deque.getFirst(); Integer peekFirst = deque.peekFirst(); // 在结尾操作 deque.addLast(3); deque.offerLast(4); deque.removeLast(); deque.pollLast(); Integer last = deque.getLast(); Integer peekLast = deque.peekLast(); // 栈操作（LIFO） deque.push(5); // 压栈 Integer pop = deque.pop(); // 弹栈 Integer peek = deque.peek(); // 查看栈顶 // 队列操作（FIFO） deque.offer(6); // 入队 Integer poll = deque.poll(); // 出队 Integer element = deque.element(); // 查看队首 // 遍历 for (Integer num : deque) { System.out.println(num); } 7. Set（集合）#HashSet#Set&lt;Integer&gt; set = new HashSet&lt;&gt;(); set.add(1); set.add(2); set.add(1); // 重复元素不会添加 boolean contains = set.contains(1); set.remove(1); int size = set.size(); // 遍历 for (Integer num : set) { System.out.println(num); } // 集合操作 Set&lt;Integer&gt; set2 = new HashSet&lt;&gt;(Arrays.asList(2, 3, 4)); set.addAll(set2); // 并集 set.retainAll(set2); // 交集 set.removeAll(set2); // 差集 TreeSet（有序）#TreeSet&lt;Integer&gt; treeSet = new TreeSet&lt;&gt;(); treeSet.add(3); treeSet.add(1); treeSet.add(2); // 有序遍历 for (Integer num : treeSet) { System.out.println(num); } // 获取第一个和最后一个 Integer first = treeSet.first(); Integer last = treeSet.last(); // 获取小于或大于某个值的视图 SortedSet&lt;Integer&gt; headSet = treeSet.headSet(3); SortedSet&lt;Integer&gt; tailSet = treeSet.tailSet(1); 8. 常用算法技巧#双指针#// 快慢指针 int slow = 0, fast = 0; while (fast &lt; nums.length) { if (condition) { slow&#43;&#43;; } fast&#43;&#43;; } // 左右指针 int left = 0, right = nums.length - 1; while (left &lt; right) { if (condition) { left&#43;&#43;; } else { right--; } } 滑动窗口#int left = 0, right = 0; int sum = 0; while (right &lt; nums.length) { sum &#43;= nums[right]; while (sum &gt;= target) { // 更新结果 sum -= nums[left]; left&#43;&#43;; } right&#43;&#43;; } 前缀和#int[] prefixSum = new int[nums.length &#43; 1]; for (int i = 0; i &lt; nums.length; i&#43;&#43;) { prefixSum[i &#43; 1] = prefixSum[i] &#43; nums[i]; } // 计算区间和 int rangeSum = prefixSum[right &#43; 1] - prefixSum[left]; 9. 面试常见问题#时间复杂度#数组访问：O(1) 数组搜索：O(n) 数组排序：O(n log n) HashMap操作：平均O(1)，最坏O(n) TreeMap操作：O(log n) ArrayList添加/删除：O(1)（末尾），O(n)（中间） LinkedList添加/删除：O(1)（头尾），O(n)（中间） 空间复杂度#原地算法：O(1) 递归：O(递归深度) 动态规划：O(n) 或 O(n²) 常用技巧#使用HashMap优化查找：将O(n)的查找优化为O(1) 双指针技巧：解决数组中的查找、去重等问题 滑动窗口：解决子数组、子串等问题 单调栈/队列：解决下一个更大元素等问题 前缀和：快速计算区间和 差分数组：快速进行区间更新 掌握这些数据结构和常用方法，能够解决大部分Java coding面试题目。关键是要理解每种数据结构的特点和适用场景，选择最合适的数据结构来解决问题。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>Java 基础 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/base/java/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.98d6c76cea8c5502ec7a8445029c9a9d96569cca23e2fea85075ca9276555d02.js" integrity="sha256-mNbHbOqMVQLseoRFApyanZZWnMoj4v6oUHXKknZVXQI=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-582da456f48414d663a4153b7d734ed6" class="toggle"  />
+    <label for="section-582da456f48414d663a4153b7d734ed6" class="flex justify-between">
+      <a role="button" class="">安全</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-407d2f8dd9410e8eef358914dd8c0dc2" class="toggle"  />
+    <label for="section-407d2f8dd9410e8eef358914dd8c0dc2" class="flex justify-between">
+      <a role="button" class="">缓存</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle" checked />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/java/" class="active">Java 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/python/" class="">Python 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/algorithm/" class="">算法</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3ba9e8b376ea48d5beb815b520fdce5d" class="toggle"  />
+    <label for="section-3ba9e8b376ea48d5beb815b520fdce5d" class="flex justify-between">
+      <a role="button" class="">网络</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle"  />
+    <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
+      <a role="button" class="">自省</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/thread-pool/" class="">Java 线程池</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/juc/" class="">Java.util.concurrent 包</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/trace/" class="">OpenTelemetry 全链路追踪</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>Java 基础</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker {
+        list-style: none;       
+        margin-block-start: 1em;  
+        margin-block-end: 1em;    
+         
+    }
+
+    .no-marker:hover {
+        opacity: 0.5;  
+    }
+</style>
+<li class="no-marker"><a href="#Java%20%e5%9f%ba%e7%a1%80">Java 基础</a></li>
+
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#java-coding面试常用数据结构与方法">Java Coding面试常用数据结构与方法</a>
+      <ul>
+        <li><a href="#1-array数组">1. Array（数组）</a>
+          <ul>
+            <li><a href="#基本操作">基本操作</a></li>
+            <li><a href="#常用技巧">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-list列表">2. List（列表）</a>
+          <ul>
+            <li><a href="#arraylist">ArrayList</a></li>
+            <li><a href="#linkedlist">LinkedList</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-string字符串">3. String（字符串）</a>
+          <ul>
+            <li><a href="#基本操作-1">基本操作</a></li>
+            <li><a href="#常用技巧-1">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-char字符">4. char（字符）</a>
+          <ul>
+            <li><a href="#基本操作-2">基本操作</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-map映射">5. Map（映射）</a>
+          <ul>
+            <li><a href="#hashmap">HashMap</a></li>
+            <li><a href="#treemap有序">TreeMap（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#6-deque双端队列">6. Deque（双端队列）</a>
+          <ul>
+            <li><a href="#arraydeque">ArrayDeque</a></li>
+          </ul>
+        </li>
+        <li><a href="#7-set集合">7. Set（集合）</a>
+          <ul>
+            <li><a href="#hashset">HashSet</a></li>
+            <li><a href="#treeset有序">TreeSet（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#8-常用算法技巧">8. 常用算法技巧</a>
+          <ul>
+            <li><a href="#双指针">双指针</a></li>
+            <li><a href="#滑动窗口">滑动窗口</a></li>
+            <li><a href="#前缀和">前缀和</a></li>
+          </ul>
+        </li>
+        <li><a href="#9-面试常见问题">9. 面试常见问题</a>
+          <ul>
+            <li><a href="#时间复杂度">时间复杂度</a></li>
+            <li><a href="#空间复杂度">空间复杂度</a></li>
+            <li><a href="#常用技巧-2">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#title-java-基础">title: Java 基础</a></li>
+      </ul>
+    </li>
+    <li><a href="#java-coding面试常用数据结构与方法-1">Java Coding面试常用数据结构与方法</a>
+      <ul>
+        <li><a href="#1-array数组-1">1. Array（数组）</a>
+          <ul>
+            <li><a href="#基本操作-3">基本操作</a></li>
+            <li><a href="#常用技巧-3">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-list列表-1">2. List（列表）</a>
+          <ul>
+            <li><a href="#arraylist-1">ArrayList</a></li>
+            <li><a href="#linkedlist-1">LinkedList</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-string字符串-1">3. String（字符串）</a>
+          <ul>
+            <li><a href="#基本操作-4">基本操作</a></li>
+            <li><a href="#常用技巧-4">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-char字符-1">4. char（字符）</a>
+          <ul>
+            <li><a href="#基本操作-5">基本操作</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-map映射-1">5. Map（映射）</a>
+          <ul>
+            <li><a href="#hashmap-1">HashMap</a></li>
+            <li><a href="#treemap有序-1">TreeMap（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#6-deque双端队列-1">6. Deque（双端队列）</a>
+          <ul>
+            <li><a href="#arraydeque-1">ArrayDeque</a></li>
+          </ul>
+        </li>
+        <li><a href="#7-set集合-1">7. Set（集合）</a>
+          <ul>
+            <li><a href="#hashset-1">HashSet</a></li>
+            <li><a href="#treeset有序-1">TreeSet（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#8-常用算法技巧-1">8. 常用算法技巧</a>
+          <ul>
+            <li><a href="#双指针-1">双指针</a></li>
+            <li><a href="#滑动窗口-1">滑动窗口</a></li>
+            <li><a href="#前缀和-1">前缀和</a></li>
+          </ul>
+        </li>
+        <li><a href="#9-面试常见问题-1">9. 面试常见问题</a>
+          <ul>
+            <li><a href="#时间复杂度-1">时间复杂度</a></li>
+            <li><a href="#空间复杂度-1">空间复杂度</a></li>
+            <li><a href="#常用技巧-5">常用技巧</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="Java 基础">
+    Java 基础
+    <a class="anchor" href="#Java%20%e5%9f%ba%e7%a1%80">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h1 id="java-coding面试常用数据结构与方法">
+  Java Coding面试常用数据结构与方法
+  <a class="anchor" href="#java-coding%e9%9d%a2%e8%af%95%e5%b8%b8%e7%94%a8%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84%e4%b8%8e%e6%96%b9%e6%b3%95">#</a>
+</h1>
+<h2 id="1-array数组">
+  1. Array（数组）
+  <a class="anchor" href="#1-array%e6%95%b0%e7%bb%84">#</a>
+</h2>
+<h3 id="基本操作">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>10<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr2 <span style="color:#f92672">=</span> {1, 2, 3, 4, 5};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取长度</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> length <span style="color:#f92672">=</span> arr.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> arr.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 增强for循环</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> num : arr) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 排序</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">sort</span>(arr);  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">sort</span>(arr, Collections.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序（需要Integer[]）</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 二分查找（必须先排序）</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">binarySearch</span>(arr, target);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 填充</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">fill</span>(arr, 0);  <span style="color:#75715e">// 全部填充为0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 深拷贝基本类型数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> deepCopy <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOf</span>(arr, arr.<span style="color:#a6e22e">length</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> deepCopyRange <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOfRange</span>(arr, 0, 3);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 或者使用System.arraycopy</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> deepCopy2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>arr.<span style="color:#a6e22e">length</span><span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>System.<span style="color:#a6e22e">arraycopy</span>(arr, 0, deepCopy2, 0, arr.<span style="color:#a6e22e">length</span>);
+</span></span></code></pre></div><h3 id="常用技巧">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 数组转List</span>
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">asList</span>(1, 2, 3, 4, 5);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 复制数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> copy <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOf</span>(arr, arr.<span style="color:#a6e22e">length</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> copyRange <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOfRange</span>(arr, 0, 3);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 比较数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equals <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">equals</span>(arr1, arr2);
+</span></span></code></pre></div><h2 id="2-list列表">
+  2. List（列表）
+  <a class="anchor" href="#2-list%e5%88%97%e8%a1%a8">#</a>
+</h2>
+<h3 id="arraylist">
+  ArrayList
+  <a class="anchor" href="#arraylist">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>(Arrays.<span style="color:#a6e22e">asList</span>(1, 2, 3));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 基本操作</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(1);                    <span style="color:#75715e">// 添加元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(0, 0);                <span style="color:#75715e">// 在指定位置添加</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">set</span>(0, 10);               <span style="color:#75715e">// 设置指定位置的元素</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> element <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">get</span>(0);      <span style="color:#75715e">// 获取元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">remove</span>(0);                 <span style="color:#75715e">// 删除指定位置的元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">remove</span>(Integer.<span style="color:#a6e22e">valueOf</span>(1)); <span style="color:#75715e">// 删除指定值的元素</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">size</span>();         <span style="color:#75715e">// 获取大小</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isEmpty <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">isEmpty</span>(); <span style="color:#75715e">// 判断是否为空</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">contains</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">indexOf</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">lastIndexOf</span>(1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> list.<span style="color:#a6e22e">size</span>(); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(list.<span style="color:#a6e22e">get</span>(i));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : list) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 排序</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">sort</span>(list);  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">sort</span>(list, Collections.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">sort</span>(Comparator.<span style="color:#a6e22e">naturalOrder</span>());  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">sort</span>(Comparator.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 反转</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">reverse</span>(list);
+</span></span></code></pre></div><h3 id="linkedlist">
+  LinkedList
+  <a class="anchor" href="#linkedlist">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>LinkedList<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> linkedList <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">addFirst</span>(1);        <span style="color:#75715e">// 在开头添加</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">addLast</span>(2);         <span style="color:#75715e">// 在结尾添加</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">removeFirst</span>();       <span style="color:#75715e">// 删除第一个</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">removeLast</span>();        <span style="color:#75715e">// 删除最后一个</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> first <span style="color:#f92672">=</span> linkedList.<span style="color:#a6e22e">getFirst</span>();  <span style="color:#75715e">// 获取第一个</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> last <span style="color:#f92672">=</span> linkedList.<span style="color:#a6e22e">getLast</span>();    <span style="color:#75715e">// 获取最后一个</span>
+</span></span></code></pre></div><h2 id="3-string字符串">
+  3. String（字符串）
+  <a class="anchor" href="#3-string%e5%ad%97%e7%ac%a6%e4%b8%b2">#</a>
+</h2>
+<h3 id="基本操作-1">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello World&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 长度</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> length <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">length</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符访问</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> ch <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">charAt</span>(0);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 子串</span>
+</span></span><span style="display:flex;"><span>String sub <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">substring</span>(0, 5);  <span style="color:#75715e">// &#34;Hello&#34;</span>
+</span></span><span style="display:flex;"><span>String sub2 <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">substring</span>(6);    <span style="color:#75715e">// &#34;World&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">indexOf</span>(<span style="color:#e6db74">&#34;o&#34;</span>);      <span style="color:#75715e">// 第一次出现的位置</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">lastIndexOf</span>(<span style="color:#e6db74">&#34;o&#34;</span>); <span style="color:#75715e">// 最后一次出现的位置</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;Hello&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 替换</span>
+</span></span><span style="display:flex;"><span>String replaced <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">&#34;World&#34;</span>, <span style="color:#e6db74">&#34;Java&#34;</span>);
+</span></span><span style="display:flex;"><span>String replacedAll <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">replaceAll</span>(<span style="color:#e6db74">&#34;o&#34;</span>, <span style="color:#e6db74">&#34;0&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 分割</span>
+</span></span><span style="display:flex;"><span>String<span style="color:#f92672">[]</span> parts <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">split</span>(<span style="color:#e6db74">&#34; &#34;</span>);   <span style="color:#75715e">// [&#34;Hello&#34;, &#34;World&#34;]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 连接</span>
+</span></span><span style="display:flex;"><span>String joined <span style="color:#f92672">=</span> String.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#34;-&#34;</span>, <span style="color:#e6db74">&#34;Hello&#34;</span>, <span style="color:#e6db74">&#34;World&#34;</span>); <span style="color:#75715e">// &#34;Hello-World&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 转换</span>
+</span></span><span style="display:flex;"><span>String upper <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toUpperCase</span>();
+</span></span><span style="display:flex;"><span>String lower <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toLowerCase</span>();
+</span></span><span style="display:flex;"><span>String trimmed <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">trim</span>();       <span style="color:#75715e">// 去除首尾空格</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 比较</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equals <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;Hello World&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equalsIgnoreCase <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">equalsIgnoreCase</span>(<span style="color:#e6db74">&#34;hello world&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> compare <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">compareTo</span>(<span style="color:#e6db74">&#34;Hello Java&#34;</span>);
+</span></span></code></pre></div><h3 id="常用技巧-1">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 字符串转字符数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span><span style="color:#f92672">[]</span> chars <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toCharArray</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符数组转字符串</span>
+</span></span><span style="display:flex;"><span>String fromChars <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String(chars);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符串构建器</span>
+</span></span><span style="display:flex;"><span>StringBuilder sb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder();
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;Hello&#34;</span>);
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34; &#34;</span>);
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;World&#34;</span>);
+</span></span><span style="display:flex;"><span>String result <span style="color:#f92672">=</span> sb.<span style="color:#a6e22e">toString</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 格式化</span>
+</span></span><span style="display:flex;"><span>String formatted <span style="color:#f92672">=</span> String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Hello %s&#34;</span>, <span style="color:#e6db74">&#34;World&#34;</span>);
+</span></span></code></pre></div><h2 id="4-char字符">
+  4. char（字符）
+  <a class="anchor" href="#4-char%e5%ad%97%e7%ac%a6">#</a>
+</h2>
+<h3 id="基本操作-2">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c-2">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">char</span> ch <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;A&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符转换</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> ascii <span style="color:#f92672">=</span> (<span style="color:#66d9ef">int</span>) ch;           <span style="color:#75715e">// 转ASCII码</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> fromAscii <span style="color:#f92672">=</span> (<span style="color:#66d9ef">char</span>) 65;     <span style="color:#75715e">// ASCII码转字符</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符判断</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isLetter <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isLetter</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isDigit <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isDigit</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isUpperCase <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isUpperCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isLowerCase <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isLowerCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isWhitespace <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isWhitespace</span>(ch);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符转换</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> upper <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">toUpperCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> lower <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">toLowerCase</span>(ch);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 数字字符转数字</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> digit <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">getNumericValue</span>(<span style="color:#e6db74">&#39;5&#39;</span>);  <span style="color:#75715e">// 5</span>
+</span></span></code></pre></div><h2 id="5-map映射">
+  5. Map（映射）
+  <a class="anchor" href="#5-map%e6%98%a0%e5%b0%84">#</a>
+</h2>
+<h3 id="hashmap">
+  HashMap
+  <a class="anchor" href="#hashmap">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> map2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>(Map.<span style="color:#a6e22e">of</span>(<span style="color:#e6db74">&#34;a&#34;</span>, 1, <span style="color:#e6db74">&#34;b&#34;</span>, 2));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 基本操作</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 1);              <span style="color:#75715e">// 添加或更新</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">putIfAbsent</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 2);      <span style="color:#75715e">// 如果不存在则添加</span>
+</span></span><span style="display:flex;"><span>Integer value <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;key&#34;</span>);  <span style="color:#75715e">// 获取值</span>
+</span></span><span style="display:flex;"><span>Integer valueOrDefault <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">getOrDefault</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 0); <span style="color:#75715e">// 获取值，不存在返回默认值</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">remove</span>(<span style="color:#e6db74">&#34;key&#34;</span>);               <span style="color:#75715e">// 删除键值对</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">clear</span>();                     <span style="color:#75715e">// 清空</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> containsKey <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">containsKey</span>(<span style="color:#e6db74">&#34;key&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> containsValue <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">containsValue</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isEmpty <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">isEmpty</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> entry : map.<span style="color:#a6e22e">entrySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(entry.<span style="color:#a6e22e">getKey</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> entry.<span style="color:#a6e22e">getValue</span>());
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String key : map.<span style="color:#a6e22e">keySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> map.<span style="color:#a6e22e">get</span>(key));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer val : map.<span style="color:#a6e22e">values</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(val);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 合并</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">merge</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 1, Integer::sum);  <span style="color:#75715e">// 如果存在则累加，不存在则添加</span>
+</span></span></code></pre></div><h3 id="treemap有序">
+  TreeMap（有序）
+  <a class="anchor" href="#treemap%e6%9c%89%e5%ba%8f">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>TreeMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> treeMap <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TreeMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;c&#34;</span>, 3);
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;a&#34;</span>, 1);
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;b&#34;</span>, 2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 有序遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String key : treeMap.<span style="color:#a6e22e">keySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> treeMap.<span style="color:#a6e22e">get</span>(key));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取第一个和最后一个</span>
+</span></span><span style="display:flex;"><span>String firstKey <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">firstKey</span>();
+</span></span><span style="display:flex;"><span>String lastKey <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">lastKey</span>();
+</span></span><span style="display:flex;"><span>Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> firstEntry <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">firstEntry</span>();
+</span></span><span style="display:flex;"><span>Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> lastEntry <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">lastEntry</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取小于或大于某个键的视图</span>
+</span></span><span style="display:flex;"><span>SortedMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> headMap <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">headMap</span>(<span style="color:#e6db74">&#34;c&#34;</span>);
+</span></span><span style="display:flex;"><span>SortedMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> tailMap <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">tailMap</span>(<span style="color:#e6db74">&#34;a&#34;</span>);
+</span></span></code></pre></div><h2 id="6-deque双端队列">
+  6. Deque（双端队列）
+  <a class="anchor" href="#6-deque%e5%8f%8c%e7%ab%af%e9%98%9f%e5%88%97">#</a>
+</h2>
+<h3 id="arraydeque">
+  ArrayDeque
+  <a class="anchor" href="#arraydeque">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Deque<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> deque <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 在开头操作</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">addFirst</span>(1);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offerFirst</span>(2);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">removeFirst</span>();
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>Integer first <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">getFirst</span>();
+</span></span><span style="display:flex;"><span>Integer peekFirst <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peekFirst</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 在结尾操作</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">addLast</span>(3);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offerLast</span>(4);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">removeLast</span>();
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">pollLast</span>();
+</span></span><span style="display:flex;"><span>Integer last <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">getLast</span>();
+</span></span><span style="display:flex;"><span>Integer peekLast <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peekLast</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 栈操作（LIFO）</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">push</span>(5);      <span style="color:#75715e">// 压栈</span>
+</span></span><span style="display:flex;"><span>Integer pop <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">pop</span>();  <span style="color:#75715e">// 弹栈</span>
+</span></span><span style="display:flex;"><span>Integer peek <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peek</span>(); <span style="color:#75715e">// 查看栈顶</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 队列操作（FIFO）</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offer</span>(6);     <span style="color:#75715e">// 入队</span>
+</span></span><span style="display:flex;"><span>Integer poll <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">poll</span>(); <span style="color:#75715e">// 出队</span>
+</span></span><span style="display:flex;"><span>Integer element <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">element</span>(); <span style="color:#75715e">// 查看队首</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : deque) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="7-set集合">
+  7. Set（集合）
+  <a class="anchor" href="#7-set%e9%9b%86%e5%90%88">#</a>
+</h2>
+<h3 id="hashset">
+  HashSet
+  <a class="anchor" href="#hashset">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Set<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(1);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(2);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(1);  <span style="color:#75715e">// 重复元素不会添加</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> set.<span style="color:#a6e22e">contains</span>(1);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">remove</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> set.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : set) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 集合操作</span>
+</span></span><span style="display:flex;"><span>Set<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> set2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>(Arrays.<span style="color:#a6e22e">asList</span>(2, 3, 4));
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">addAll</span>(set2);           <span style="color:#75715e">// 并集</span>
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">retainAll</span>(set2);        <span style="color:#75715e">// 交集</span>
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">removeAll</span>(set2);        <span style="color:#75715e">// 差集</span>
+</span></span></code></pre></div><h3 id="treeset有序">
+  TreeSet（有序）
+  <a class="anchor" href="#treeset%e6%9c%89%e5%ba%8f">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>TreeSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> treeSet <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TreeSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(3);
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(1);
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 有序遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : treeSet) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取第一个和最后一个</span>
+</span></span><span style="display:flex;"><span>Integer first <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">first</span>();
+</span></span><span style="display:flex;"><span>Integer last <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">last</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取小于或大于某个值的视图</span>
+</span></span><span style="display:flex;"><span>SortedSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> headSet <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">headSet</span>(3);
+</span></span><span style="display:flex;"><span>SortedSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> tailSet <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">tailSet</span>(1);
+</span></span></code></pre></div><h2 id="8-常用算法技巧">
+  8. 常用算法技巧
+  <a class="anchor" href="#8-%e5%b8%b8%e7%94%a8%e7%ae%97%e6%b3%95%e6%8a%80%e5%b7%a7">#</a>
+</h2>
+<h3 id="双指针">
+  双指针
+  <a class="anchor" href="#%e5%8f%8c%e6%8c%87%e9%92%88">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 快慢指针</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> slow <span style="color:#f92672">=</span> 0, fast <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (fast <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (condition) {
+</span></span><span style="display:flex;"><span>        slow<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    fast<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 左右指针</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (condition) {
+</span></span><span style="display:flex;"><span>        left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="滑动窗口">
+  滑动窗口
+  <a class="anchor" href="#%e6%bb%91%e5%8a%a8%e7%aa%97%e5%8f%a3">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (right <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>    sum <span style="color:#f92672">+=</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (sum <span style="color:#f92672">&gt;=</span> target) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 更新结果</span>
+</span></span><span style="display:flex;"><span>        sum <span style="color:#f92672">-=</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    right<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="前缀和">
+  前缀和
+  <a class="anchor" href="#%e5%89%8d%e7%bc%80%e5%92%8c">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> prefixSum <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    prefixSum<span style="color:#f92672">[</span>i <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> prefixSum<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 计算区间和</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> rangeSum <span style="color:#f92672">=</span> prefixSum<span style="color:#f92672">[</span>right <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">-</span> prefixSum<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>;
+</span></span></code></pre></div><h2 id="9-面试常见问题">
+  9. 面试常见问题
+  <a class="anchor" href="#9-%e9%9d%a2%e8%af%95%e5%b8%b8%e8%a7%81%e9%97%ae%e9%a2%98">#</a>
+</h2>
+<h3 id="时间复杂度">
+  时间复杂度
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6">#</a>
+</h3>
+<ul>
+<li>数组访问：O(1)</li>
+<li>数组搜索：O(n)</li>
+<li>数组排序：O(n log n)</li>
+<li>HashMap操作：平均O(1)，最坏O(n)</li>
+<li>TreeMap操作：O(log n)</li>
+<li>ArrayList添加/删除：O(1)（末尾），O(n)（中间）</li>
+<li>LinkedList添加/删除：O(1)（头尾），O(n)（中间）</li>
+</ul>
+<h3 id="空间复杂度">
+  空间复杂度
+  <a class="anchor" href="#%e7%a9%ba%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6">#</a>
+</h3>
+<ul>
+<li>原地算法：O(1)</li>
+<li>递归：O(递归深度)</li>
+<li>动态规划：O(n) 或 O(n²)</li>
+</ul>
+<h3 id="常用技巧-2">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7-2">#</a>
+</h3>
+<ol>
+<li><strong>使用HashMap优化查找</strong>：将O(n)的查找优化为O(1)</li>
+<li><strong>双指针技巧</strong>：解决数组中的查找、去重等问题</li>
+<li><strong>滑动窗口</strong>：解决子数组、子串等问题</li>
+<li><strong>单调栈/队列</strong>：解决下一个更大元素等问题</li>
+<li><strong>前缀和</strong>：快速计算区间和</li>
+<li><strong>差分数组</strong>：快速进行区间更新</li>
+</ol>
+<p>掌握这些数据结构和常用方法，能够解决大部分Java coding面试题目。关键是要理解每种数据结构的特点和适用场景，选择最合适的数据结构来解决问题。</p>
+<hr>
+<h2 id="title-java-基础">
+  title: Java 基础
+  <a class="anchor" href="#title-java-%e5%9f%ba%e7%a1%80">#</a>
+</h2>
+<h1 id="java-coding面试常用数据结构与方法-1">
+  Java Coding面试常用数据结构与方法
+  <a class="anchor" href="#java-coding%e9%9d%a2%e8%af%95%e5%b8%b8%e7%94%a8%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84%e4%b8%8e%e6%96%b9%e6%b3%95-1">#</a>
+</h1>
+<h2 id="1-array数组-1">
+  1. Array（数组）
+  <a class="anchor" href="#1-array%e6%95%b0%e7%bb%84-1">#</a>
+</h2>
+<h3 id="基本操作-3">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c-3">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>10<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> arr2 <span style="color:#f92672">=</span> {1, 2, 3, 4, 5};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取长度</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> length <span style="color:#f92672">=</span> arr.<span style="color:#a6e22e">length</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> arr.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(arr<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 增强for循环</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> num : arr) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 排序</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">sort</span>(arr);  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">sort</span>(arr, Collections.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序（需要Integer[]）</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 二分查找（必须先排序）</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">binarySearch</span>(arr, target);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 填充</span>
+</span></span><span style="display:flex;"><span>Arrays.<span style="color:#a6e22e">fill</span>(arr, 0);  <span style="color:#75715e">// 全部填充为0</span>
+</span></span></code></pre></div><h3 id="常用技巧-3">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7-3">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 数组转List</span>
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">asList</span>(1, 2, 3, 4, 5);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 复制数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> copy <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOf</span>(arr, arr.<span style="color:#a6e22e">length</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> copyRange <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">copyOfRange</span>(arr, 0, 3);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 比较数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equals <span style="color:#f92672">=</span> Arrays.<span style="color:#a6e22e">equals</span>(arr1, arr2);
+</span></span></code></pre></div><h2 id="2-list列表-1">
+  2. List（列表）
+  <a class="anchor" href="#2-list%e5%88%97%e8%a1%a8-1">#</a>
+</h2>
+<h3 id="arraylist-1">
+  ArrayList
+  <a class="anchor" href="#arraylist-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>List<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> list2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayList<span style="color:#f92672">&lt;&gt;</span>(Arrays.<span style="color:#a6e22e">asList</span>(1, 2, 3));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 基本操作</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(1);                    <span style="color:#75715e">// 添加元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">add</span>(0, 0);                <span style="color:#75715e">// 在指定位置添加</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">set</span>(0, 10);               <span style="color:#75715e">// 设置指定位置的元素</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> element <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">get</span>(0);      <span style="color:#75715e">// 获取元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">remove</span>(0);                 <span style="color:#75715e">// 删除指定位置的元素</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">remove</span>(Integer.<span style="color:#a6e22e">valueOf</span>(1)); <span style="color:#75715e">// 删除指定值的元素</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">size</span>();         <span style="color:#75715e">// 获取大小</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isEmpty <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">isEmpty</span>(); <span style="color:#75715e">// 判断是否为空</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">contains</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">indexOf</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> list.<span style="color:#a6e22e">lastIndexOf</span>(1);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> list.<span style="color:#a6e22e">size</span>(); i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(list.<span style="color:#a6e22e">get</span>(i));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : list) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 排序</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">sort</span>(list);  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">sort</span>(list, Collections.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">sort</span>(Comparator.<span style="color:#a6e22e">naturalOrder</span>());  <span style="color:#75715e">// 升序</span>
+</span></span><span style="display:flex;"><span>list.<span style="color:#a6e22e">sort</span>(Comparator.<span style="color:#a6e22e">reverseOrder</span>());  <span style="color:#75715e">// 降序</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 反转</span>
+</span></span><span style="display:flex;"><span>Collections.<span style="color:#a6e22e">reverse</span>(list);
+</span></span></code></pre></div><h3 id="linkedlist-1">
+  LinkedList
+  <a class="anchor" href="#linkedlist-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>LinkedList<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> linkedList <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> LinkedList<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">addFirst</span>(1);        <span style="color:#75715e">// 在开头添加</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">addLast</span>(2);         <span style="color:#75715e">// 在结尾添加</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">removeFirst</span>();       <span style="color:#75715e">// 删除第一个</span>
+</span></span><span style="display:flex;"><span>linkedList.<span style="color:#a6e22e">removeLast</span>();        <span style="color:#75715e">// 删除最后一个</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> first <span style="color:#f92672">=</span> linkedList.<span style="color:#a6e22e">getFirst</span>();  <span style="color:#75715e">// 获取第一个</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> last <span style="color:#f92672">=</span> linkedList.<span style="color:#a6e22e">getLast</span>();    <span style="color:#75715e">// 获取最后一个</span>
+</span></span></code></pre></div><h2 id="3-string字符串-1">
+  3. String（字符串）
+  <a class="anchor" href="#3-string%e5%ad%97%e7%ac%a6%e4%b8%b2-1">#</a>
+</h2>
+<h3 id="基本操作-4">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c-4">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>String str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello World&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 长度</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> length <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">length</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符访问</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> ch <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">charAt</span>(0);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 子串</span>
+</span></span><span style="display:flex;"><span>String sub <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">substring</span>(0, 5);  <span style="color:#75715e">// &#34;Hello&#34;</span>
+</span></span><span style="display:flex;"><span>String sub2 <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">substring</span>(6);    <span style="color:#75715e">// &#34;World&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> index <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">indexOf</span>(<span style="color:#e6db74">&#34;o&#34;</span>);      <span style="color:#75715e">// 第一次出现的位置</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> lastIndex <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">lastIndexOf</span>(<span style="color:#e6db74">&#34;o&#34;</span>); <span style="color:#75715e">// 最后一次出现的位置</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">contains</span>(<span style="color:#e6db74">&#34;Hello&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 替换</span>
+</span></span><span style="display:flex;"><span>String replaced <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">&#34;World&#34;</span>, <span style="color:#e6db74">&#34;Java&#34;</span>);
+</span></span><span style="display:flex;"><span>String replacedAll <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">replaceAll</span>(<span style="color:#e6db74">&#34;o&#34;</span>, <span style="color:#e6db74">&#34;0&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 分割</span>
+</span></span><span style="display:flex;"><span>String<span style="color:#f92672">[]</span> parts <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">split</span>(<span style="color:#e6db74">&#34; &#34;</span>);   <span style="color:#75715e">// [&#34;Hello&#34;, &#34;World&#34;]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 连接</span>
+</span></span><span style="display:flex;"><span>String joined <span style="color:#f92672">=</span> String.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#34;-&#34;</span>, <span style="color:#e6db74">&#34;Hello&#34;</span>, <span style="color:#e6db74">&#34;World&#34;</span>); <span style="color:#75715e">// &#34;Hello-World&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 转换</span>
+</span></span><span style="display:flex;"><span>String upper <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toUpperCase</span>();
+</span></span><span style="display:flex;"><span>String lower <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toLowerCase</span>();
+</span></span><span style="display:flex;"><span>String trimmed <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">trim</span>();       <span style="color:#75715e">// 去除首尾空格</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 比较</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equals <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">equals</span>(<span style="color:#e6db74">&#34;Hello World&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> equalsIgnoreCase <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">equalsIgnoreCase</span>(<span style="color:#e6db74">&#34;hello world&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> compare <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">compareTo</span>(<span style="color:#e6db74">&#34;Hello Java&#34;</span>);
+</span></span></code></pre></div><h3 id="常用技巧-4">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7-4">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 字符串转字符数组</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span><span style="color:#f92672">[]</span> chars <span style="color:#f92672">=</span> str.<span style="color:#a6e22e">toCharArray</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符数组转字符串</span>
+</span></span><span style="display:flex;"><span>String fromChars <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> String(chars);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符串构建器</span>
+</span></span><span style="display:flex;"><span>StringBuilder sb <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> StringBuilder();
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;Hello&#34;</span>);
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34; &#34;</span>);
+</span></span><span style="display:flex;"><span>sb.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;World&#34;</span>);
+</span></span><span style="display:flex;"><span>String result <span style="color:#f92672">=</span> sb.<span style="color:#a6e22e">toString</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 格式化</span>
+</span></span><span style="display:flex;"><span>String formatted <span style="color:#f92672">=</span> String.<span style="color:#a6e22e">format</span>(<span style="color:#e6db74">&#34;Hello %s&#34;</span>, <span style="color:#e6db74">&#34;World&#34;</span>);
+</span></span></code></pre></div><h2 id="4-char字符-1">
+  4. char（字符）
+  <a class="anchor" href="#4-char%e5%ad%97%e7%ac%a6-1">#</a>
+</h2>
+<h3 id="基本操作-5">
+  基本操作
+  <a class="anchor" href="#%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c-5">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">char</span> ch <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;A&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符转换</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> ascii <span style="color:#f92672">=</span> (<span style="color:#66d9ef">int</span>) ch;           <span style="color:#75715e">// 转ASCII码</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> fromAscii <span style="color:#f92672">=</span> (<span style="color:#66d9ef">char</span>) 65;     <span style="color:#75715e">// ASCII码转字符</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符判断</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isLetter <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isLetter</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isDigit <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isDigit</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isUpperCase <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isUpperCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isLowerCase <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isLowerCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isWhitespace <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">isWhitespace</span>(ch);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 字符转换</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> upper <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">toUpperCase</span>(ch);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> lower <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">toLowerCase</span>(ch);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 数字字符转数字</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> digit <span style="color:#f92672">=</span> Character.<span style="color:#a6e22e">getNumericValue</span>(<span style="color:#e6db74">&#39;5&#39;</span>);  <span style="color:#75715e">// 5</span>
+</span></span></code></pre></div><h2 id="5-map映射-1">
+  5. Map（映射）
+  <a class="anchor" href="#5-map%e6%98%a0%e5%b0%84-1">#</a>
+</h2>
+<h3 id="hashmap-1">
+  HashMap
+  <a class="anchor" href="#hashmap-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 声明和初始化</span>
+</span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> map <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>Map<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> map2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashMap<span style="color:#f92672">&lt;&gt;</span>(Map.<span style="color:#a6e22e">of</span>(<span style="color:#e6db74">&#34;a&#34;</span>, 1, <span style="color:#e6db74">&#34;b&#34;</span>, 2));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 基本操作</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 1);              <span style="color:#75715e">// 添加或更新</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">putIfAbsent</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 2);      <span style="color:#75715e">// 如果不存在则添加</span>
+</span></span><span style="display:flex;"><span>Integer value <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#34;key&#34;</span>);  <span style="color:#75715e">// 获取值</span>
+</span></span><span style="display:flex;"><span>Integer valueOrDefault <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">getOrDefault</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 0); <span style="color:#75715e">// 获取值，不存在返回默认值</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">remove</span>(<span style="color:#e6db74">&#34;key&#34;</span>);               <span style="color:#75715e">// 删除键值对</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">clear</span>();                     <span style="color:#75715e">// 清空</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 查找</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> containsKey <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">containsKey</span>(<span style="color:#e6db74">&#34;key&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> containsValue <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">containsValue</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> isEmpty <span style="color:#f92672">=</span> map.<span style="color:#a6e22e">isEmpty</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> entry : map.<span style="color:#a6e22e">entrySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(entry.<span style="color:#a6e22e">getKey</span>() <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> entry.<span style="color:#a6e22e">getValue</span>());
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String key : map.<span style="color:#a6e22e">keySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> map.<span style="color:#a6e22e">get</span>(key));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer val : map.<span style="color:#a6e22e">values</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(val);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 合并</span>
+</span></span><span style="display:flex;"><span>map.<span style="color:#a6e22e">merge</span>(<span style="color:#e6db74">&#34;key&#34;</span>, 1, Integer::sum);  <span style="color:#75715e">// 如果存在则累加，不存在则添加</span>
+</span></span></code></pre></div><h3 id="treemap有序-1">
+  TreeMap（有序）
+  <a class="anchor" href="#treemap%e6%9c%89%e5%ba%8f-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>TreeMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> treeMap <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TreeMap<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;c&#34;</span>, 3);
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;a&#34;</span>, 1);
+</span></span><span style="display:flex;"><span>treeMap.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#34;b&#34;</span>, 2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 有序遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (String key : treeMap.<span style="color:#a6e22e">keySet</span>()) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(key <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;: &#34;</span> <span style="color:#f92672">+</span> treeMap.<span style="color:#a6e22e">get</span>(key));
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取第一个和最后一个</span>
+</span></span><span style="display:flex;"><span>String firstKey <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">firstKey</span>();
+</span></span><span style="display:flex;"><span>String lastKey <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">lastKey</span>();
+</span></span><span style="display:flex;"><span>Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> firstEntry <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">firstEntry</span>();
+</span></span><span style="display:flex;"><span>Map.<span style="color:#a6e22e">Entry</span><span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> lastEntry <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">lastEntry</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取小于或大于某个键的视图</span>
+</span></span><span style="display:flex;"><span>SortedMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> headMap <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">headMap</span>(<span style="color:#e6db74">&#34;c&#34;</span>);
+</span></span><span style="display:flex;"><span>SortedMap<span style="color:#f92672">&lt;</span>String, Integer<span style="color:#f92672">&gt;</span> tailMap <span style="color:#f92672">=</span> treeMap.<span style="color:#a6e22e">tailMap</span>(<span style="color:#e6db74">&#34;a&#34;</span>);
+</span></span></code></pre></div><h2 id="6-deque双端队列-1">
+  6. Deque（双端队列）
+  <a class="anchor" href="#6-deque%e5%8f%8c%e7%ab%af%e9%98%9f%e5%88%97-1">#</a>
+</h2>
+<h3 id="arraydeque-1">
+  ArrayDeque
+  <a class="anchor" href="#arraydeque-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Deque<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> deque <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ArrayDeque<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 在开头操作</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">addFirst</span>(1);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offerFirst</span>(2);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">removeFirst</span>();
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">pollFirst</span>();
+</span></span><span style="display:flex;"><span>Integer first <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">getFirst</span>();
+</span></span><span style="display:flex;"><span>Integer peekFirst <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peekFirst</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 在结尾操作</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">addLast</span>(3);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offerLast</span>(4);
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">removeLast</span>();
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">pollLast</span>();
+</span></span><span style="display:flex;"><span>Integer last <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">getLast</span>();
+</span></span><span style="display:flex;"><span>Integer peekLast <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peekLast</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 栈操作（LIFO）</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">push</span>(5);      <span style="color:#75715e">// 压栈</span>
+</span></span><span style="display:flex;"><span>Integer pop <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">pop</span>();  <span style="color:#75715e">// 弹栈</span>
+</span></span><span style="display:flex;"><span>Integer peek <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">peek</span>(); <span style="color:#75715e">// 查看栈顶</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 队列操作（FIFO）</span>
+</span></span><span style="display:flex;"><span>deque.<span style="color:#a6e22e">offer</span>(6);     <span style="color:#75715e">// 入队</span>
+</span></span><span style="display:flex;"><span>Integer poll <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">poll</span>(); <span style="color:#75715e">// 出队</span>
+</span></span><span style="display:flex;"><span>Integer element <span style="color:#f92672">=</span> deque.<span style="color:#a6e22e">element</span>(); <span style="color:#75715e">// 查看队首</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : deque) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="7-set集合-1">
+  7. Set（集合）
+  <a class="anchor" href="#7-set%e9%9b%86%e5%90%88-1">#</a>
+</h2>
+<h3 id="hashset-1">
+  HashSet
+  <a class="anchor" href="#hashset-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>Set<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> set <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(1);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(2);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">add</span>(1);  <span style="color:#75715e">// 重复元素不会添加</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">boolean</span> contains <span style="color:#f92672">=</span> set.<span style="color:#a6e22e">contains</span>(1);
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">remove</span>(1);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> size <span style="color:#f92672">=</span> set.<span style="color:#a6e22e">size</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : set) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 集合操作</span>
+</span></span><span style="display:flex;"><span>Set<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> set2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> HashSet<span style="color:#f92672">&lt;&gt;</span>(Arrays.<span style="color:#a6e22e">asList</span>(2, 3, 4));
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">addAll</span>(set2);           <span style="color:#75715e">// 并集</span>
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">retainAll</span>(set2);        <span style="color:#75715e">// 交集</span>
+</span></span><span style="display:flex;"><span>set.<span style="color:#a6e22e">removeAll</span>(set2);        <span style="color:#75715e">// 差集</span>
+</span></span></code></pre></div><h3 id="treeset有序-1">
+  TreeSet（有序）
+  <a class="anchor" href="#treeset%e6%9c%89%e5%ba%8f-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span>TreeSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> treeSet <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> TreeSet<span style="color:#f92672">&lt;&gt;</span>();
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(3);
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(1);
+</span></span><span style="display:flex;"><span>treeSet.<span style="color:#a6e22e">add</span>(2);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 有序遍历</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (Integer num : treeSet) {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(num);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取第一个和最后一个</span>
+</span></span><span style="display:flex;"><span>Integer first <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">first</span>();
+</span></span><span style="display:flex;"><span>Integer last <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">last</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 获取小于或大于某个值的视图</span>
+</span></span><span style="display:flex;"><span>SortedSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> headSet <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">headSet</span>(3);
+</span></span><span style="display:flex;"><span>SortedSet<span style="color:#f92672">&lt;</span>Integer<span style="color:#f92672">&gt;</span> tailSet <span style="color:#f92672">=</span> treeSet.<span style="color:#a6e22e">tailSet</span>(1);
+</span></span></code></pre></div><h2 id="8-常用算法技巧-1">
+  8. 常用算法技巧
+  <a class="anchor" href="#8-%e5%b8%b8%e7%94%a8%e7%ae%97%e6%b3%95%e6%8a%80%e5%b7%a7-1">#</a>
+</h2>
+<h3 id="双指针-1">
+  双指针
+  <a class="anchor" href="#%e5%8f%8c%e6%8c%87%e9%92%88-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#75715e">// 快慢指针</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> slow <span style="color:#f92672">=</span> 0, fast <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (fast <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (condition) {
+</span></span><span style="display:flex;"><span>        slow<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    fast<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 左右指针</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> 1;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (left <span style="color:#f92672">&lt;</span> right) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (condition) {
+</span></span><span style="display:flex;"><span>        left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        right<span style="color:#f92672">--</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="滑动窗口-1">
+  滑动窗口
+  <a class="anchor" href="#%e6%bb%91%e5%8a%a8%e7%aa%97%e5%8f%a3-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> left <span style="color:#f92672">=</span> 0, right <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> sum <span style="color:#f92672">=</span> 0;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (right <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>    sum <span style="color:#f92672">+=</span> nums<span style="color:#f92672">[</span>right<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> (sum <span style="color:#f92672">&gt;=</span> target) {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 更新结果</span>
+</span></span><span style="display:flex;"><span>        sum <span style="color:#f92672">-=</span> nums<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>        left<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    right<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="前缀和-1">
+  前缀和
+  <a class="anchor" href="#%e5%89%8d%e7%bc%80%e5%92%8c-1">#</a>
+</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">int</span><span style="color:#f92672">[]</span> prefixSum <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">[</span>nums.<span style="color:#a6e22e">length</span> <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> i <span style="color:#f92672">=</span> 0; i <span style="color:#f92672">&lt;</span> nums.<span style="color:#a6e22e">length</span>; i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>    prefixSum<span style="color:#f92672">[</span>i <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">=</span> prefixSum<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> <span style="color:#f92672">+</span> nums<span style="color:#f92672">[</span>i<span style="color:#f92672">]</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 计算区间和</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> rangeSum <span style="color:#f92672">=</span> prefixSum<span style="color:#f92672">[</span>right <span style="color:#f92672">+</span> 1<span style="color:#f92672">]</span> <span style="color:#f92672">-</span> prefixSum<span style="color:#f92672">[</span>left<span style="color:#f92672">]</span>;
+</span></span></code></pre></div><h2 id="9-面试常见问题-1">
+  9. 面试常见问题
+  <a class="anchor" href="#9-%e9%9d%a2%e8%af%95%e5%b8%b8%e8%a7%81%e9%97%ae%e9%a2%98-1">#</a>
+</h2>
+<h3 id="时间复杂度-1">
+  时间复杂度
+  <a class="anchor" href="#%e6%97%b6%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6-1">#</a>
+</h3>
+<ul>
+<li>数组访问：O(1)</li>
+<li>数组搜索：O(n)</li>
+<li>数组排序：O(n log n)</li>
+<li>HashMap操作：平均O(1)，最坏O(n)</li>
+<li>TreeMap操作：O(log n)</li>
+<li>ArrayList添加/删除：O(1)（末尾），O(n)（中间）</li>
+<li>LinkedList添加/删除：O(1)（头尾），O(n)（中间）</li>
+</ul>
+<h3 id="空间复杂度-1">
+  空间复杂度
+  <a class="anchor" href="#%e7%a9%ba%e9%97%b4%e5%a4%8d%e6%9d%82%e5%ba%a6-1">#</a>
+</h3>
+<ul>
+<li>原地算法：O(1)</li>
+<li>递归：O(递归深度)</li>
+<li>动态规划：O(n) 或 O(n²)</li>
+</ul>
+<h3 id="常用技巧-5">
+  常用技巧
+  <a class="anchor" href="#%e5%b8%b8%e7%94%a8%e6%8a%80%e5%b7%a7-5">#</a>
+</h3>
+<ol>
+<li><strong>使用HashMap优化查找</strong>：将O(n)的查找优化为O(1)</li>
+<li><strong>双指针技巧</strong>：解决数组中的查找、去重等问题</li>
+<li><strong>滑动窗口</strong>：解决子数组、子串等问题</li>
+<li><strong>单调栈/队列</strong>：解决下一个更大元素等问题</li>
+<li><strong>前缀和</strong>：快速计算区间和</li>
+<li><strong>差分数组</strong>：快速进行区间更新</li>
+</ol>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker {
+        list-style: none;       
+        margin-block-start: 1em;  
+        margin-block-end: 1em;    
+         
+    }
+
+    .no-marker:hover {
+        opacity: 0.5;  
+    }
+</style>
+<li class="no-marker"><a href="#Java%20%e5%9f%ba%e7%a1%80">Java 基础</a></li>
+
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#java-coding面试常用数据结构与方法">Java Coding面试常用数据结构与方法</a>
+      <ul>
+        <li><a href="#1-array数组">1. Array（数组）</a>
+          <ul>
+            <li><a href="#基本操作">基本操作</a></li>
+            <li><a href="#常用技巧">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-list列表">2. List（列表）</a>
+          <ul>
+            <li><a href="#arraylist">ArrayList</a></li>
+            <li><a href="#linkedlist">LinkedList</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-string字符串">3. String（字符串）</a>
+          <ul>
+            <li><a href="#基本操作-1">基本操作</a></li>
+            <li><a href="#常用技巧-1">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-char字符">4. char（字符）</a>
+          <ul>
+            <li><a href="#基本操作-2">基本操作</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-map映射">5. Map（映射）</a>
+          <ul>
+            <li><a href="#hashmap">HashMap</a></li>
+            <li><a href="#treemap有序">TreeMap（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#6-deque双端队列">6. Deque（双端队列）</a>
+          <ul>
+            <li><a href="#arraydeque">ArrayDeque</a></li>
+          </ul>
+        </li>
+        <li><a href="#7-set集合">7. Set（集合）</a>
+          <ul>
+            <li><a href="#hashset">HashSet</a></li>
+            <li><a href="#treeset有序">TreeSet（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#8-常用算法技巧">8. 常用算法技巧</a>
+          <ul>
+            <li><a href="#双指针">双指针</a></li>
+            <li><a href="#滑动窗口">滑动窗口</a></li>
+            <li><a href="#前缀和">前缀和</a></li>
+          </ul>
+        </li>
+        <li><a href="#9-面试常见问题">9. 面试常见问题</a>
+          <ul>
+            <li><a href="#时间复杂度">时间复杂度</a></li>
+            <li><a href="#空间复杂度">空间复杂度</a></li>
+            <li><a href="#常用技巧-2">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#title-java-基础">title: Java 基础</a></li>
+      </ul>
+    </li>
+    <li><a href="#java-coding面试常用数据结构与方法-1">Java Coding面试常用数据结构与方法</a>
+      <ul>
+        <li><a href="#1-array数组-1">1. Array（数组）</a>
+          <ul>
+            <li><a href="#基本操作-3">基本操作</a></li>
+            <li><a href="#常用技巧-3">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#2-list列表-1">2. List（列表）</a>
+          <ul>
+            <li><a href="#arraylist-1">ArrayList</a></li>
+            <li><a href="#linkedlist-1">LinkedList</a></li>
+          </ul>
+        </li>
+        <li><a href="#3-string字符串-1">3. String（字符串）</a>
+          <ul>
+            <li><a href="#基本操作-4">基本操作</a></li>
+            <li><a href="#常用技巧-4">常用技巧</a></li>
+          </ul>
+        </li>
+        <li><a href="#4-char字符-1">4. char（字符）</a>
+          <ul>
+            <li><a href="#基本操作-5">基本操作</a></li>
+          </ul>
+        </li>
+        <li><a href="#5-map映射-1">5. Map（映射）</a>
+          <ul>
+            <li><a href="#hashmap-1">HashMap</a></li>
+            <li><a href="#treemap有序-1">TreeMap（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#6-deque双端队列-1">6. Deque（双端队列）</a>
+          <ul>
+            <li><a href="#arraydeque-1">ArrayDeque</a></li>
+          </ul>
+        </li>
+        <li><a href="#7-set集合-1">7. Set（集合）</a>
+          <ul>
+            <li><a href="#hashset-1">HashSet</a></li>
+            <li><a href="#treeset有序-1">TreeSet（有序）</a></li>
+          </ul>
+        </li>
+        <li><a href="#8-常用算法技巧-1">8. 常用算法技巧</a>
+          <ul>
+            <li><a href="#双指针-1">双指针</a></li>
+            <li><a href="#滑动窗口-1">滑动窗口</a></li>
+            <li><a href="#前缀和-1">前缀和</a></li>
+          </ul>
+        </li>
+        <li><a href="#9-面试常见问题-1">9. 面试常见问题</a>
+          <ul>
+            <li><a href="#时间复杂度-1">时间复杂度</a></li>
+            <li><a href="#空间复杂度-1">空间复杂度</a></li>
+            <li><a href="#常用技巧-5">常用技巧</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
