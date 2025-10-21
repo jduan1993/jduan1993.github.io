@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>人工智能 on 君宝的笔记</title>
+    <link>http://localhost:1313/docs/study/ai/</link>
+    <description>Recent content in 人工智能 on 君宝的笔记</description>
+    <generator>Hugo</generator>
+    <language>zh</language>
+    <atom:link href="http://localhost:1313/docs/study/ai/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>金融风控模型</title>
+      <link>http://localhost:1313/docs/study/ai/financial-risk-control/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/docs/study/ai/financial-risk-control/</guid>
+      <description>&lt;h2 id=&#34;1-one-hot-encoding-和-woe-weight-of-evidence&#34;&gt;&#xD;&#xA;  1. One-Hot Encoding 和 WoE (Weight of Evidence)&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#1-one-hot-encoding-%e5%92%8c-woe-weight-of-evidence&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h2&gt;&#xD;&#xA;&lt;h3 id=&#34;one-hot-encoding独热编码&#34;&gt;&#xD;&#xA;  One-Hot Encoding（独热编码）&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#one-hot-encoding%e7%8b%ac%e7%83%ad%e7%bc%96%e7%a0%81&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h3&gt;&#xD;&#xA;&lt;h4 id=&#34;定义&#34;&gt;&#xD;&#xA;  定义&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e5%ae%9a%e4%b9%89&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h4&gt;&#xD;&#xA;&lt;p&gt;One-Hot Encoding 是一种将分类变量（categorical variable）转换成数值变量的方式。它将每个类别表示为一个 二进制向量，其中只有该类别对应的位置是 1，其他位置都是 0。&lt;/p&gt;&#xA;&lt;h4 id=&#34;例子&#34;&gt;&#xD;&#xA;  例子&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e4%be%8b%e5%ad%90&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h4&gt;&#xD;&#xA;&lt;p&gt;假设你有一个“颜色”特征，有三个类别：红色、绿色、蓝色。&lt;/p&gt;&#xA;&lt;table&gt;&#xA;  &lt;thead&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;th&gt;颜色&lt;/th&gt;&#xA;          &lt;th&gt;One-Hot Encoding&lt;/th&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/thead&gt;&#xA;  &lt;tbody&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;红色&lt;/td&gt;&#xA;          &lt;td&gt;[1, 0, 0]&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;绿色&lt;/td&gt;&#xA;          &lt;td&gt;[0, 1, 0]&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;      &lt;tr&gt;&#xA;          &lt;td&gt;蓝色&lt;/td&gt;&#xA;          &lt;td&gt;[0, 0, 1]&lt;/td&gt;&#xA;      &lt;/tr&gt;&#xA;  &lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;h4 id=&#34;优点&#34;&gt;&#xD;&#xA;  优点&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e4%bc%98%e7%82%b9&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h4&gt;&#xD;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;不引入大小关系（不像直接用 1,2,3 表示，会有误导模型认为红色 &amp;lt; 绿色 &amp;lt; 蓝色）。&lt;/li&gt;&#xA;&lt;li&gt;适合大多数机器学习模型（如线性回归、树模型也可以，但可能更浪费内存）。&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h4 id=&#34;缺点&#34;&gt;&#xD;&#xA;  缺点&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e7%bc%ba%e7%82%b9&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h4&gt;&#xD;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;类别很多时，会导致维度急剧增加（“维度灾难”）。&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;woe-weight-of-evidence-信息权重&#34;&gt;&#xD;&#xA;  WoE (Weight of Evidence, 信息权重)&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#woe-weight-of-evidence-%e4%bf%a1%e6%81%af%e6%9d%83%e9%87%8d&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h3&gt;&#xD;&#xA;&lt;h4 id=&#34;定义-1&#34;&gt;&#xD;&#xA;  定义&#xD;&#xA;  &lt;a class=&#34;anchor&#34; href=&#34;#%e5%ae%9a%e4%b9%89-1&#34;&gt;#&lt;/a&gt;&#xD;&#xA;&lt;/h4&gt;&#xD;&#xA;&lt;p&gt;&#xD;&#xA;  &lt;a href=&#34;#woe-%e8%bd%ac%e6%8d%a2%e7%9a%84%e4%bd%9c%e7%94%a8&#34;&gt;WoE&lt;/a&gt; 是金融风控中常用的特征转换方法，主要用于 二分类问题（比如坏账/好账）。它衡量某个类别对目标变量的“预测能力”，通过对类别与事件发生概率的对数比值进行转换。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

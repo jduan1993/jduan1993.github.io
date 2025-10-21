@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="
+  1. One-Hot Encoding 和 WoE (Weight of Evidence)
+  #
+
+
+  One-Hot Encoding（独热编码）
+  #
+
+
+  定义
+  #
+
+One-Hot Encoding 是一种将分类变量（categorical variable）转换成数值变量的方式。它将每个类别表示为一个 二进制向量，其中只有该类别对应的位置是 1，其他位置都是 0。
+
+  例子
+  #
+
+假设你有一个“颜色”特征，有三个类别：红色、绿色、蓝色。
+
+  
+      
+          颜色
+          One-Hot Encoding
+      
+  
+  
+      
+          红色
+          [1, 0, 0]
+      
+      
+          绿色
+          [0, 1, 0]
+      
+      
+          蓝色
+          [0, 0, 1]
+      
+  
+
+
+  优点
+  #
+
+
+不引入大小关系（不像直接用 1,2,3 表示，会有误导模型认为红色 &lt; 绿色 &lt; 蓝色）。
+适合大多数机器学习模型（如线性回归、树模型也可以，但可能更浪费内存）。
+
+
+  缺点
+  #
+
+
+类别很多时，会导致维度急剧增加（“维度灾难”）。
+
+
+  WoE (Weight of Evidence, 信息权重)
+  #
+
+
+  定义
+  #
+
+
+  WoE 是金融风控中常用的特征转换方法，主要用于 二分类问题（比如坏账/好账）。它衡量某个类别对目标变量的“预测能力”，通过对类别与事件发生概率的对数比值进行转换。">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#343a40">
+<meta name="color-scheme" content="light dark"><meta property="og:url" content="http://localhost:1313/docs/study/ai/financial-risk-control/">
+  <meta property="og:site_name" content="君宝的笔记">
+  <meta property="og:title" content="金融风控模型">
+  <meta property="og:description" content="1. One-Hot Encoding 和 WoE (Weight of Evidence)#One-Hot Encoding（独热编码）#定义#One-Hot Encoding 是一种将分类变量（categorical variable）转换成数值变量的方式。它将每个类别表示为一个 二进制向量，其中只有该类别对应的位置是 1，其他位置都是 0。
+例子#假设你有一个“颜色”特征，有三个类别：红色、绿色、蓝色。
+颜色 One-Hot Encoding 红色 [1, 0, 0] 绿色 [0, 1, 0] 蓝色 [0, 0, 1] 优点#不引入大小关系（不像直接用 1,2,3 表示，会有误导模型认为红色 &lt; 绿色 &lt; 蓝色）。 适合大多数机器学习模型（如线性回归、树模型也可以，但可能更浪费内存）。 缺点#类别很多时，会导致维度急剧增加（“维度灾难”）。 WoE (Weight of Evidence, 信息权重)#定义#WoE 是金融风控中常用的特征转换方法，主要用于 二分类问题（比如坏账/好账）。它衡量某个类别对目标变量的“预测能力”，通过对类别与事件发生概率的对数比值进行转换。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="docs">
+<title>金融风控模型 | 君宝的笔记</title>
+<link rel="icon" href="/favicon.png" >
+<link rel="manifest" href="/manifest.json">
+<link rel="canonical" href="http://localhost:1313/docs/study/ai/financial-risk-control/">
+<link rel="stylesheet" href="/book.min.06d84d78247e572aefdb64432e406e1f78a9ead4ef25479efa82ff79bd6c0873.css" integrity="sha256-BthNeCR&#43;Vyrv22RDLkBuH3ip6tTvJUee&#43;oL/eb1sCHM=" crossorigin="anonymous">
+  <script defer src="/fuse.min.js"></script>
+  <script defer src="/zh.search.min.b290867f18d17efeb35b2014d2b3458d0aa527ea5583117080b9f35d39c2ae36.js" integrity="sha256-spCGfxjRfv6zWyAU0rNFjQqlJ&#43;pVgxFwgLnzXTnCrjY=" crossorigin="anonymous"></script>
+
+  <script defer src="/sw.min.6f6f90fcb8eb1c49ec389838e6b801d0de19430b8e516902f8d75c3c8bd98739.js" integrity="sha256-b2&#43;Q/LjrHEnsOJg45rgB0N4ZQwuOUWkC&#43;NdcPIvZhzk=" crossorigin="anonymous"></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+  
+</head>
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a class="flex align-center" href="/"><span>君宝的笔记</span>
+  </a>
+</h2>
+
+
+<div class="book-search hidden">
+  <input type="text" id="book-search-input" placeholder="搜索" aria-label="搜索" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+<script>document.querySelector(".book-search").classList.remove("hidden")</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <ul>
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-51faac69e5e901597a0480b538fe5e9e" class="toggle" checked />
+    <label for="section-51faac69e5e901597a0480b538fe5e9e" class="flex justify-between">
+      <a role="button" class="">学习资料</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-582da456f48414d663a4153b7d734ed6" class="toggle"  />
+    <label for="section-582da456f48414d663a4153b7d734ed6" class="flex justify-between">
+      <a role="button" class="">安全</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/security/replay-attack/" class="">重放攻击</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-407d2f8dd9410e8eef358914dd8c0dc2" class="toggle"  />
+    <label for="section-407d2f8dd9410e8eef358914dd8c0dc2" class="flex justify-between">
+      <a role="button" class="">缓存</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/cache/solution/" class="">方案</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="toggle"  />
+    <label for="section-e8dd3e3cc6bf1cd4a7414fff39582ee8" class="flex justify-between">
+      <a role="button" class="">基础</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/java/" class="">Java 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/python/" class="">Python 基础</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/saga-best-practices/" class="">Saga 模式最佳实践</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/algorithm/" class="">算法</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/base/license-comparison/" class="">主流许可证对比</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="toggle"  />
+    <label for="section-57eec37e4d3dd0c268dbeb31bc61d4b1" class="flex justify-between">
+      <a role="button" class="">前端</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/frontend/react-knowledge/" class="">React 知识</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-e975655430ca49131aacfd6cdc7529f5" class="toggle" checked />
+    <label for="section-e975655430ca49131aacfd6cdc7529f5" class="flex justify-between">
+      <a role="button" class="">人工智能</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/ai/financial-risk-control/" class="active">金融风控模型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-70d792a755054f6bbbb3adad5db99041" class="toggle"  />
+    <label for="section-70d792a755054f6bbbb3adad5db99041" class="flex justify-between">
+      <a role="button" class="">数据库</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/database/postgresql-mysql/" class="">PostgreSQL vs MySQL (InnoDB) 选型</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-3ba9e8b376ea48d5beb815b520fdce5d" class="toggle"  />
+    <label for="section-3ba9e8b376ea48d5beb815b520fdce5d" class="flex justify-between">
+      <a role="button" class="">网络</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/http-comparison/" class="">HTTP 协议各版本比较</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/network/rtt/" class="">往返时间（Round Trip Time）</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-a1d7a3583cdff606ffe4820acf270df1" class="toggle"  />
+    <label for="section-a1d7a3583cdff606ffe4820acf270df1" class="flex justify-between">
+      <a role="button" class="">系统设计</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/system-design/" class="">系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-tips/" class="">Doctolib 大纲</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/doctolib-system-design/" class="">Doctolib 系统设计</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/rpc/" class="">RPC 框架</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/high-availability/" class="">高可用性</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/system-design/cache-consistency/" class="">缓存一致性</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-92f7d13098d747ba4906005529a0358a" class="toggle"  />
+    <label for="section-92f7d13098d747ba4906005529a0358a" class="flex justify-between">
+      <a role="button" class="">中间件</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>Kafka</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/exactly-once/" class="">Kafka Exactly-Once</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/kafka/microservices-comm/" class="">微服务通信</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/netty/" class="">Netty 详解</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <span>OAuth2</span>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/study/middleware/oauth2/auth-code/" class="">授权码模式</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-6711a471a1458349986928f5c4b580ef" class="toggle"  />
+    <label for="section-6711a471a1458349986928f5c4b580ef" class="flex justify-between">
+      <a role="button" class="">自省</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/thread-pool/" class="">Java 线程池</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/juc/" class="">Java.util.concurrent 包</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/introspection/trace/" class="">OpenTelemetry 全链路追踪</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-06148cf0da5a87ffda4f34920eae5a83" class="toggle"  />
+    <label for="section-06148cf0da5a87ffda4f34920eae5a83" class="flex justify-between">
+      <a href="/docs/example/" class="">Example Site</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/" class="">Table of Contents</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/with-toc/" class="">With ToC</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/table-of-contents/without-toc/" class="">Without ToC</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-dcab297e11de79eb42396c59d3314623" class="toggle"  />
+    <label for="section-dcab297e11de79eb42396c59d3314623" class="flex justify-between">
+      <a role="button" class="">Collapsed</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/" class="">3rd Level</a>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/collapsed/3rd-level/4th-level/" class="">4th Level</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/example/introduction/" class="">介绍</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+      
+        <li class="book-section-flat" >
+          
+  
+  
+
+  
+    <input type="checkbox" id="section-25b4439e87cf8c09de5a8727ce755d08" class="toggle"  />
+    <label for="section-25b4439e87cf8c09de5a8727ce755d08" class="flex justify-between">
+      <a role="button" class="">Shortcodes</a>
+    </label>
+  
+
+          
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/buttons/" class="">Buttons</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/columns/" class="">Columns</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/details/" class="">Details</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/hints/" class="">Hints</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/mermaid/" class="">Mermaid</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/tabs/" class="">Tabs</a>
+  
+
+        </li>
+      
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/shortcodes/katex/" class="">KaTeX</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  
+<ul>
+  
+  <li>
+    <a href="https://github.com/jduan1993"  target="_blank" rel="noopener">
+        Github
+      </a>
+  </li>
+  
+</ul>
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <h3>金融风控模型</h3>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<style>
+    .no-marker {
+        list-style: none;       
+        margin-block-start: 1em;  
+        margin-block-end: 1em;    
+         
+    }
+
+    .no-marker:hover {
+        opacity: 0.5;  
+    }
+</style>
+<li class="no-marker"><a href="#%e9%87%91%e8%9e%8d%e9%a3%8e%e6%8e%a7%e6%a8%a1%e5%9e%8b">金融风控模型</a></li>
+
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-one-hot-encoding-和-woe-weight-of-evidence">1. One-Hot Encoding 和 WoE (Weight of Evidence)</a>
+          <ul>
+            <li><a href="#one-hot-encoding独热编码">One-Hot Encoding（独热编码）</a></li>
+            <li><a href="#woe-weight-of-evidence-信息权重">WoE (Weight of Evidence, 信息权重)</a></li>
+            <li><a href="#总结对比">总结对比</a></li>
+          </ul>
+        </li>
+        <li><a href="#dpd">DPD</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#随机森林">随机森林</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#训练集和验证集">训练集和验证集</a>
+          <ul>
+            <li><a href="#训练集training-set">训练集（Training Set）</a></li>
+            <li><a href="#验证集validation-set">验证集（Validation Set）</a></li>
+            <li><a href="#举例-1">举例</a></li>
+            <li><a href="#使用方法">使用方法</a></li>
+          </ul>
+        </li>
+        <li><a href="#roc-曲线及曲线下面积auc">ROC 曲线及曲线下面积（AUC）</a>
+          <ul>
+            <li><a href="#roc-曲线receiver-operating-characteristic">ROC 曲线（Receiver Operating Characteristic）</a></li>
+            <li><a href="#aucarea-under-curve">AUC（Area Under Curve）</a></li>
+            <li><a href="#举例说明-1">举例说明</a></li>
+          </ul>
+        </li>
+        <li><a href="#brier-score">Brier Score</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#ks-统计量kolmogorov-smirnov-statistic和-psi-population-stability-index">KS 统计量（Kolmogorov-Smirnov Statistic）和 PSI (Population Stability Index)</a>
+          <ul>
+            <li><a href="#kskolmogorov-smirnov-statistic">KS（Kolmogorov-Smirnov Statistic）</a></li>
+            <li><a href="#psipopulation-stability-index">PSI（Population Stability Index）</a></li>
+          </ul>
+        </li>
+        <li><a href="#风险评分卡scorecard">风险评分卡（Scorecard）</a></li>
+        <li><a href="#python-代码实现骨架">Python 代码实现骨架</a></li>
+        <li><a href="#附录">附录</a>
+          <ul>
+            <li><a href="#逻辑回归">逻辑回归</a></li>
+            <li><a href="#利用验证集调整参数">利用验证集调整参数</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+<article class="markdown book-post">
+  <h1 id="金融风控模型">
+    金融风控模型
+    <a class="anchor" href="#%e9%87%91%e8%9e%8d%e9%a3%8e%e6%8e%a7%e6%a8%a1%e5%9e%8b">#</a>
+  </h1>
+  
+  
+
+
+  
+
+  
+
+
+  <div class="book-post-content"><h2 id="1-one-hot-encoding-和-woe-weight-of-evidence">
+  1. One-Hot Encoding 和 WoE (Weight of Evidence)
+  <a class="anchor" href="#1-one-hot-encoding-%e5%92%8c-woe-weight-of-evidence">#</a>
+</h2>
+<h3 id="one-hot-encoding独热编码">
+  One-Hot Encoding（独热编码）
+  <a class="anchor" href="#one-hot-encoding%e7%8b%ac%e7%83%ad%e7%bc%96%e7%a0%81">#</a>
+</h3>
+<h4 id="定义">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89">#</a>
+</h4>
+<p>One-Hot Encoding 是一种将分类变量（categorical variable）转换成数值变量的方式。它将每个类别表示为一个 二进制向量，其中只有该类别对应的位置是 1，其他位置都是 0。</p>
+<h4 id="例子">
+  例子
+  <a class="anchor" href="#%e4%be%8b%e5%ad%90">#</a>
+</h4>
+<p>假设你有一个“颜色”特征，有三个类别：红色、绿色、蓝色。</p>
+<table>
+  <thead>
+      <tr>
+          <th>颜色</th>
+          <th>One-Hot Encoding</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>红色</td>
+          <td>[1, 0, 0]</td>
+      </tr>
+      <tr>
+          <td>绿色</td>
+          <td>[0, 1, 0]</td>
+      </tr>
+      <tr>
+          <td>蓝色</td>
+          <td>[0, 0, 1]</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="优点">
+  优点
+  <a class="anchor" href="#%e4%bc%98%e7%82%b9">#</a>
+</h4>
+<ul>
+<li>不引入大小关系（不像直接用 1,2,3 表示，会有误导模型认为红色 &lt; 绿色 &lt; 蓝色）。</li>
+<li>适合大多数机器学习模型（如线性回归、树模型也可以，但可能更浪费内存）。</li>
+</ul>
+<h4 id="缺点">
+  缺点
+  <a class="anchor" href="#%e7%bc%ba%e7%82%b9">#</a>
+</h4>
+<ul>
+<li>类别很多时，会导致维度急剧增加（“维度灾难”）。</li>
+</ul>
+<h3 id="woe-weight-of-evidence-信息权重">
+  WoE (Weight of Evidence, 信息权重)
+  <a class="anchor" href="#woe-weight-of-evidence-%e4%bf%a1%e6%81%af%e6%9d%83%e9%87%8d">#</a>
+</h3>
+<h4 id="定义-1">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-1">#</a>
+</h4>
+<p>
+  <a href="#woe-%e8%bd%ac%e6%8d%a2%e7%9a%84%e4%bd%9c%e7%94%a8">WoE</a> 是金融风控中常用的特征转换方法，主要用于 二分类问题（比如坏账/好账）。它衡量某个类别对目标变量的“预测能力”，通过对类别与事件发生概率的对数比值进行转换。</p>
+<h4 id="公式">
+  公式
+  <a class="anchor" href="#%e5%85%ac%e5%bc%8f">#</a>
+</h4>
+
+<link rel="stylesheet" href="/katex/katex.min.css" />
+<script defer src="/katex/katex.min.js"></script>
+<script defer src="/katex/auto-render.min.js" onload="renderMathInElement(document.body);"></script><span>
+  \[
+WoE_i = \ln\frac{P({Good}_i)}{P({Bad}_i)}
+\]
+</span>
+
+<p>其中：<br>
+好样本比例 = 该类别/分箱的好样本数 ÷ 总好样本数<br>
+坏样本比例 = 该类别/分箱的坏样本数 ÷ 总坏样本数</p>
+<h4 id="例子-1">
+  例子
+  <a class="anchor" href="#%e4%be%8b%e5%ad%90-1">#</a>
+</h4>
+<table>
+  <thead>
+      <tr>
+          <th>年龄区间</th>
+          <th>好客户</th>
+          <th>坏客户</th>
+          <th>WoE</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>20-30</td>
+          <td>50</td>
+          <td>10</td>
+          <td>ln(50/总好 ÷ 10/总坏)</td>
+      </tr>
+      <tr>
+          <td>31-40</td>
+          <td>40</td>
+          <td>20</td>
+          <td>ln(40/总好 ÷ 20/总坏)</td>
+      </tr>
+      <tr>
+          <td>41-50</td>
+          <td>30</td>
+          <td>30</td>
+          <td>ln(30/总好 ÷ 30/总坏)</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="优点-1">
+  优点
+  <a class="anchor" href="#%e4%bc%98%e7%82%b9-1">#</a>
+</h4>
+<ul>
+<li>
+  <a href="#%e9%80%bb%e8%be%91%e5%9b%9e%e5%bd%92">将类别变量转换为连续变量，适合逻辑回归。</a></li>
+<li>WoE 与目标变量的单调性可以帮助构建更稳定的模型。</li>
+<li>可以用于 IV (Information Value) 计算，衡量变量的重要性。</li>
+</ul>
+<h4 id="缺点-1">
+  缺点
+  <a class="anchor" href="#%e7%bc%ba%e7%82%b9-1">#</a>
+</h4>
+<ul>
+<li>主要适用于二分类问题。</li>
+<li>分箱方法需要经验或算法支持（比如等频、决策树分箱）。</li>
+</ul>
+<h3 id="总结对比">
+  总结对比
+  <a class="anchor" href="#%e6%80%bb%e7%bb%93%e5%af%b9%e6%af%94">#</a>
+</h3>
+<table>
+  <thead>
+      <tr>
+          <th>特征编码方法</th>
+          <th>用途</th>
+          <th>特点</th>
+          <th>局限性</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>One-Hot Encoding</td>
+          <td>将分类变量转为二进制向量</td>
+          <td>简单直观，无顺序假设</td>
+          <td>类别多时维度大</td>
+      </tr>
+      <tr>
+          <td>WoE</td>
+          <td>金融/二分类特征转换</td>
+          <td>连续变量，便于逻辑回归建模，可计算 IV</td>
+          <td>仅适用于二分类，需要分箱</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="dpd">
+  DPD
+  <a class="anchor" href="#dpd">#</a>
+</h2>
+<h4 id="定义-2">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-2">#</a>
+</h4>
+<p>DPD = Days Past Due，中文通常叫“逾期天数”。</p>
+<ul>
+<li>它表示 贷款或信用账户已经逾期未还款的天数。</li>
+<li>常用来衡量客户的还款行为和信用风险。</li>
+</ul>
+<h4 id="举例说明">
+  举例说明
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b%e8%af%b4%e6%98%8e">#</a>
+</h4>
+<p>假设贷款到期日是 10 月 1 日：</p>
+<table>
+  <thead>
+      <tr>
+          <th>日期</th>
+          <th>实际还款</th>
+          <th>逾期天数 (DPD)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>10 月 1 日</td>
+          <td>已还款</td>
+          <td>0</td>
+      </tr>
+      <tr>
+          <td>10 月 5 日</td>
+          <td>未还款</td>
+          <td>4</td>
+      </tr>
+      <tr>
+          <td>10 月 12 日</td>
+          <td>未还款</td>
+          <td>11</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li>DPD = 0 → 正常还款</li>
+<li>DPD = 1~29 → 轻微逾期</li>
+<li>DPD = 30~59 → 中度逾期</li>
+<li>DPD ≥ 90 → 高度逾期 / 不良贷款</li>
+</ul>
+<blockquote>
+<p>注意：不同银行或金融机构的分界标准可能略有差异。</p></blockquote>
+<h4 id="dpd-在风控中的用途">
+  DPD 在风控中的用途
+  <a class="anchor" href="#dpd-%e5%9c%a8%e9%a3%8e%e6%8e%a7%e4%b8%ad%e7%9a%84%e7%94%a8%e9%80%94">#</a>
+</h4>
+<ol>
+<li>信用评分建模
+<ul>
+<li>逾期天数越多 → 风险越高 → 信用评分越低。</li>
+</ul>
+</li>
+<li>贷款分类
+<ul>
+<li>根据 DPD 可以将贷款分为正常、关注、次级、可疑、损失五类。</li>
+</ul>
+</li>
+<li>催收策略
+<ul>
+<li>不同 DPD 阶段，采取不同催收手段（短信提醒、电话催收、法律追讨）。</li>
+</ul>
+</li>
+<li>违约率计算
+<ul>
+<li>通常用 DPD ≥ 90 天来定义“违约”（default）。</li>
+</ul>
+</li>
+</ol>
+<h2 id="随机森林">
+  随机森林
+  <a class="anchor" href="#%e9%9a%8f%e6%9c%ba%e6%a3%ae%e6%9e%97">#</a>
+</h2>
+<h4 id="定义-3">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-3">#</a>
+</h4>
+<p>随机森林是一种 <strong>集成学习</strong>（Ensemble Learning）方法，通过组合多个决策树来进行分类或回归。</p>
+<ul>
+<li>核心思想：“多颗树一起投票，比单颗树更稳健”</li>
+<li>分类任务：用多数投票决定最终类别</li>
+<li>回归任务：取所有树预测值的平均</li>
+</ul>
+<h4 id="工作原理">
+  工作原理
+  <a class="anchor" href="#%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86">#</a>
+</h4>
+<p>随机森林主要有两个随机性来源，所以叫 <strong>随机森林</strong>：</p>
+<ol>
+<li>
+<p>Bagging（Bootstrap Aggregating）</p>
+<ul>
+<li>对训练数据做 <strong>有放回抽样</strong>，生成多份不同的训练子集</li>
+<li>每个子集训练一棵决策树</li>
+<li>这样每棵树都略有差异，降低过拟合</li>
+</ul>
+</li>
+<li>
+<p>特征随机选择</p>
+<ul>
+<li>每棵树在分裂节点时，不用考虑所有特征，而是 <strong>随机选择一部分特征</strong></li>
+<li>增加树之间的差异性，提升模型的泛化能力</li>
+</ul>
+</li>
+</ol>
+<h4 id="举例">
+  举例
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b">#</a>
+</h4>
+<p>假设我们要预测是否会违约（是/否），有 3 棵树：</p>
+<table>
+  <thead>
+      <tr>
+          <th>树编号</th>
+          <th>预测结果</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>树1</td>
+          <td>是</td>
+      </tr>
+      <tr>
+          <td>树2</td>
+          <td>否</td>
+      </tr>
+      <tr>
+          <td>树3</td>
+          <td>是</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li>最终随机森林结果 = 多数投票 = “是”</li>
+</ul>
+<h4 id="优点-2">
+  优点
+  <a class="anchor" href="#%e4%bc%98%e7%82%b9-2">#</a>
+</h4>
+<ol>
+<li>抗过拟合：通过多棵树投票，单棵树的噪声影响被削弱</li>
+<li>高准确率：在很多实际问题中表现很好</li>
+<li>可以处理高维特征：特征多也能稳定工作</li>
+<li>可以评估特征重要性：比如金融风控中评估哪些指标最关键</li>
+</ol>
+<h4 id="缺点-2">
+  缺点
+  <a class="anchor" href="#%e7%bc%ba%e7%82%b9-2">#</a>
+</h4>
+<ol>
+<li>模型复杂：不像单颗决策树容易可视化</li>
+<li>训练和预测慢：尤其特征和树很多时</li>
+<li>对噪声数据敏感（少量异常点影响不大，但数据质量差会有影响）</li>
+</ol>
+<h2 id="训练集和验证集">
+  训练集和验证集
+  <a class="anchor" href="#%e8%ae%ad%e7%bb%83%e9%9b%86%e5%92%8c%e9%aa%8c%e8%af%81%e9%9b%86">#</a>
+</h2>
+<h3 id="训练集training-set">
+  训练集（Training Set）
+  <a class="anchor" href="#%e8%ae%ad%e7%bb%83%e9%9b%86training-set">#</a>
+</h3>
+<h4 id="定义-4">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-4">#</a>
+</h4>
+<p>训练集是用于 <strong>训练模型</strong> 的数据。模型会根据训练集的数据来 <strong>学习规律</strong>，调整内部参数（如逻辑回归的系数、随机森林的树结构）。</p>
+<h4 id="作用">
+  作用
+  <a class="anchor" href="#%e4%bd%9c%e7%94%a8">#</a>
+</h4>
+<ul>
+<li>拟合模型</li>
+<li>找到特征和目标变量之间的关系</li>
+<li>最小化训练误差（loss）</li>
+</ul>
+<h4 id="注意点">
+  注意点
+  <a class="anchor" href="#%e6%b3%a8%e6%84%8f%e7%82%b9">#</a>
+</h4>
+<ul>
+<li>如果只关注训练集的表现，模型可能 <strong>过拟合</strong>，在新数据上表现差。</li>
+</ul>
+<h3 id="验证集validation-set">
+  验证集（Validation Set）
+  <a class="anchor" href="#%e9%aa%8c%e8%af%81%e9%9b%86validation-set">#</a>
+</h3>
+<h4 id="定义-5">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-5">#</a>
+</h4>
+<p>验证集是从训练数据中独立划分出来的一部分数据，不参与模型训练，用来 <strong>调参和评估模型效果</strong>。</p>
+<h4 id="作用-1">
+  作用
+  <a class="anchor" href="#%e4%bd%9c%e7%94%a8-1">#</a>
+</h4>
+<ol>
+<li>评估模型性能（accuracy、AUC、MSE等）</li>
+<li>调整超参数（如树的数量、正则化系数等）</li>
+<li>防止过拟合：如果模型在训练集表现很好，但在验证集表现差，说明模型可能过拟合</li>
+</ol>
+<h3 id="举例-1">
+  举例
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b-1">#</a>
+</h3>
+<p>假设你做二分类模型（贷款违约预测）：</p>
+<table>
+  <thead>
+      <tr>
+          <th>数据集</th>
+          <th>用途</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>训练集</td>
+          <td>学习客户特征与违约的关系</td>
+      </tr>
+      <tr>
+          <td>验证集</td>
+          <td>调整模型参数、测试泛化能力</td>
+      </tr>
+      <tr>
+          <td>测试集（可选）</td>
+          <td>最终评估模型在全新数据上的表现</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="使用方法">
+  使用方法
+  <a class="anchor" href="#%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95">#</a>
+</h3>
+<ol>
+<li>划分数据
+<ul>
+<li>通常训练集 : 验证集 = 70% : 30% 或 80% : 20%</li>
+<li>也可以使用 <strong>交叉验证</strong>（K-Fold）替代单独验证集</li>
+</ul>
+</li>
+<li>训练模型
+<ul>
+<li>用训练集拟合模型，学习参数</li>
+</ul>
+</li>
+<li>验证模型
+<ul>
+<li>用验证集计算指标，调整模型超参数</li>
+<li>重复训练-验证直到指标满意</li>
+</ul>
+</li>
+<li>最终测试（如果有测试集）
+<ul>
+<li>测试集仅用于 模型最终性能评估，不参与任何训练或调参</li>
+</ul>
+</li>
+</ol>
+<h2 id="roc-曲线及曲线下面积auc">
+  ROC 曲线及曲线下面积（AUC）
+  <a class="anchor" href="#roc-%e6%9b%b2%e7%ba%bf%e5%8f%8a%e6%9b%b2%e7%ba%bf%e4%b8%8b%e9%9d%a2%e7%a7%afauc">#</a>
+</h2>
+<h3 id="roc-曲线receiver-operating-characteristic">
+  ROC 曲线（Receiver Operating Characteristic）
+  <a class="anchor" href="#roc-%e6%9b%b2%e7%ba%bfreceiver-operating-characteristic">#</a>
+</h3>
+<p>ROC曲线是用来评估二分类模型性能的图形工具。</p>
+<ul>
+<li>横轴：假正例率（FPR）
+<span>
+  \[
+FPR = \frac{假阳性数（FP）}{实际负样本总数（FP+TN）}
+\]
+</span>
+</li>
+<li>纵轴：真正例率（TPR）/召回率
+<span>
+  \[
+TPR = \frac{真正例数（TP）}{实际正样本总数（TP+FN）}
+\]
+</span>
+</li>
+</ul>
+<blockquote>
+<p>每个点对应一个 <strong>分类阈值</strong>（threshold）。<br>
+ROC 曲线显示模型在不同阈值下的 <strong>灵敏度 vs 假警报率</strong> 的平衡。</p></blockquote>
+<h3 id="aucarea-under-curve">
+  AUC（Area Under Curve）
+  <a class="anchor" href="#aucarea-under-curve">#</a>
+</h3>
+<p>AUC = ROC 曲线下面积</p>
+<ul>
+<li>数值范围：0 ~ 1</li>
+<li>含义：模型随机挑选一个正样本和一个负样本，正样本得分高于负样本的概率</li>
+<li>解释：
+<ul>
+<li>0.5：模型没有区分能力，相当于随机猜</li>
+<li>0.7~0.8：一般水平</li>
+<li>0.8~0.9：良好</li>
+<li>&gt;0.9：优秀</li>
+</ul>
+</li>
+</ul>
+<h3 id="举例说明-1">
+  举例说明
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b%e8%af%b4%e6%98%8e-1">#</a>
+</h3>
+<p>假设你做信用卡违约预测：</p>
+<table>
+  <thead>
+      <tr>
+          <th>样本</th>
+          <th>真实标签</th>
+          <th>模型预测概率</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>A</td>
+          <td>违约</td>
+          <td>0.9</td>
+      </tr>
+      <tr>
+          <td>B</td>
+          <td>未违约</td>
+          <td>0.4</td>
+      </tr>
+      <tr>
+          <td>C</td>
+          <td>违约</td>
+          <td>0.7</td>
+      </tr>
+      <tr>
+          <td>D</td>
+          <td>未违约</td>
+          <td>0.3</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li>ROC 曲线会根据不同阈值（如 0.5、0.6、0.7）绘制 TPR/FPR</li>
+<li>曲线下面积 AUC 越大 → 模型区分能力越强</li>
+</ul>
+<h2 id="brier-score">
+  Brier Score
+  <a class="anchor" href="#brier-score">#</a>
+</h2>
+<h4 id="定义-6">
+  定义
+  <a class="anchor" href="#%e5%ae%9a%e4%b9%89-6">#</a>
+</h4>
+<p>Brier Score 用于衡量一个模型预测的<strong>概率</strong>与<strong>真实结果</strong>之间的差异。
+数学定义为：
+<span>
+  \[
+\text{Brier Score} = \frac{1}{N} \sum_{i=1}^{N} ({p}_i - {y}_i)^2
+\]
+</span>
+
+其中：</p>
+<ul>
+<li><span>
+  \(N\)
+</span>
+：样本总数</li>
+<li><span>
+  \(p_i\)
+</span>
+：模型预测样本为正类（例如 1）的概率</li>
+<li><span>
+  \(y_i\)
+</span>
+：样本的真实标签（0 或 1）</li>
+</ul>
+<h4 id="直观理解">
+  直观理解
+  <a class="anchor" href="#%e7%9b%b4%e8%a7%82%e7%90%86%e8%a7%a3">#</a>
+</h4>
+<ol>
+<li>Brier Score 就是预测概率与真实标签之间的 <strong>均方误差</strong> (MSE)</li>
+<li>它衡量的是模型的 <strong>校准度</strong>（calibration） 和 <strong>准确性</strong>（accuracy）</li>
+</ol>
+<h4 id="取值范围与含义">
+  取值范围与含义
+  <a class="anchor" href="#%e5%8f%96%e5%80%bc%e8%8c%83%e5%9b%b4%e4%b8%8e%e5%90%ab%e4%b9%89">#</a>
+</h4>
+<ul>
+<li>取值范围：
+<span>
+  \[0 \leq \text{Brier Score} \leq 1\]
+</span>
+</li>
+<li>越小越好：
+<ul>
+<li>0 表示完美预测（预测 1 的都是真的 1，预测 0 的都是真的 0）</li>
+<li>0.25 左右通常对应“随便猜测”的水平（例如预测概率都为 0.5）</li>
+<li>1 表示非常差的预测（完全反向）</li>
+</ul>
+</li>
+</ul>
+<h4 id="举例-2">
+  举例
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b-2">#</a>
+</h4>
+<p>假设模型预测如下：</p>
+<table>
+  <thead>
+      <tr>
+          <th>样本</th>
+          <th>实际标签 (y_i)</th>
+          <th>预测概率 (p_i)</th>
+          <th>误差平方 ((p_i - y_i)^2)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td>1</td>
+          <td>0.9</td>
+          <td>(0.9 - 1)² = 0.01</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td>0</td>
+          <td>0.2</td>
+          <td>(0.2 - 0)² = 0.04</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td>1</td>
+          <td>0.7</td>
+          <td>(0.7 - 1)² = 0.09</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td>0</td>
+          <td>0.3</td>
+          <td>(0.3 - 0)² = 0.09</td>
+      </tr>
+  </tbody>
+</table>
+<p>平均：
+<span>
+  \[\text{Brier Score} = \frac{0.01+0.04+0.09+0.09}{4} = 0.0575\]
+</span>
+
+→ Brier Score = 0.0575（说明模型相当不错）</p>
+<h4 id="与其他指标的区别">
+  与其他指标的区别
+  <a class="anchor" href="#%e4%b8%8e%e5%85%b6%e4%bb%96%e6%8c%87%e6%a0%87%e7%9a%84%e5%8c%ba%e5%88%ab">#</a>
+</h4>
+<table>
+  <thead>
+      <tr>
+          <th>指标</th>
+          <th>关注点</th>
+          <th>越大/越小越好</th>
+          <th>是否考虑概率置信度</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Accuracy</strong></td>
+          <td>分类对错</td>
+          <td>越大越好</td>
+          <td>❌ 不考虑概率</td>
+      </tr>
+      <tr>
+          <td><strong>AUC</strong></td>
+          <td>排序能力</td>
+          <td>越大越好</td>
+          <td>✅ 部分考虑</td>
+      </tr>
+      <tr>
+          <td><strong>Log Loss</strong></td>
+          <td>概率预测</td>
+          <td>越小越好</td>
+          <td>✅ 强调高置信错误惩罚更大</td>
+      </tr>
+      <tr>
+          <td><strong>Brier Score</strong></td>
+          <td>概率校准 + 准确度</td>
+          <td>越小越好</td>
+          <td>✅ 更平滑的误差衡量</td>
+      </tr>
+  </tbody>
+</table>
+<h4 id="拆解">
+  拆解
+  <a class="anchor" href="#%e6%8b%86%e8%a7%a3">#</a>
+</h4>
+<p>Brier Score 还能分解为三部分（Brier decomposition）：</p>
+<span>
+  \[BS = \text{Uncertainty} − \text{Resolution} + \text{Reliability}\]
+</span>
+
+<ul>
+<li>Uncertainty：数据集本身的不确定性（例如正负样本比例）</li>
+<li>Resolution：模型区分不同情况的能力</li>
+<li>Reliability：模型预测概率与真实频率之间的匹配程度（校准性）</li>
+</ul>
+<p>→ 所以 Brier Score 不仅看准确性，还能体现模型的概率是否可靠。</p>
+<h2 id="ks-统计量kolmogorov-smirnov-statistic和-psi-population-stability-index">
+  KS 统计量（Kolmogorov-Smirnov Statistic）和 PSI (Population Stability Index)
+  <a class="anchor" href="#ks-%e7%bb%9f%e8%ae%a1%e9%87%8fkolmogorov-smirnov-statistic%e5%92%8c-psi-population-stability-index">#</a>
+</h2>
+<h3 id="kskolmogorov-smirnov-statistic">
+  KS（Kolmogorov-Smirnov Statistic）
+  <a class="anchor" href="#kskolmogorov-smirnov-statistic">#</a>
+</h3>
+<ul>
+<li>全称：Kolmogorov-Smirnov 统计量</li>
+<li>用途：衡量 <strong>两个分布的差异</strong>，在信用评分或分类模型中，用于判断模型对正负样本的区分能力。</li>
+<li>计算方式：
+<ol>
+<li>将样本按照模型预测分数排序</li>
+<li>计算累计好坏样本分布（CDF，Cumulative Distribution Function）</li>
+<li>KS = 最大的正样本累计百分比与负样本累计百分比的差</li>
+</ol>
+</li>
+<li>解释：
+<ul>
+<li>KS 值越大 → 模型区分能力越强</li>
+<li>常见区间：
+<ul>
+<li>KS &lt; 0.2 → 模型弱</li>
+<li>KS ≈ 0.4–0.5 → 模型优秀</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>图形化理解：可以画两条曲线（好客户 vs 坏客户累计分布），最大垂直距离就是 KS 值。</li>
+</ul>
+<h3 id="psipopulation-stability-index">
+  PSI（Population Stability Index）
+  <a class="anchor" href="#psipopulation-stability-index">#</a>
+</h3>
+<ul>
+<li>全称：Population Stability Index</li>
+<li>用途：衡量 <strong>样本分布随时间的变化</strong>，主要用来检测模型是否发生了“数据漂移”，即评分分布是否稳定。</li>
+<li>计算方式：
+<ol>
+<li>将评分分成若干区间（bins）</li>
+<li>统计每个区间中基准期（expected）和当前期（actual）的样本比例</li>
+<li>PSI 公式：
+<span>
+  \[
+PSI = \sum(\text{actual\_pct} - \text{expected\_pct}) \times \ln(\frac{\text{actual\_pct}}{\text{expected\_pct}})
+\]
+</span>
+</li>
+</ol>
+</li>
+<li>解释：
+<ul>
+<li>PSI &lt; 0.1 → 样本稳定</li>
+<li>0.1 ≤ PSI &lt; 0.25 → 轻微变化</li>
+<li>PSI ≥ 0.25 → 样本分布发生较大变化，模型可能需要重新校准</li>
+</ul>
+</li>
+</ul>
+<h2 id="风险评分卡scorecard">
+  风险评分卡（Scorecard）
+  <a class="anchor" href="#%e9%a3%8e%e9%99%a9%e8%af%84%e5%88%86%e5%8d%a1scorecard">#</a>
+</h2>
+<p>对于逻辑回归模型，通常将预测的违约概率转化为一个易于理解的风险评分。
+<span>
+  \[
+\text{Score} = A - B \cdot \ln(\frac{P(\text{Default})}{1 - P(\text{Default})})
+\]
+</span>
+</p>
+<ul>
+<li><span>
+  \(P(\text{Default})\)
+</span>
+ 是模型预测的违约概率。</li>
+<li><span>
+  \(A\)
+</span>
+ 和 <span>
+  \(B\)
+</span>
+ 是缩放参数，通常由业务部门设定（例如：设定 <span>
+  \(B\)
+</span>
+ 使得每 <span>
+  \(X\)
+</span>
+ 分对应 <span>
+  \(\text{Odds}\)
+</span>
+ (好坏比) 翻倍）。</li>
+<li>切点设定 (Cut-off)： 确定一个分数阈值，低于该阈值拒绝申请。</li>
+</ul>
+<h2 id="python-代码实现骨架">
+  Python 代码实现骨架
+  <a class="anchor" href="#python-%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0%e9%aa%a8%e6%9e%b6">#</a>
+</h2>
+<p>以下代码展示了使用 Python 的 <code>pandas</code>, <code>numpy</code>, <code>scikit-learn</code> 库进行信用风险模型构建的核心步骤。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.model_selection <span style="color:#f92672">import</span> train_test_split
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.linear_model <span style="color:#f92672">import</span> LogisticRegression
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.metrics <span style="color:#f92672">import</span> roc_auc_score, confusion_matrix
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> sklearn.preprocessing <span style="color:#f92672">import</span> StandardScaler
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> imblearn.over_sampling <span style="color:#f92672">import</span> SMOTE <span style="color:#75715e"># 用于处理不平衡数据</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 假设数据已经加载，且&#39;target&#39;是目标变量 (0:好客户, 1:坏客户)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 1. 模拟数据加载（实际中是读取CSV或数据库）</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>seed(<span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>data_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">10000</span>
+</span></span><span style="display:flex;"><span>df <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>DataFrame({
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;income&#39;</span>: np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>lognormal(mean<span style="color:#f92672">=</span><span style="color:#ae81ff">9</span>, sigma<span style="color:#f92672">=</span><span style="color:#ae81ff">0.5</span>, size<span style="color:#f92672">=</span>data_size),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;loan_amount&#39;</span>: np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>normal(loc<span style="color:#f92672">=</span><span style="color:#ae81ff">15000</span>, scale<span style="color:#f92672">=</span><span style="color:#ae81ff">8000</span>, size<span style="color:#f92672">=</span>data_size),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;age&#39;</span>: np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">20</span>, <span style="color:#ae81ff">60</span>, size<span style="color:#f92672">=</span>data_size),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;utilization&#39;</span>: np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>beta(a<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, b<span style="color:#f92672">=</span><span style="color:#ae81ff">15</span>, size<span style="color:#f92672">=</span>data_size),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;credit_history_len&#39;</span>: np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>gamma(shape<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, scale<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, size<span style="color:#f92672">=</span>data_size)
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 模拟目标变量 (违约率假设为 5%)</span>
+</span></span><span style="display:flex;"><span>df[<span style="color:#e6db74">&#39;target&#39;</span>] <span style="color:#f92672">=</span> (np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>rand(data_size) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0.05</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">0.1</span> <span style="color:#f92672">*</span> df[<span style="color:#e6db74">&#39;utilization&#39;</span>])<span style="color:#f92672">.</span>astype(int)
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 修正，确保有足够的坏样本</span>
+</span></span><span style="display:flex;"><span>df<span style="color:#f92672">.</span>loc[df[<span style="color:#e6db74">&#39;utilization&#39;</span>] <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.8</span>, <span style="color:#e6db74">&#39;target&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;原始坏样本比例: </span><span style="color:#e6db74">{</span>df[<span style="color:#e6db74">&#39;target&#39;</span>]<span style="color:#f92672">.</span>mean()<span style="color:#e6db74">:</span><span style="color:#e6db74">.4f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 2. 数据准备与特征工程 (简化版)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>X <span style="color:#f92672">=</span> df<span style="color:#f92672">.</span>drop(<span style="color:#e6db74">&#39;target&#39;</span>, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>y <span style="color:#f92672">=</span> df[<span style="color:#e6db74">&#39;target&#39;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 简单的特征处理：创建债务收入比</span>
+</span></span><span style="display:flex;"><span>X[<span style="color:#e6db74">&#39;dti&#39;</span>] <span style="color:#f92672">=</span> X[<span style="color:#e6db74">&#39;loan_amount&#39;</span>] <span style="color:#f92672">/</span> X[<span style="color:#e6db74">&#39;income&#39;</span>]
+</span></span><span style="display:flex;"><span>X <span style="color:#f92672">=</span> X<span style="color:#f92672">.</span>drop([<span style="color:#e6db74">&#39;loan_amount&#39;</span>, <span style="color:#e6db74">&#39;income&#39;</span>], axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>) <span style="color:#75715e"># 移除原始变量</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 划分训练集和测试集</span>
+</span></span><span style="display:flex;"><span>X_train, X_test, y_train, y_test <span style="color:#f92672">=</span> train_test_split(X, y, test_size<span style="color:#f92672">=</span><span style="color:#ae81ff">0.3</span>, random_state<span style="color:#f92672">=</span><span style="color:#ae81ff">42</span>, stratify<span style="color:#f92672">=</span>y)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 标准化特征（有助于逻辑回归收敛）</span>
+</span></span><span style="display:flex;"><span>scaler <span style="color:#f92672">=</span> StandardScaler()
+</span></span><span style="display:flex;"><span>X_train_scaled <span style="color:#f92672">=</span> scaler<span style="color:#f92672">.</span>fit_transform(X_train)
+</span></span><span style="display:flex;"><span>X_test_scaled <span style="color:#f92672">=</span> scaler<span style="color:#f92672">.</span>transform(X_test)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 3. 样本不均衡处理 (使用 SMOTE 过采样)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>smote <span style="color:#f92672">=</span> SMOTE(random_state<span style="color:#f92672">=</span><span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>X_train_smote, y_train_smote <span style="color:#f92672">=</span> smote<span style="color:#f92672">.</span>fit_resample(X_train_scaled, y_train)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;SMOTE 后坏样本比例: </span><span style="color:#e6db74">{</span>y_train_smote<span style="color:#f92672">.</span>mean()<span style="color:#e6db74">:</span><span style="color:#e6db74">.4f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 4. 模型选择与训练 (逻辑回归)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>log_reg <span style="color:#f92672">=</span> LogisticRegression(solver<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;liblinear&#39;</span>, C<span style="color:#f92672">=</span><span style="color:#ae81ff">1.0</span>, random_state<span style="color:#f92672">=</span><span style="color:#ae81ff">42</span>)
+</span></span><span style="display:flex;"><span>log_reg<span style="color:#f92672">.</span>fit(X_train_smote, y_train_smote)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 5. 模型评估</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 预测测试集概率</span>
+</span></span><span style="display:flex;"><span>y_pred_proba <span style="color:#f92672">=</span> log_reg<span style="color:#f92672">.</span>predict_proba(X_test_scaled)[:, <span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 计算 AUC (Area Under the Curve)</span>
+</span></span><span style="display:flex;"><span>auc <span style="color:#f92672">=</span> roc_auc_score(y_test, y_pred_proba)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">模型评估结果:&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;测试集 AUC: </span><span style="color:#e6db74">{</span>auc<span style="color:#e6db74">:</span><span style="color:#e6db74">.4f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 转化为 Gini 系数</span>
+</span></span><span style="display:flex;"><span>gini <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> auc <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;测试集 Gini: </span><span style="color:#e6db74">{</span>gini<span style="color:#e6db74">:</span><span style="color:#e6db74">.4f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 6. 转化为风险评分卡 (Scorecard Transformation)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># =========================================================================</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 逻辑回归系数</span>
+</span></span><span style="display:flex;"><span>coefficients <span style="color:#f92672">=</span> log_reg<span style="color:#f92672">.</span>coef_[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>features <span style="color:#f92672">=</span> X_train<span style="color:#f92672">.</span>columns
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">模型系数 (用于评分卡计算):&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> feature, coef <span style="color:#f92672">in</span> zip(features, coefficients):
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;  </span><span style="color:#e6db74">{</span>feature<span style="color:#e6db74">}</span><span style="color:#e6db74">: </span><span style="color:#e6db74">{</span>coef<span style="color:#e6db74">:</span><span style="color:#e6db74">.4f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 假设设定：</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Point-to-Double-Odds (PDO): 50 分</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Base Odds (好坏比): 20:1</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Base Score: 600</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 计算 B 值 (Scaling Factor)</span>
+</span></span><span style="display:flex;"><span>P <span style="color:#f92672">=</span> <span style="color:#ae81ff">50</span> <span style="color:#75715e"># PDO</span>
+</span></span><span style="display:flex;"><span>theta0 <span style="color:#f92672">=</span> np<span style="color:#f92672">.</span>log(<span style="color:#ae81ff">2</span>) <span style="color:#75715e"># log(2)</span>
+</span></span><span style="display:flex;"><span>B <span style="color:#f92672">=</span> P <span style="color:#f92672">/</span> theta0
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 计算 A 值 (Offset)</span>
+</span></span><span style="display:flex;"><span>Base_Odds <span style="color:#f92672">=</span> <span style="color:#ae81ff">20</span>
+</span></span><span style="display:flex;"><span>A <span style="color:#f92672">=</span> <span style="color:#ae81ff">600</span> <span style="color:#f92672">+</span> B <span style="color:#f92672">*</span> np<span style="color:#f92672">.</span>log(Base_Odds)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">评分卡参数: A=</span><span style="color:#e6db74">{</span>A<span style="color:#e6db74">:</span><span style="color:#e6db74">.2f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">, B=</span><span style="color:#e6db74">{</span>B<span style="color:#e6db74">:</span><span style="color:#e6db74">.2f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">calculate_score</span>(proba):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;根据概率计算评分卡分数&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    odds <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span> <span style="color:#f92672">-</span> proba) <span style="color:#f92672">/</span> proba  <span style="color:#75715e"># 好坏比 (Odds)</span>
+</span></span><span style="display:flex;"><span>    score <span style="color:#f92672">=</span> A <span style="color:#f92672">-</span> B <span style="color:#f92672">*</span> np<span style="color:#f92672">.</span>log(<span style="color:#ae81ff">1</span> <span style="color:#f92672">/</span> odds) <span style="color:#75715e"># ln(Odds) = ln((1-P)/P)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> score
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 计算测试集平均分数</span>
+</span></span><span style="display:flex;"><span>test_scores <span style="color:#f92672">=</span> calculate_score(y_pred_proba)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;测试集平均评分: </span><span style="color:#e6db74">{</span>test_scores<span style="color:#f92672">.</span>mean()<span style="color:#e6db74">:</span><span style="color:#e6db74">.2f</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 找出拒绝/接受的切点 (假设分数低于 550 为拒绝)</span>
+</span></span><span style="display:flex;"><span>cut_off_score <span style="color:#f92672">=</span> <span style="color:#ae81ff">550</span>
+</span></span><span style="display:flex;"><span>bad_count_at_cutoff <span style="color:#f92672">=</span> y_test[test_scores <span style="color:#f92672">&lt;</span> cut_off_score]<span style="color:#f92672">.</span>sum()
+</span></span><span style="display:flex;"><span>total_count_at_cutoff <span style="color:#f92672">=</span> (test_scores <span style="color:#f92672">&lt;</span> cut_off_score)<span style="color:#f92672">.</span>sum()
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;拒绝分数线: </span><span style="color:#e6db74">{</span>cut_off_score<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;被拒绝客户数: </span><span style="color:#e6db74">{</span>total_count_at_cutoff<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> total_count_at_cutoff <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;被拒绝客户中的坏客户比例 (Bad Rate): </span><span style="color:#e6db74">{</span>bad_count_at_cutoff <span style="color:#f92672">/</span> total_count_at_cutoff<span style="color:#e6db74">:</span><span style="color:#e6db74">.2%</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><h2 id="附录">
+  附录
+  <a class="anchor" href="#%e9%99%84%e5%bd%95">#</a>
+</h2>
+<h3 id="逻辑回归">
+  逻辑回归
+  <a class="anchor" href="#%e9%80%bb%e8%be%91%e5%9b%9e%e5%bd%92">#</a>
+</h3>
+<h4 id="逻辑回归模型公式二分类">
+  逻辑回归模型公式（二分类）：
+  <a class="anchor" href="#%e9%80%bb%e8%be%91%e5%9b%9e%e5%bd%92%e6%a8%a1%e5%9e%8b%e5%85%ac%e5%bc%8f%e4%ba%8c%e5%88%86%e7%b1%bb">#</a>
+</h4>
+<span>
+  \[
+\text{logit}(p) = \ln\frac{p}{1-p} = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \beta_nx_n
+\]
+</span>
+
+<ul>
+<li><span>
+  \(p\)
+</span>
+是事件发生的概率（比如贷款违约）。</li>
+<li><span>
+  \(x_i\)
+</span>
+是输入特征。</li>
+<li><span>
+  \(\beta_i\)
+</span>
+是回归系数。</li>
+</ul>
+<h4 id="类别变量的挑战">
+  类别变量的挑战
+  <a class="anchor" href="#%e7%b1%bb%e5%88%ab%e5%8f%98%e9%87%8f%e7%9a%84%e6%8c%91%e6%88%98">#</a>
+</h4>
+<table>
+  <thead>
+      <tr>
+          <th>颜色</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>红色</td>
+      </tr>
+      <tr>
+          <td>绿色</td>
+      </tr>
+      <tr>
+          <td>蓝色</td>
+      </tr>
+  </tbody>
+</table>
+<p>如果直接用 1、2、3 编码：</p>
+<ul>
+<li>逻辑回归会认为“红色 &lt; 绿色 &lt; 蓝色”有数值大小意义，这是错误的假设。</li>
+<li>会导致模型误差或偏差。</li>
+</ul>
+<p>如果用 One-Hot Encoding：</p>
+<ul>
+<li>每个类别是一个二进制变量，逻辑回归可以处理。</li>
+<li>但是类别太多时会产生大量虚拟变量，影响模型复杂度。</li>
+</ul>
+<h4 id="woe-转换的作用">
+  WoE 转换的作用
+  <a class="anchor" href="#woe-%e8%bd%ac%e6%8d%a2%e7%9a%84%e4%bd%9c%e7%94%a8">#</a>
+</h4>
+<ol>
+<li>将每个类别替换为一个 连续数值：
+<span>
+  \[
+WoE_i = \ln\frac{P(好)}{P(坏)}
+\]
+</span>
+</li>
+<li>这个连续值本质上是类别对事件发生概率的 “信息量”。</li>
+<li>好处：</li>
+</ol>
+<ul>
+<li>逻辑回归用连续变量更自然，满足“线性关系”假设：WoE 值与 logit(p) 趋势上单调。</li>
+<li>特征变得有序、可度量，不再是离散且无顺序的类别。</li>
+</ul>
+<h4 id="举例说明-2">
+  举例说明
+  <a class="anchor" href="#%e4%b8%be%e4%be%8b%e8%af%b4%e6%98%8e-2">#</a>
+</h4>
+<p>假设贷款违约数据中“年龄分箱” WoE：</p>
+<table>
+  <thead>
+      <tr>
+          <th>年龄区间</th>
+          <th>WoE</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>20-30</td>
+          <td>-0.8</td>
+      </tr>
+      <tr>
+          <td>31-40</td>
+          <td>-0.2</td>
+      </tr>
+      <tr>
+          <td>41-50</td>
+          <td>0.3</td>
+      </tr>
+      <tr>
+          <td>51-60</td>
+          <td>0.7</td>
+      </tr>
+  </tbody>
+</table>
+<p>逻辑回归用这个连续 WoE 值：
+<span>
+  \[
+\text{logit}(p) = \beta_0 + \beta_1 \times WoE
+\]
+</span>
+</p>
+<ul>
+<li>WoE 越大 → 越倾向“坏客户”，模型可以直接拟合。</li>
+<li>连续值 → 线性关系更容易建模，不需要多维虚拟变量。</li>
+</ul>
+<h3 id="利用验证集调整参数">
+  利用验证集调整参数
+  <a class="anchor" href="#%e5%88%a9%e7%94%a8%e9%aa%8c%e8%af%81%e9%9b%86%e8%b0%83%e6%95%b4%e5%8f%82%e6%95%b0">#</a>
+</h3>
+</div>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+</div>
+
+
+
+  <script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script>
+
+
+
+<div class="busuanzi-footer">
+  <p>© 2025 Powered By <a href="https://themes.gohugo.io/">Hugo</a> & 
+    <a href="https://github.com/alex-shpak/hugo-book">Hugo-book</a> Contact: <a href="mailto:j.duan@foxmail.com">j.duan@foxmail.com</a></p> 
+  <span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+  </span>
+  <span id="busuanzi_container_site_uv">
+    本站访客数<span id="busuanzi_value_site_uv"></span>人次
+  </span>
+</div>
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<style>
+    .no-marker {
+        list-style: none;       
+        margin-block-start: 1em;  
+        margin-block-end: 1em;    
+         
+    }
+
+    .no-marker:hover {
+        opacity: 0.5;  
+    }
+</style>
+<li class="no-marker"><a href="#%e9%87%91%e8%9e%8d%e9%a3%8e%e6%8e%a7%e6%a8%a1%e5%9e%8b">金融风控模型</a></li>
+
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-one-hot-encoding-和-woe-weight-of-evidence">1. One-Hot Encoding 和 WoE (Weight of Evidence)</a>
+          <ul>
+            <li><a href="#one-hot-encoding独热编码">One-Hot Encoding（独热编码）</a></li>
+            <li><a href="#woe-weight-of-evidence-信息权重">WoE (Weight of Evidence, 信息权重)</a></li>
+            <li><a href="#总结对比">总结对比</a></li>
+          </ul>
+        </li>
+        <li><a href="#dpd">DPD</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#随机森林">随机森林</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#训练集和验证集">训练集和验证集</a>
+          <ul>
+            <li><a href="#训练集training-set">训练集（Training Set）</a></li>
+            <li><a href="#验证集validation-set">验证集（Validation Set）</a></li>
+            <li><a href="#举例-1">举例</a></li>
+            <li><a href="#使用方法">使用方法</a></li>
+          </ul>
+        </li>
+        <li><a href="#roc-曲线及曲线下面积auc">ROC 曲线及曲线下面积（AUC）</a>
+          <ul>
+            <li><a href="#roc-曲线receiver-operating-characteristic">ROC 曲线（Receiver Operating Characteristic）</a></li>
+            <li><a href="#aucarea-under-curve">AUC（Area Under Curve）</a></li>
+            <li><a href="#举例说明-1">举例说明</a></li>
+          </ul>
+        </li>
+        <li><a href="#brier-score">Brier Score</a>
+          <ul>
+            <li></li>
+          </ul>
+        </li>
+        <li><a href="#ks-统计量kolmogorov-smirnov-statistic和-psi-population-stability-index">KS 统计量（Kolmogorov-Smirnov Statistic）和 PSI (Population Stability Index)</a>
+          <ul>
+            <li><a href="#kskolmogorov-smirnov-statistic">KS（Kolmogorov-Smirnov Statistic）</a></li>
+            <li><a href="#psipopulation-stability-index">PSI（Population Stability Index）</a></li>
+          </ul>
+        </li>
+        <li><a href="#风险评分卡scorecard">风险评分卡（Scorecard）</a></li>
+        <li><a href="#python-代码实现骨架">Python 代码实现骨架</a></li>
+        <li><a href="#附录">附录</a>
+          <ul>
+            <li><a href="#逻辑回归">逻辑回归</a></li>
+            <li><a href="#利用验证集调整参数">利用验证集调整参数</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
