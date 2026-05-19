@@ -1,0 +1,69 @@
+{{ if or .Params.math .Site.Params.math }}
+  {{ partial "docs/math" . }}
+{{ end }}
+
+<style>
+  .book-post-meta {
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+    opacity: 0.7;
+  }
+  .book-post-meta a {
+    color: inherit;
+  }
+  .book-post-meta span, .book-post-meta a {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    line-height: 1;
+  }
+  .book-post-meta .book-icon {
+    width: 1rem;
+    height: 1rem;
+    vertical-align: middle;
+    /* 默认浅色模式下保持原色或稍微灰色 */
+    filter: grayscale(1);
+  }
+
+  /* 深色模式适配：将黑色图标反转为白色 */
+  @media (prefers-color-scheme: dark) {
+    .book-post-meta .book-icon {
+      filter: brightness(0) invert(1);
+    }
+  }
+</style>
+
+<div class="book-post-meta">
+  {{/* 优先显示 Git 最后修改时间，如果没有则显示文件 Date */}}
+  {{ if and .GitInfo .Site.Params.BookRepo }}
+    {{- $date := .GitInfo.AuthorDate.Local.Format (default "January 2, 2006" .Site.Params.BookDateFormat) -}}
+    <a href="{{ partial "docs/links/commit" . }}" title='{{ i18n "Last modified by" }} {{ .GitInfo.AuthorName }} | {{ $date }}' target="_blank" rel="noopener">
+      <img src="{{ "svg/calendar.svg" | relURL }}" class="book-icon" alt="Calendar" />
+      <span>{{ $date }}</span>
+    </a>
+  {{ else if .Date }}
+    <span>
+      <img src="{{ "svg/calendar.svg" | relURL }}" class="book-icon" alt="Calendar" />
+      {{ .Date.Format (default "January 2, 2006" .Site.Params.BookDateFormat) }}
+    </span>
+  {{ end }}
+
+  {{ if .WordCount }}
+    <span>
+      <img src="{{ "svg/edit.svg" | relURL }}" class="book-icon" alt="Edit" />
+      {{ .WordCount }} 字
+    </span>
+  {{ end }}
+
+  {{ if .ReadingTime }}
+    <span>
+      {{/* 借用 toc 图标作为阅读时间的图标，比 calendar 更贴切 */}}
+      <img src="{{ "svg/toc.svg" | relURL }}" class="book-icon" alt="Reading Time" />
+      阅读约 {{ .ReadingTime }} 分钟
+    </span>
+  {{ end }}
+</div>

@@ -1,4 +1,9 @@
+example/
 exampleSite/public/
+guide/
+public/
+resources/
+shortcodes/
+
 .DS_Store
 .hugo_build.lock
-resources/
