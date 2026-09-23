@@ -2,7 +2,7 @@
 title: Redis 中 Jackson 序列化 Instant 失败
 ---
 
-**问题现象**
+## 问题现象
 
 Redis 保存对象时发生 JSON 序列化异常：
 
@@ -15,7 +15,7 @@ Java 8 date/time type java.time.Instant not supported by default
 
 ---
 
-**根本原因**
+## 根本原因
 
 项目使用：
 
