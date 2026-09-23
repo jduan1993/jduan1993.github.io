@@ -9,6 +9,14 @@ hasCJKLanguage: true
 disablePathToLower: true
 enableGitInfo: true
 
+frontmatter:
+  date:
+    - ":git"
+    - "date"
+    - "publishDate"
+    - "lastmod"
+    - ":fileModTime"
+
 # Needed for mermaid/katex shortcodes
 markup:
   goldmark:
